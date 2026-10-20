@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blackpool Gay — The LGBTQ+ Guide to Blackpool</title>
+  <meta name="description" content="Your guide to Blackpool's vibrant LGBTQ+ scene — the Rainbow Quarter, Pride, nightlife, the Tower, the Illuminations and more." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#127752;</text></svg>" />
+  <style>
+    :root{--red:#e40303;--orange:#ff8c00;--yellow:#ffed00;--green:#008026;--blue:#004dff;--violet:#750787;--ink:#14111f;--paper:#fbf7ff;--muted:#6b6480;--card:#fff;--shadow:0 10px 40px -12px rgba(20,17,31,.25)}
+    *{margin:0;padding:0;box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{font-family:"Segoe UI",system-ui,-apple-system,sans-serif;color:var(--ink);background:var(--paper);line-height:1.6;overflow-x:hidden}
+    a{color:inherit;text-decoration:none}
+    .rainbow-bar{height:6px;background:linear-gradient(90deg,var(--red),var(--orange),var(--yellow),var(--green),var(--blue),var(--violet));width:100%}
+    nav{position:sticky;top:0;z-index:100;background:rgba(251,247,255,.85);backdrop-filter:blur(12px);border-bottom:1px solid rgba(20,17,31,.08)}
+    .nav-inner{max-width:1100px;margin:0 auto;padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between}
+    .logo{font-weight:800;font-size:1.35rem;letter-spacing:-.02em;display:flex;align-items:center;gap:.4rem}
+    .logo .dot{width:12px;height:12px;border-radius:50%;background:linear-gradient(135deg,var(--red),var(--violet))}
+    .nav-links{display:flex;gap:2rem}
+    .nav-links a{font-weight:600;font-size:.95rem;color:var(--muted);transition:color .2s}
+    .nav-links a:hover{color:var(--ink)}
+    @media(max-width:640px){.nav-links{display:none}}
+    .hero{position:relative;padding:6rem 1.5rem 5rem;text-align:center;overflow:hidden}
+    .hero::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(117,7,135,.12),transparent 60%),radial-gradient(ellipse at 80% 30%,rgba(0,77,255,.1),transparent 50%),radial-gradient(ellipse at 20% 40%,rgba(228,3,3,.08),transparent 50%);z-index:-1}
+    .hero-badge{display:inline-block;padding:.4rem 1rem;border-radius:999px;background:rgba(117,7,135,.1);color:var(--violet);font-weight:600;font-size:.85rem;margin-bottom:1.5rem}
+    .hero h1{font-size:clamp(2.5rem,7vw,4.5rem);font-weight:900;line-height:1.05;letter-spacing:-.03em;max-width:900px;margin:0 auto 1.5rem}
+    .hero h1 .grad{background:linear-gradient(90deg,var(--red),var(--orange),var(--yellow),var(--green),var(--blue),var(--violet));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+    .hero p{font-size:1.2rem;color:var(--muted);max-width:620px;margin:0 auto 2.5rem}
+    .hero-cta{display:inline-flex;gap:1rem;flex-wrap:wrap;justify-content:center}
+    .btn{display:inline-block;padding:.9rem 2rem;border-radius:999px;font-weight:700;font-size:1rem;transition:transform .15s,box-shadow .15s}
+    .btn-primary{background:var(--ink);color:#fff}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+    .btn-ghost{background:transparent;border:2px solid rgba(20,17,31,.15);color:var(--ink)}
+    .btn-ghost:hover{border-color:var(--ink)}
+    section{padding:5rem 1.5rem}
+    .section-inner{max-width:1100px;margin:0 auto}
+    .section-label{font-weight:700;font-size:.8rem;letter-spacing:.15em;text-transform:uppercase;color:var(--violet);margin-bottom:.75rem}
+    .section-title{font-size:clamp(2rem,4vw,3rem);font-weight:800;letter-spacing:-.02em;margin-bottom:1rem}
+    .section-sub{font-size:1.15rem;color:var(--muted);max-width:640px;margin-bottom:3rem}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem}
+    .card{background:var(--card);border-radius:20px;padding:2rem;box-shadow:var(--shadow);border:1px solid rgba(20,17,31,.06);transition:transform .2s}
+    .card:hover{transform:translateY(-4px)}
+    .card .icon{font-size:2.5rem;margin-bottom:1rem;display:block}
+    .card h3{font-size:1.3rem;font-weight:700;margin-bottom:.5rem}
+    .card p{color:var(--muted)}
+    .card .tag{display:inline-block;margin-top:1rem;padding:.25rem .75rem;border-radius:999px;font-size:.8rem;font-weight:600;background:rgba(0,128,38,.1);color:var(--green)}
+    .split{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center}
+    @media(max-width:800px){.split{grid-template-columns:1fr}}
+    .split-visual{border-radius:24px;height:360px;background:linear-gradient(135deg,var(--red),var(--orange),var(--yellow),var(--green),var(--blue),var(--violet));display:flex;align-items:center;justify-content:center;font-size:5rem;box-shadow:var(--shadow)}
+    .split-list{list-style:none;margin-top:1.5rem}
+    .split-list li{padding:.75rem 0;border-bottom:1px solid rgba(20,17,31,.08);display:flex;align-items:center;gap:.75rem;font-weight:500}
+    .split-list li::before{content:"\1F3F3\FE0F\200D\1F308"}
+    .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:2rem;text-align:center;margin-top:2rem}
+    .stat-num{font-size:2.5rem;font-weight:900;background:linear-gradient(90deg,var(--red),var(--violet));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+    .stat-label{color:var(--muted);font-weight:600}
+    .cta-band{background:var(--ink);color:#fff;border-radius:28px;padding:4rem 2rem;text-align:center;margin:2rem 0}
+    .cta-band h2{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;margin-bottom:1rem}
+    .cta-band p{color:rgba(255,255,255,.7);margin-bottom:2rem;font-size:1.1rem}
+    .cta-band .btn-primary{background:#fff;color:var(--ink)}
+    footer{padding:3rem 1.5rem 2rem;text-align:center;border-top:1px solid rgba(20,17,31,.08)}
+    footer .logo{justify-content:center;margin-bottom:1rem}
+    footer p{color:var(--muted);font-size:.9rem}
+    footer .heart{color:var(--red)}
+    .reveal{opacity:0;transform:translateY(24px);transition:opacity .6s,transform .6s}
+    .reveal.visible{opacity:1;transform:none}
+  </style>
+</head>
+<body>
+  <div class="rainbow-bar"></div>
+  <nav><div class="nav-inner"><a href="#" class="logo"><span class="dot"></span> Blackpool<span style="color:var(--violet)">.gay</span></a><div class="nav-links"><a href="#about">About</a><a href="#whats-on">What's On</a><a href="#visit">Visit</a><a href="#pride">Pride</a></div></div></nav>
+  <header class="hero"><span class="hero-badge">&#127752; Lancashire's LGBTQ+ Seaside</span><h1>Welcome to <span class="grad">Blackpool.gay</span><br>Your guide to the Rainbow Quarter</h1><p>From the glittering Tower to the world-famous Illuminations, discover Blackpool's thriving LGBTQ+ community &#8212; bars, clubs, Pride and seaside fun on the Fylde coast.</p><div class="hero-cta"><a href="#whats-on" class="btn btn-primary">Explore the Scene</a><a href="#visit" class="btn btn-ghost">Plan Your Visit</a></div></header>
+  <section id="about"><div class="section-inner"><div class="section-label">About</div><h2 class="section-title reveal">Britain's boldest seaside, at its proudest</h2><p class="section-sub reveal">Blackpool has been a place of freedom, fun and self-expression for generations. Today the town's LGBTQ+ scene &#8212; centred on the Rainbow Quarter around Queen Street &#8212; is bigger and brighter than ever.</p><div class="split"><div class="split-visual">&#127905;</div><div><h3 style="font-size:1.5rem;font-weight:700;margin-bottom:1rem;">Why Blackpool?</h3><p style="color:var(--muted);">For over a century Blackpool has been where people come to let their hair down. That spirit of acceptance makes it a natural home for a vibrant, welcoming LGBTQ+ community by the sea.</p><ul class="split-list"><li>A year-round calendar of cabaret, drag and live music</li><li>Blackpool Pride &#8212; a weekend of celebration every summer</li><li>The iconic Tower, the Pleasure Beach and the Golden Mile</li><li>The Illuminations lighting up the promenade each autumn</li></ul></div></div></div></section>
+  <section id="whats-on" style="background:linear-gradient(180deg,transparent,rgba(117,7,135,.04),transparent);"><div class="section-inner"><div class="section-label">What's On</div><h2 class="section-title reveal">The Rainbow Quarter &amp; beyond</h2><p class="section-sub reveal">Bars, clubs and venues where everyone is welcome. Here are the highlights of Blackpool's LGBTQ+ nightlife.</p><div class="grid"><div class="card reveal"><span class="icon">&#129664;</span><h3>Bars &amp; Pubs</h3><p>Cozy, friendly pubs and high-energy bars around Queen Street and Dickson Road &#8212; the heart of the Rainbow Quarter.</p><span class="tag">Open late</span></div><div class="card reveal"><span class="icon">&#127908;</span><h3>Cabaret &amp; Drag</h3><p>Some of the North West's best drag shows and cabaret nights, with performances most evenings of the week.</p><span class="tag">Nightly shows</span></div><div class="card reveal"><span class="icon">&#128131;</span><h3>Clubs &amp; Dance</h3><p>From chart classics to club anthems, dance until the early hours at Blackpool's legendary LGBTQ+ nightclubs.</p><span class="tag">Until 4am</span></div><div class="card reveal"><span class="icon">&#127905;</span><h3>The Tower &amp; Prom</h3><p>Take in the iconic Blackpool Tower, stroll the Golden Mile and ride the Pleasure Beach &#8212; all minutes from the scene.</p><span class="tag">All year</span></div><div class="card reveal"><span class="icon">&#128161;</span><h3>The Illuminations</h3><p>Each autumn, six miles of lights transform the seafront into a dazzling spectacle &#8212; unmissable after dark.</p><span class="tag">Sep&#8211;Jan</span></div><div class="card reveal"><span class="icon">&#127959;</span><h3>Seaside Fun</h3><p>Candy floss, donkey rides and the pier &#8212; classic Blackpool charm with a warm, inclusive welcome for all.</p><span class="tag">Family friendly</span></div></div></div></section>
+  <section id="pride"><div class="section-inner"><div class="section-label">Pride</div><h2 class="section-title reveal">Blackpool Pride</h2><p class="section-sub reveal">A weekend of music, community and celebration on the Fylde coast. March, dance and show your colours.</p><div class="stats"><div class="reveal"><div class="stat-num">2</div><div class="stat-label">Days of celebration</div></div><div class="reveal"><div class="stat-num">20+</div><div class="stat-label">Performers &amp; acts</div></div><div class="reveal"><div class="stat-num">10k</div><div class="stat-label">People celebrating</div></div><div class="reveal"><div class="stat-num">100%</div><div class="stat-label">Love is love</div></div></div></div></section>
+  <section id="visit" style="background:linear-gradient(180deg,transparent,rgba(0,77,255,.04),transparent);"><div class="section-inner"><div class="section-label">Visit</div><h2 class="section-title reveal">Plan your trip</h2><p class="section-sub reveal">Getting to Blackpool is easy &#8212; and once you're here, everything is within reach.</p><div class="grid"><div class="card reveal"><span class="icon">&#128646;</span><h3>By Train</h3><p>Direct services to Blackpool North from Manchester, Liverpool, Leeds and London Euston.</p></div><div class="card reveal"><span class="icon">&#128663;</span><h3>By Road</h3><p>Just off the M55 at junction 4 &#8212; around an hour from Manchester and Liverpool.</p></div><div class="card reveal"><span class="icon">&#9992;</span><h3>By Air</h3><p>Blackpool Airport and nearby Manchester &amp; Liverpool airports connect you to the coast.</p></div></div><div class="cta-band reveal"><h2>Come as you are &#127752;</h2><p>Blackpool welcomes everyone. Start planning your seaside adventure today.</p><a href="#about" class="btn btn-primary">Discover More</a></div></div></section>
+  <footer><a href="#" class="logo"><span class="dot"></span> Blackpool<span style="color:var(--violet)">.gay</span></a><p>The LGBTQ+ guide to Blackpool &#8212; the Rainbow Quarter, Pride and seaside fun.</p><p style="margin-top:.5rem;">Made with <span class="heart">&#9829;</span> on the Fylde coast &middot; &#169; 2026 Blackpool.gay</p></footer>
+  <script>const observer=new IntersectionObserver((entries)=>{entries.forEach((e)=>{if(e.isIntersecting)e.target.classList.add("visible");});},{threshold:.12});document.querySelectorAll(".reveal").forEach((el)=>observer.observe(el));</script>
+</body>
+</html>
