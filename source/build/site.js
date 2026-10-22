@@ -100,7 +100,7 @@
   var hero = document.querySelector('.hero'); if (!hero) return;
   var stage = hero.querySelector('.stage'), svgs = [].slice.call(hero.querySelectorAll('.stage svg'));
   // the stage always covers the hero at 16:9, anchored to the road
-  if (stage && window.ResizeObserver) new ResizeObserver(function () { hero.style.setProperty('--sw', (hero.offsetHeight * 16 / 9).toFixed(0) + 'px'); }).observe(hero);
+  if (stage && window.ResizeObserver) new ResizeObserver(function () { hero.style.setProperty('--sw', (hero.offsetHeight * 16 / 9).toFixed(0) + 'px'); hero.style.setProperty('--hh', hero.offsetHeight + 'px'); }).observe(hero);
 
   // play / pause everything, CSS and SMIL (Tower LEDs, coaster train)
   var btn = hero.querySelector('.motion-btn'), userOff = false, onScreen = true;
@@ -109,7 +109,7 @@
   var lite = false;
   try { var gl = document.createElement('canvas').getContext('webgl'), dbg = gl && gl.getExtension('WEBGL_debug_renderer_info');
     lite = !gl || (dbg && /Basic Render|SwiftShader|llvmpipe|Software/i.test(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL))); } catch (e) {}
-  var liteSel = '.ov-tower svg,.ov-train svg,.ov-fly svg,.ov-plane svg';
+  var liteSel = '.ov-tower svg,.ov-train svg,.ov-fly svg';
   function goLite() { lite = true; hero.classList.add('lite'); [].forEach.call(hero.querySelectorAll(liteSel), function (s) { try { s.pauseAnimations(); } catch (e) {} }); }
   if (lite) goLite();
   else if (!reduce && window.requestAnimationFrame) (function () {   // or if the first 1.5 s of frames are slow

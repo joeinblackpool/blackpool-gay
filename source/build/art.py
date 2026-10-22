@@ -356,9 +356,9 @@ def hero_scene():
             + layer('ly-sky', 1600, sky)
             + f'<div class="ly ly-clouds par" data-d="14"><svg viewBox="0 0 1600 900" preserveAspectRatio="none" aria-hidden="true" focusable="false">{clouds}</svg></div>'
             + f'<div class="ly ly-far par" data-d="9" style="left:0;top:0;width:240%;height:100%"><div class="rl rl-far"><svg viewBox="0 0 3840 900" preserveAspectRatio="none" aria-hidden="true" focusable="false">{far_svg}</svg></div></div>'
-            + f'<div class="ov-fly"><div class="fly-bob">{flying_flamingo()}</div></div>'
+            + f'<div class="ov-fly"><div class="fly-bob">{flying_flamingo()}</div></div><div class="ov-fly ov-fly2"><div class="fly-bob">{flying_flamingo().replace('id="flb"', 'id="flb2"').replace('url(#flb)', 'url(#flb2)').replace('id="fln"', 'id="fln2"').replace('url(#fln)', 'url(#fln2)')}</div></div>'
             + f'<div class="ov-sparkles" aria-hidden="true">{sky_sparkles()}</div>'
-            + f'<div class="ov-balloon"><div class="bl-sway">{balloon()}</div></div>' + f'<div class="ov-plane"><div class="ov-plane-bob">{biplane()}</div></div><div class="ov-moon par" data-d="3"><div class="moon-rock">{moon_svg()}</div></div>'
+            + '<div class="skyband">' + f'<div class="ov-balloon"><div class="bl-sway">{balloon()}</div></div>' + f'<div class="ov-sky">{skywriter()}</div><div class="ov-moon par" data-d="3"><div class="moon-rock">{moon_svg()}</div></div></div>'
             + sky_strip.replace('class="ly ly-sky2"', 'class="ly ly-sky2 par" data-d="5"', 1)
             + layer('ly-road', 1600, road)
             + f'<div class="ly ly-dash" style="left:0;top:{798 / 9:.4f}%;width:200%;height:{18 / 9:.4f}%"><div class="rl rl-dash"><svg viewBox="0 798 3200 18" preserveAspectRatio="none" aria-hidden="true" focusable="false">{dashes}</svg></div></div>'
@@ -366,7 +366,7 @@ def hero_scene():
             + f'<div class="ly ly-cross" style="left:0;top:{680 / 9:.4f}%;width:{2 * POSSE_TILE / 16:.4f}%;height:{220 / 9:.4f}%"><div class="rl rl-posse"><svg viewBox="0 680 {2 * POSSE_TILE} 220" preserveAspectRatio="none" aria-hidden="true" focusable="false">' + ''.join(rainbow_crossing(CROSS_X + t * POSSE_TILE) for t in (0, 1)) + '</svg></div></div>'
             + people_div + f'<div class="ov-run"><svg viewBox="-30 -50 60 55" aria-hidden="true" focusable="false"><g transform="scale(1.1)">{cat(run=True)}</g></svg></div>' + car_div
             + f'<div class="ly ly-posse" style="left:0;top:{670 / 9:.4f}%;width:{2 * POSSE_TILE / 16:.4f}%;height:{230 / 9:.4f}%"><div class="rl rl-posse"><svg viewBox="0 670 {2 * POSSE_TILE} 230" preserveAspectRatio="none" aria-hidden="true" focusable="false">'
-              + ''.join(f'<g transform="translate({1650 + t * POSSE_TILE} 866) scale(1.265)">{allg[3][1]}</g>' + belisha(CROSS_X + t * POSSE_TILE - 14, 892, 1.15) + f'<g transform="translate({1080 + t * POSSE_TILE} 882) scale(1.15)">{prom_fence(0, 0)}</g>' for t in (0, 1)) + '</svg></div></div>'
+              + ''.join(f'<g transform="translate({1650 + t * POSSE_TILE} 866) scale(1.265)">{allg[3][1]}</g>' + belisha(CROSS_X + t * POSSE_TILE - 14, 892, 1.15) + f'<g transform="translate({1080 + t * POSSE_TILE} 882) scale(1.15)">{prom_fence(0, 0, fly=True)}</g>' for t in (0, 1)) + '</svg></div></div>'
             + kerb + '</div>')
 
 
@@ -637,14 +637,14 @@ def flamingo():
 CROSS_X = 520                      # where the rainbow zebra sits in each pavement tile
 POSSE_TILE = round(123 * 13.6)   # metres of pavement the car passes in one routine, in stage units
 POSSE_DUR = 13.6     # 32 beats at 141 bpm: walk in (8 beats), Y-M-C-A twice (16), walk off (8)
-def _timeline(pose, beats=32, ease=.24):
+def _timeline(pose, beats=32, ease=.42):
     """SMIL values/keyTimes for a per-beat pose function: each beat moves to its pose in the first `ease` of the beat, then holds."""
     times, vals = [], []
     for k in range(beats):
         t0, t1 = k / beats, (k + ease) / beats
         times += [t0, t1]; vals += [pose(k - 1) if k else pose(0), pose(k)]
     times.append(1); vals.append(pose(beats - 1))
-    return ';'.join(vals), ';'.join(f'{t:.4f}' for t in times), ';'.join(['.3 0 .15 1'] * (len(times) - 1))
+    return ';'.join(vals), ';'.join(f'{t:.4f}' for t in times), ';'.join(['.42 0 .25 1'] * (len(times) - 1))
 
 def _anim(kind, pose, extra=''):
     v, kt, ks = _timeline(pose)
@@ -718,19 +718,19 @@ def posse(walk=True):
     def travel(k):
         if k < 8: return f'{221 * (k + 1) / 8:.1f} 0'                               # walk along the pavement at walking pace (65 units/s over the ground)
         if k < 24: return f'{221 + (6 if k % 4 == 1 else -6 if k % 4 == 3 else 0)} 0'   # then dance on the spot, side-stepping between letters
-        return f'{221 - 560 * (k - 23) / 8:.1f} 0'                                   # and stroll off to the left before the routine repeats
+        return f'{221 - 640 * (k - 23) / 8:.1f} 0'                                   # and stroll off to the left before the routine repeats
     v, kt, _ = _timeline(travel, ease=.98)
     move = f'<animateTransform attributeName="transform" type="translate" values="{v}" keyTimes="{kt}" calcMode="linear" dur="{POSSE_DUR}s" repeatCount="indefinite"/>'
     defs = ('<defs><linearGradient id="pshade" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".38" stop-color="#fff" stop-opacity="0"/>'
             '<stop offset=".62" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".38"/></linearGradient>'
             '<radialGradient id="pball" cx=".36" cy=".32" r=".75"><stop offset="0" stop-color="#fff" stop-opacity=".3"/><stop offset=".45" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".32"/></radialGradient>'
             '<radialGradient id="pfloor"><stop offset="0" stop-color="#000" stop-opacity=".5"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient></defs>')
-    shadows = ''.join(f'<ellipse cx="{i * 50 + 3}" cy="1" rx="19" ry="4.2" fill="url(#pfloor)"/>' for i in range(5))
-    return '<g>' + defs + shadows + ''.join(f'<g transform="translate({i * 50} 0)">{f}</g>' for i, f in enumerate(figs)) + (move if walk else '') + '</g>' 
+    shadows = ''.join(f'<ellipse cx="{i * 58 + 3}" cy="1" rx="19" ry="4.2" fill="url(#pfloor)"/>' for i in range(5))
+    return '<g>' + defs + shadows + ''.join(f'<g transform="translate({i * 58} 0)">{f}</g>' for i, f in enumerate(figs)) + (move if walk else '') + '</g>' 
 
 
 
-def biplane():
+def biplane(raw=False):
     """A shaded biplane towing a waving Progress Pride banner. viewBox 0 0 340 84, flies to the right."""
     cols = RAINBOW
     chev = ['#ffffff', '#ffafc8', '#74d7ee', '#613915', '#000000']
@@ -760,7 +760,29 @@ def biplane():
             '<linearGradient id="bpred" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff5fa8"/><stop offset="1" stop-color="#d81b72"/></linearGradient>'
             '<radialGradient id="bpprop"><stop offset="0" stop-color="#fff" stop-opacity=".7"/><stop offset="1" stop-color="#fff" stop-opacity=".1"/></radialGradient>'
             '<linearGradient id="bpshade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".18"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".18"/></linearGradient></defs>')
+    if raw: return defs + plane.replace('<g transform="translate(224 20)">', '<g>', 1)
     return f'<svg viewBox="0 0 340 84" aria-hidden="true" focusable="false">{defs}{banner}{rope}{plane}</svg>'
+
+
+def skywriter(word='Hiya', T=24.0):
+    """The biplane skywriting a word in smoke: it crosses the sky left to right and the letters appear right behind its tail,
+    puff up, hang there, then drift and fade before the next pass. Plane and smoke share one SMIL clock. viewBox 0 0 1600 220."""
+    x0, x1, cross = -140.0, 1760.0, .62          # plane x runs x0 -> x1 over the first 62% of the loop
+    tail = 6                                     # the tail is ~6 units behind the plane's origin
+    kt = f'0;{cross:.3f};{cross + .001:.3f};1'
+    font = "'Segoe Script','Snell Roundhand','Apple Chancery','Brush Script MT','Lucida Handwriting','Dancing Script',cursive"
+    letters = (f'<text x="900" y="128" text-anchor="middle" font-family="{font}" font-size="104" font-style="italic" font-weight="700" letter-spacing="6"'
+               f' fill="#fff" stroke="#fff" stroke-width="13" stroke-linejoin="round" stroke-opacity=".38" paint-order="stroke">{word}</text>')
+    smoke = (f'<clipPath id="swclip"><rect x="0" y="0" height="220" width="0">'
+             f'<animate attributeName="width" values="{x0 + tail:.0f};{x1:.0f};0;0" keyTimes="{kt}" dur="{T}s" repeatCount="indefinite"/></rect></clipPath>'
+             f'<g clip-path="url(#swclip)"><g opacity=".92">{letters}'
+             f'<animate attributeName="opacity" values=".92;.92;.92;0;0" keyTimes="0;{cross:.3f};.82;.95;1" dur="{T}s" repeatCount="indefinite"/>'
+             f'<animateTransform attributeName="transform" type="translate" values="0 0;0 0;-14 -10;-14 -10" keyTimes="0;{cross:.3f};.95;1" dur="{T}s" repeatCount="indefinite"/></g></g>')
+    puffs = ''.join(f'<circle cx="{-8 - i * 9}" cy="{24 + (i % 2) * 2}" r="{3 + i * 1.3:.1f}" fill="#fff" opacity="{.75 - i * .12:.2f}"/>' for i in range(6))
+    plane = (f'<g><g transform="translate(0 -26) scale(.9)">{puffs}{biplane(raw=True)}</g>'
+             f'<animateTransform attributeName="transform" type="translate" values="{x0:.0f} 96;{x1:.0f} 96;{x1:.0f} 96;{x1:.0f} 96" keyTimes="{kt}" dur="{T}s" repeatCount="indefinite"/></g>')
+    bob = '<animateTransform attributeName="transform" type="translate" values="0 0;0 -10;0 6;0 0" dur="3.6s" repeatCount="indefinite" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1;.45 0 .55 1"/>'
+    return f'<svg viewBox="0 0 1600 220" aria-hidden="true" focusable="false">{smoke}<g>{plane}{bob}</g></svg>'
 
 
 def balloon():
@@ -793,6 +815,9 @@ def moon_svg():
     return ('<svg viewBox="0 0 200 200" aria-hidden="true" focusable="false"><defs><radialGradient id="mglow"><stop offset=".5" stop-color="#fff3c8" stop-opacity=".5"/><stop offset="1" stop-color="#fff3c8" stop-opacity="0"/></radialGradient></defs>'
             '<circle cx="100" cy="126" r="96" fill="url(#mglow)"/>'
             '<image href="/img/moon-face.webp?v=1" x="40" y="66" width="120" height="120"/>'
+            # a slow cheeky wink of his open eye, matched to the engraving's tones, then a twinkle
+            '<g class="mwink"><ellipse cx="92.5" cy="114.5" rx="11.8" ry="5.2" fill="#9aa37e"/><path d="M81.5 117 q11 4.4 22 0" stroke="#3b3d2c" stroke-width="1.6" fill="none" stroke-linecap="round"/></g>'
+            '<path class="mtwinkle" d="M108 104 l1.6 4.4 4.4 1.6 -4.4 1.6 -1.6 4.4 -1.6 -4.4 -4.4 -1.6 4.4 -1.6z" fill="#fff"/>'
             '<g transform="translate(100 98) scale(.96) translate(-100 -112)">'
             '<path d="M14 98 Q30 78 52 92 Q100 112 148 92 Q170 78 186 98 Q168 110 146 104 Q100 120 54 104 Q32 110 14 98z" fill="#c98a4b"/>'
             '<path d="M52 94 Q54 40 82 46 Q100 58 118 46 Q146 40 148 94 Q100 112 52 94z" fill="#d99a58"/><path d="M82 46 Q100 60 118 46 Q108 70 100 72 Q92 70 82 46z" fill="#b97a3c"/>'
@@ -868,10 +893,10 @@ def rainbow_crossing(x):
     return ''.join(out) + belisha(x + sk + w + 10, 752, .8)
 
 
-def parrot():
+def parrot(fly=False):
     """A rainbow parrot perched on a rail (feet at 0,0, facing right): head bobs, tail swings, a ruffle of the wing now and then."""
     tail = ''.join(f'<path d="M-6 6 Q{-10 + i * 2} {34 + i * 3} {-14 + i * 3} {58 - i * 2}" stroke="{c}" stroke-width="5.2" fill="none" stroke-linecap="round"/>' for i, c in enumerate(['#750787', '#004dff', '#008026']))
-    return ('<g>'
+    g = ('<g>'
             f'<g>{tail}<animateTransform attributeName="transform" type="rotate" values="-4 -6 6;5 -6 6;-4 -6 6" dur="3.4s" repeatCount="indefinite" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1"/></g>'
             '<path d="M-14 -4 Q-16 -30 2 -38 Q16 -40 18 -26 Q18 -8 6 4 Q-6 10 -14 -4z" fill="#e40303"/>'                     # body
             '<path d="M-6 -2 Q-2 -14 10 -12 Q10 0 2 6z" fill="#ff8c00"/>'                                                  # belly
@@ -883,14 +908,25 @@ def parrot():
             '<animateTransform attributeName="transform" type="translate" values="0 0;2 1.5;0 0;0 0;-1 -1;0 0" keyTimes="0;.12;.24;.6;.7;1" dur="2.8s" repeatCount="indefinite"/></g>'
             '<path d="M-2 4 l-2 -4 M3 4 l1 -4" stroke="#7a6a8a" stroke-width="2.4" stroke-linecap="round"/>'
             '</g>')
+    if not fly: return g
+    T, k0, k1, back = POSSE_DUR, .50, .60, .7353
+    flap = ';'.join(['1 1'] * 1 + ['1 1', '1 -.7'] * 9 + ['1 1', '1 1'])
+    n = flap.count(';') + 1
+    fk = ';'.join(f'{v:.4f}' for v in ([0] + [k0 + (k1 - k0) * i / (n - 3) for i in range(n - 2)] + [1]))
+    wings = (f'<g transform="translate(-4 -28)"><path d="M0 0 Q-18 -26 -40 -30 Q-24 -12 -4 6z" fill="#008026"/><path d="M-22 -22 Q-30 -28 -40 -30 Q-32 -20 -26 -14z" fill="#004dff"/>'
+             f'<animateTransform attributeName="transform" type="scale" additive="sum" values="{flap}" keyTimes="{fk}" dur="{T}s" repeatCount="indefinite"/>'
+             f'<animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;{k0 - .001:.4f};{k0:.4f};{k1:.4f};{k1 + .001:.4f};1" dur="{T}s" repeatCount="indefinite"/></g>')
+    path = f'0 0;0 0;90 -40;560 -150;760 -900;760 -900;0 0;0 0'
+    kt = f'0;{k0:.3f};{k0 + .015:.3f};{k0 + .05:.3f};{k1:.3f};{back - .001:.4f};{back:.4f};1'
+    return (f'<g>{g}{wings}<animateTransform attributeName="transform" type="translate" values="{path}" keyTimes="{kt}" calcMode="linear" dur="{T}s" repeatCount="indefinite"/>'
+            f'<animate attributeName="opacity" values="1;1;0;0;1;1" keyTimes="0;{k1:.3f};{k1 + .001:.4f};{back - .001:.4f};{back:.4f};1" calcMode="discrete" dur="{T}s" repeatCount="indefinite"/></g>')
 
-
-def prom_fence(x, ground, length=150, h=34, bird_at=None):
+def prom_fence(x, ground, length=150, h=34, bird_at=None, fly=False):
     """A short run of seafront railing with posts, for the near pavement; optionally the parrot sitting on its top rail."""
     posts = ''.join(f'<rect x="{x + i:.1f}" y="{ground - h}" width="4" height="{h}" rx="1.5" fill="#2a1a48"/>' for i in range(0, length + 1, 25))
     rails = (f'<rect x="{x - 3}" y="{ground - h - 3}" width="{length + 10}" height="6" rx="3" fill="#3a2560"/><path d="M{x - 2} {ground - h - 2} h{length + 8}" stroke="#ff9fc9" stroke-width="1.2" opacity=".55"/>'
              f'<rect x="{x}" y="{ground - h * .45:.1f}" width="{length + 4}" height="3" fill="#2a1a48"/>')
-    bird = f'<g transform="translate({x + (bird_at if bird_at is not None else length * .6):.1f} {ground - h - 3})">{parrot()}</g>'
+    bird = f'<g transform="translate({x + (bird_at if bird_at is not None else length * .6):.1f} {ground - h - 3})">{parrot(fly)}</g>'
     return posts + rails + bird
 
 
