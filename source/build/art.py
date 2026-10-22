@@ -365,8 +365,8 @@ def hero_scene():
             + f'<div class="ly ly-lamps" style="left:0;top:{590 / 9:.4f}%;width:160%;height:{170 / 9:.4f}%"><div class="rl rl-lamps"><svg viewBox="0 590 2560 170" preserveAspectRatio="none" aria-hidden="true" focusable="false">{lamps}</svg>{bulb_glints(H=170, Y0=590)}</div></div>'
             + f'<div class="ly ly-cross" style="left:0;top:{680 / 9:.4f}%;width:{2 * POSSE_TILE / 16:.4f}%;height:{220 / 9:.4f}%"><div class="rl rl-posse"><svg viewBox="0 680 {2 * POSSE_TILE} 220" preserveAspectRatio="none" aria-hidden="true" focusable="false">' + ''.join(rainbow_crossing(CROSS_X + t * POSSE_TILE) for t in (0, 1)) + '</svg></div></div>'
             + people_div + f'<div class="ov-run"><svg viewBox="-30 -50 60 55" aria-hidden="true" focusable="false"><g transform="scale(1.1)">{cat(run=True)}</g></svg></div>' + car_div
-            + f'<div class="ly ly-posse" style="left:0;top:{690 / 9:.4f}%;width:{2 * POSSE_TILE / 16:.4f}%;height:{210 / 9:.4f}%"><div class="rl rl-posse"><svg viewBox="0 690 {2 * POSSE_TILE} 210" preserveAspectRatio="none" aria-hidden="true" focusable="false">'
-              + ''.join(f'<g transform="translate({1650 + t * POSSE_TILE} 866) scale(1.15)">{allg[3][1]}</g>' + belisha(CROSS_X + t * POSSE_TILE - 14, 892, 1.15) + f'<g transform="translate({1080 + t * POSSE_TILE} 882) scale(1.15)">{prom_fence(0, 0)}</g>' for t in (0, 1)) + '</svg></div></div>'
+            + f'<div class="ly ly-posse" style="left:0;top:{670 / 9:.4f}%;width:{2 * POSSE_TILE / 16:.4f}%;height:{230 / 9:.4f}%"><div class="rl rl-posse"><svg viewBox="0 670 {2 * POSSE_TILE} 230" preserveAspectRatio="none" aria-hidden="true" focusable="false">'
+              + ''.join(f'<g transform="translate({1650 + t * POSSE_TILE} 866) scale(1.265)">{allg[3][1]}</g>' + belisha(CROSS_X + t * POSSE_TILE - 14, 892, 1.15) + f'<g transform="translate({1080 + t * POSSE_TILE} 882) scale(1.15)">{prom_fence(0, 0)}</g>' for t in (0, 1)) + '</svg></div></div>'
             + kerb + '</div>')
 
 
@@ -672,8 +672,8 @@ def _dancer(skin, shirt, sleeves, trousers, shoes, hair, _unused, tash, hat='', 
         return up, fo
     def arm(x, side):
         up, fo = arm_pose(side)
-        return (f'<g><path d="M{x - 3.2} -88 h6.4 v19 h-6.4z" fill="{sleeves}"/>'
-                f'<g><path d="M{x - 2.8} -70 h5.6 v19 h-5.6z" fill="{skin}"/><circle cx="{x}" cy="-50" r="3.6" fill="{skin}"/>'
+        return (f'<g><path d="M{x - 3.2} -88 h6.4 v19 h-6.4z" fill="{sleeves}"/><path d="M{x - 3.2} -88 h6.4 v19 h-6.4z" fill="url(#pshade)"/>'
+                f'<g><path d="M{x - 2.8} -70 h5.6 v19 h-5.6z" fill="{skin}"/><path d="M{x - 2.8} -70 h5.6 v19 h-5.6z" fill="url(#pshade)"/><circle cx="{x}" cy="-50" r="3.6" fill="{skin}"/><circle cx="{x}" cy="-50" r="3.6" fill="url(#pball)"/>'
                 + _anim('rotate', lambda k: f'{fo(k)} {x} -69') + '</g>'
                 + _anim('rotate', lambda k: f'{up(k)} {x} -86') + '</g>')
     def leg(x, which):
@@ -682,10 +682,11 @@ def _dancer(skin, shirt, sleeves, trousers, shoes, hair, _unused, tash, hat='', 
             ph = _phase(k)
             if ph == 'dance': return '1 .93' if k % 2 else '1 1'
             return '1 .84' if (k + which) % 2 else '1 1'
-        shin = f'<path d="M{x - 3.5} -50 h7 l.6 45 h-7z" fill="{trousers}"/><path d="M{x - 4.5} -6 h9 l2 6 h-11z" fill="{shoes}"/>'
+        shin = (f'<path d="M{x - 3.5} -50 h7 l.6 45 h-7z" fill="{trousers}"/><path d="M{x - 3.5} -50 h7 l.6 45 h-7z" fill="url(#pshade)"/>'
+                f'<path d="M{x - 4.5} -6 h9 l2 6 h-11z" fill="{shoes}"/><path d="M{x - 2.5} -5 h4" stroke="#fff" stroke-opacity=".35" stroke-width="1"/>')
         return (f'<g transform="translate(0 -50)"><g>{_anim("scale", sc)}<g transform="translate(0 50)">{shin}</g></g></g>')
-    body = (f'<path d="M-12 -88 q12 -6 24 0 l-1 40 h-22z" fill="{shirt}"/>{front}'
-            f'<rect x="-3.4" y="-97" width="6.8" height="9" rx="2.5" fill="{skin}"/><ellipse cx="0" cy="-107" rx="10" ry="11.6" fill="{skin}"/>{hair}'
+    body = (f'<path d="M-12 -88 q12 -6 24 0 l-1 40 h-22z" fill="{shirt}"/>{front}<path d="M-12 -88 q12 -6 24 0 l-1 40 h-22z" fill="url(#pshade)" stroke="#000" stroke-opacity=".22" stroke-width=".8"/>'
+            f'<rect x="-3.4" y="-97" width="6.8" height="9" rx="2.5" fill="{skin}"/><ellipse cx="0" cy="-107" rx="10" ry="11.6" fill="{skin}"/><ellipse cx="0" cy="-107" rx="10" ry="11.6" fill="url(#pball)"/>{hair}'
             f'<g class="blink"><circle cx="-3.6" cy="-108" r="1.4" fill="#1b1420"/><circle cx="3.6" cy="-108" r="1.4" fill="#1b1420"/></g>'
             f'<path d="M-6 -101 q3 -2.6 6 -.6 q3 -2 6 .6 q-2 2.4 -6 1 q-4 1.4 -6 -1z" fill="{tash}"/><path d="M-2.6 -97.6 q2.6 1.8 5.2 0" stroke="#7a2a2a" stroke-width="1.2" fill="none" stroke-linecap="round"/>{hat}')
     upper = f'<g>{body}{arm(-14, -1)}{arm(14, 1)}' + _anim('rotate', lambda k: f'{(3.5 if k % 2 else -3.5) if _phase(k) == "dance" else (1.2 if k % 2 else -1.2)} 0 -50') + '</g>'
@@ -720,7 +721,12 @@ def posse(walk=True):
         return f'{221 - 560 * (k - 23) / 8:.1f} 0'                                   # and stroll off to the left before the routine repeats
     v, kt, _ = _timeline(travel, ease=.98)
     move = f'<animateTransform attributeName="transform" type="translate" values="{v}" keyTimes="{kt}" calcMode="linear" dur="{POSSE_DUR}s" repeatCount="indefinite"/>'
-    return '<g>' + ''.join(f'<g transform="translate({i * 50} 0)">{f}</g>' for i, f in enumerate(figs)) + (move if walk else '') + '</g>' 
+    defs = ('<defs><linearGradient id="pshade" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".38" stop-color="#fff" stop-opacity="0"/>'
+            '<stop offset=".62" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".38"/></linearGradient>'
+            '<radialGradient id="pball" cx=".36" cy=".32" r=".75"><stop offset="0" stop-color="#fff" stop-opacity=".3"/><stop offset=".45" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".32"/></radialGradient>'
+            '<radialGradient id="pfloor"><stop offset="0" stop-color="#000" stop-opacity=".5"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient></defs>')
+    shadows = ''.join(f'<ellipse cx="{i * 50 + 3}" cy="1" rx="19" ry="4.2" fill="url(#pfloor)"/>' for i in range(5))
+    return '<g>' + defs + shadows + ''.join(f'<g transform="translate({i * 50} 0)">{f}</g>' for i, f in enumerate(figs)) + (move if walk else '') + '</g>' 
 
 
 
