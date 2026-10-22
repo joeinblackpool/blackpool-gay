@@ -196,7 +196,7 @@ def hero_svg():
     sdefs, sbody = skyline('hs', ground=742)
     # far roofline for atmospheric depth
     far, x = [], -20
-    while x < 1640:
+    while x < 1920:
         w = rnd.randint(30, 80); h = rnd.randint(30, 120); far.append(f'<rect x="{x}" y="{742 - h}" width="{w}" height="{h + 10}"/>')
         if rnd.random() < .25: far.append(f'<rect x="{x + w // 2 - 3}" y="{742 - h - rnd.randint(14, 40)}" width="6" height="40"/>')
         x += w
@@ -214,8 +214,8 @@ def hero_svg():
             '<g class="par" data-d="6" data-s="1"><ellipse cx="520" cy="230" rx="260" ry="34" fill="#ff9ec4" opacity=".26" filter="url(#hblur)"/><ellipse cx="1340" cy="170" rx="300" ry="40" fill="#c78bff" opacity=".24" filter="url(#hblur)"/><ellipse cx="260" cy="430" rx="220" ry="26" fill="#ffc0a0" opacity=".34" filter="url(#hblur)"/></g>'
             '<ellipse cx="900" cy="760" rx="1000" ry="330" fill="url(#hglow)"/>'
             '<ellipse cx="1011" cy="430" rx="120" ry="340" fill="#ff6fd0" opacity=".2" filter="url(#hbig)"/>'
-            f'<g class="par" data-d="4" fill="#7a3a8e" opacity=".5">{"".join(far)}</g>'
-            f'<g class="par" data-d="10">{sbody}</g>'
+            f'<g class="par" data-d="4" fill="#7a3a8e" opacity=".5"><g class="rollfar">{"".join(far)}<g transform="translate(1920 0)">{"".join(far)}</g></g></g>'
+            f'<g class="par" data-d="10"><g class="roll">{sbody}<g transform="translate(1920 0)">{sbody}</g></g></g>'
             '<rect y="660" width="1600" height="84" fill="url(#hhaze)"/>'
             '<rect y="740" width="1600" height="16" fill="#341d5c"/><rect y="752" width="1600" height="4" fill="#ff9fc9" opacity=".35"/>'
             '<rect y="756" width="1600" height="150" fill="url(#hroad)"/>'
@@ -237,6 +237,7 @@ SCENE_CSS = ('.twinkle{animation:tw 3s ease-in-out infinite}.twinkle:nth-child(3
              '.flagw{animation:fl 1.4s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:0 50%}@keyframes fl{to{transform:skewY(-8deg) scaleX(.92)}}'
              '.beam{animation:bm 4s ease-in-out infinite alternate}@keyframes bm{to{opacity:.55}}'
              '.heartbeat{animation:hb 1.6s ease-in-out infinite}@keyframes hb{0%,100%{transform:scale(1)}15%{transform:scale(1.14)}30%{transform:scale(.98)}45%{transform:scale(1.08)}}'
+             '.roll{animation:rl 34s linear infinite}@keyframes rl{to{transform:translateX(-1920px)}}'
              '@media(prefers-reduced-motion:reduce){*{animation:none!important}}')
 
 
@@ -246,7 +247,7 @@ def promo_svg():
     lamps = lamps_row(40, 160, 6, 20, 3.4, 4, 150)
     return ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 220"><style>' + SCENE_CSS + '</style><defs>' + sdefs + '</defs>'
             '<rect width="560" height="160" fill="#3a1a6e" opacity="0"/>'
-            '<g transform="translate(-150 -146) scale(.44)">' + sbody + '</g>'
+            '<g transform="translate(-150 -146) scale(.44)"><g class="roll">' + sbody + '<g transform="translate(1920 0)">' + sbody + '</g></g></g>'
             '<rect y="150" width="560" height="70" fill="#170c2c"/><rect y="148" width="560" height="3" fill="#ff9fc9" opacity=".4"/>'
             '<g class="dash">' + ''.join(f'<rect x="{x}" y="186" width="30" height="4" rx="2" fill="#f6e9ff" opacity=".6"/>' for x in range(0, 700, 80)) + '</g>'
             f'<g class="lamps">{lamps}</g><g transform="translate(150 84) scale(.78)">{car("p", beam=True)}</g></svg>')

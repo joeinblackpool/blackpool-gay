@@ -135,3 +135,4 @@ a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible,te
 .scene .spinslow{animation:spin 48s linear infinite}
 .scene .heartbeat{animation:heart 1.6s ease-in-out infinite}@keyframes heart{0%,100%{transform:scale(1)}15%{transform:scale(1.14)}30%{transform:scale(.98)}45%{transform:scale(1.08)}}
 @media(max-width:760px){.hero svg.scene{inset:auto;bottom:0;top:0;left:50%;height:100%;width:1100px;max-width:none;transform:translateX(-51%)}.hero .hin{padding-bottom:230px}}
+.scene .roll{animation:roll 48s linear infinite}.scene .rollfar{animation:roll 110s linear infinite}@keyframes roll{to{transform:translateX(-1920px)}}
