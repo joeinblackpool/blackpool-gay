@@ -370,7 +370,7 @@
   const PINS = CFG.pins.map(p => Object.assign({}, p, proj(p.p), { slug: p.u.split('/')[2] }));
 
   // ------------------------------------------------------------------ world
-  const W = { loose: [], cells: new Map(), rg: new Map(), coast: [], nodes: new Map(), roads: [], bounds: { x0: -560, x1: 600, z0: -690, z1: 880 } };
+  const W = { bh: [], photos: [], loose: [], cells: new Map(), rg: new Map(), coast: [], nodes: new Map(), roads: [], bounds: { x0: -560, x1: 600, z0: -690, z1: 880 } };
   let tower = null, bulbs = null, halos = null, gulls = [];
   const beacons = [], labels = [], venueMeshes = [];
   const seaU = { t: { value: 0 }, c1: { value: new T.Color() }, c2: { value: new T.Color() }, sunDir: skyU.sunDir, fogC: { value: new T.Color() }, fogN: { value: 450 }, fogF: { value: 2600 }, night: NIGHT };
@@ -445,6 +445,7 @@
       for (let i = 0; i < FP.length; i++) { const b = BB[i]; if (x < b[0] - 12 || x > b[1] + 12 || z < b[2] - 12 || z > b[3] + 12 || FP[i].length < 3) continue; if (inside(x, z, FP[i])) { hit = i; break; } const c = centroid(FP[i]), d = Math.hypot(c[0] - x, c[1] - z) - Math.sqrt(Math.abs(area(FP[i]))) / 2; if (d < bd) { bd = d; hit = i; } }
       if (hit >= 0) { const L = bPOI.get(hit) || []; L.push({ x, z, k, name }); bPOI.set(hit, L); } else W.loose.push({ x, z, k, name });
     }
+    W.photoB = new Set((Wd.ph || []).map(r => r[1]));
     Wd.b.forEach((b, i) => {
       const pts = ring(dec(b, 2)); if (pts.length < 3) return;
       const A = Math.abs(area(pts)), c = centroid(pts), r = hash(c[0], c[1]);
@@ -454,6 +455,7 @@
       if (/Winter Gardens/.test(b[1])) h = 20;
       addCollider(pts);
       const pin = venueOf.get(i);
+      W.bh[i] = pin ? Math.max(h, 9) : h; W.curNoBay = W.photoB.has(i);
       if (pin) { venueBuilding(pin, pts, Math.max(h, 9), bPOI.get(i)); return; }
       blackpoolHouse(bld, glow, pts, h, A, r, bPOI.get(i) || [], meta);
     });
@@ -473,6 +475,20 @@
       if (best) NUMS.push(Object.assign(best, { text: num, k: 'n', w: .5, y: 2.25 }));
     }
     buildSigns(); buildSigns(NUMS, 128, 64, 16, 32);
+    // openly licensed Wikimedia Commons photos on the real building faces they show; textures load only when the car is near
+    for (const [file, bi, ax, az, bx, bz, ci] of Wd.ph || []) {
+      const pts = FP[bi]; if (!pts || pts.length < 3) continue;
+      let nx = bz - az, nz = -(bx - ax); const L = Math.hypot(nx, nz) || 1; nx /= L; nz /= L;
+      const c = centroid(pts), mx = (ax + bx) / 2, mz = (az + bz) / 2; if (nx * (mx - c[0]) + nz * (mz - c[1]) < 0) { nx = -nx; nz = -nz; }
+      const g = new T.BufferGeometry(), o = .09, P = [ax + nx * o, 0, az + nz * o, bx + nx * o, 0, bz + nz * o, bx + nx * o, 1, bz + nz * o, ax + nx * o, 1, az + nz * o];
+      const flip = (bx - ax) * nz - (bz - az) * nx < 0;   // u runs left to right seen from the street
+      g.setAttribute('position', new T.Float32BufferAttribute(P, 3)); g.setAttribute('normal', new T.Float32BufferAttribute([nx, 0, nz, nx, 0, nz, nx, 0, nz, nx, 0, nz], 3));
+      g.setAttribute('uv', new T.Float32BufferAttribute(flip ? [1, 0, 0, 0, 0, 1, 1, 1] : [0, 0, 1, 0, 1, 1, 0, 1], 2)); g.setIndex(nx * (bz - az) - nz * (bx - ax) < 0 ? [0, 1, 2, 0, 2, 3] : [0, 2, 1, 0, 3, 2]); g.computeBoundingSphere();
+      const m = new T.Mesh(g, new T.MeshLambertMaterial({ side: T.DoubleSide, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 }));
+      m.visible = false; m.renderOrder = 1; S.add(m);
+      const cr = (CFG.photos || [])[ci] || {}, len = Math.hypot(bx - ax, bz - az);
+      W.photos.push({ m, file, nx, nz, x: mx, z: mz, h: W.bh[bi] || 9, len, size: cr.size || [4, 3], state: 0 });
+    }
     pruneGraph();
     if (towerXZ) buildTower(towerXZ[0], towerXZ[1]);
     buildIlluminations(named.get('Promenade') || []);
@@ -481,6 +497,10 @@
     S.add(tr.mesh(new T.MeshStandardMaterial({ vertexColors: true, roughness: .3, metalness: .7 })));
     landmarkLabels(Wd);
     buildGulls();
+    const LN = { 'north-pier': 'North Pier', 'blackpool-tower': 'Blackpool Tower', 'abingdon-street': 'Abingdon Street K6 kiosks' };
+    W.pa = Wd.pa || [];
+    for (const [file, key, x, z] of W.pa) if (LN[key]) { let lx = x, lz = z; if (key === 'blackpool-tower' && tower) { lx = tower.x + 22; lz = tower.z; } if (key === 'abingdon-street') { const ph = (Wd.f || []).filter(f => f[0] === 'phone').sort((a, b) => Math.hypot(a[1] - x, a[2] - z) - Math.hypot(b[1] - x, b[2] - z))[0]; if (ph && Math.hypot(ph[1] - x, ph[2] - z) < 40) { lx = ph[1]; lz = ph[2]; } } LAND.push({ n: LN[key], slug: key, k: 'land', x: lx, z: lz, cx: lx, cz: lz, h: 6 }); }
+    if (LAND.length) { const og = document.createElement('optgroup'); og.label = 'Landmarks'; LAND.forEach(p => { const o = document.createElement('option'); o.value = p.slug; o.textContent = p.n; og.appendChild(o); }); sel.appendChild(og); }
     buildMinimap();
     applyLite();
   }
@@ -603,7 +623,7 @@
         const A0 = [a[0] + dx / len * s0, a[1] + dz / len * s0], A1 = [a[0] + dx / len * s1, a[1] + dz / len * s1];
         const f = facade(B, A0, A1, top, col, { brick, ground, upper, want });
         // white two-storey bay windows over the window bays of house fronts
-        if (f && se && house && !shopEdge && top > 5.5) for (let k = 1; k < f.n; k += 2) bayAt.push([A0, A1, (k + .5) / f.n, want, Math.min(6.2, top - .3)]);
+        if (f && se && house && !shopEdge && top > 5.5 && !W.curNoBay) for (let k = 1; k < f.n; k += 2) bayAt.push([A0, A1, (k + .5) / f.n, want, Math.min(6.2, top - .3)]);
       }
       if (house) band(B, a, b, top, h, CREAM, want); else band(B, a, b, top, h, wall.map(v => v * .93), want);
     }
@@ -1236,9 +1256,11 @@
   }
 
   // ------------------------------------------------------------------ HUD
+  // landmarks with an arrival photo: North Pier, the Tower, the Abingdon Street K6 kiosks (positions from OpenStreetMap / the photo's own geotag)
+  const LAND = [];
   const sel = ui.hud.querySelector('select');
   [['stay', 'Places to stay'], ['bar', 'Bars and clubs']].forEach(([k, lab]) => { const og = document.createElement('optgroup'); og.label = lab; PINS.filter(p => p.k === k).sort((a, b) => a.n.localeCompare(b.n)).forEach(p => { const o = document.createElement('option'); o.value = p.slug; o.textContent = p.n; og.appendChild(o); }); sel.appendChild(og); });
-  sel.addEventListener('change', () => { const p = PINS.find(q => q.slug === sel.value); if (p && W.nodes.size) { if (!started) { pendingTo = p; begin(); } else goPin(p); } sel.value = ''; R.domElement.focus({ preventScroll: true }); });
+  sel.addEventListener('change', () => { const p = PINS.find(q => q.slug === sel.value) || LAND.find(q => q.slug === sel.value); if (p && W.nodes.size) { if (!started) { pendingTo = p; begin(); } else goPin(p); } sel.value = ''; R.domElement.focus({ preventScroll: true }); });
   function goPin(p) { const tx = p.cx ?? p.x, tz = p.cz ?? p.z; const n = nearestNode(tx, tz); driveTo(n ? n.x : tx, n ? n.z : tz, p); showCard(p, true); }
   ui.hud.addEventListener('click', e => {
     const b = e.target.closest('[data-a]'); if (!b) return;
@@ -1246,10 +1268,17 @@
     if (b.dataset.a === 'full') { if (document.fullscreenElement || document.webkitFullscreenElement) (document.exitFullscreen || document.webkitExitFullscreen).call(document); else (box.requestFullscreen || box.webkitRequestFullscreen || (() => {})).call(box); }
   });
   let cardPin = null;
+  // arrival photo with its credit (author, licence, Commons page): CC BY / CC BY-SA require it
+  function photoFor(key) {
+    const r = (W.pa || []).find(q => q[1] === key); if (!r) return '';
+    const c = (CFG.photos || [])[r[4]]; if (!c) return '';
+    return `<figure style="margin:8px 0 6px"><img src="/img/3d/${esc(c.file)}" alt="${esc(c.title.replace(/ - geograph.*$|\.jpg$/i, ''))}" loading="lazy" style="display:block;width:100%;max-height:170px;object-fit:cover;border-radius:10px"><figcaption style="font:600 11px/1.35 Inter,system-ui,sans-serif;opacity:.8;margin-top:4px">Photo: ${esc(c.author)}, <a href="${esc(c.licence_url)}" target="_blank" rel="noopener license">${esc(c.licence)}</a>, via <a href="${esc(c.page)}" target="_blank" rel="noopener">Wikimedia Commons</a></figcaption></figure>`;
+  }
   function showCard(p, driving) {
     if (cardPin === p && !ui.card.hidden) return; cardPin = p;
-    ui.card.innerHTML = `<button type="button" class="xp-x" aria-label="Close">×</button><span class="xp-kind ${p.k}">${p.k === 'stay' ? 'Place to stay' : 'Bar or club'}</span><strong>${esc(p.n)}</strong><span class="xp-addr">${esc(p.a)}</span>`
-      + `<div class="xp-acts">${driving ? '' : '<button type="button" class="xp-drive">Drive here</button>'}<a class="xp-more" href="${esc(p.u)}">Read more</a><a href="${esc(p.g)}" target="_blank" rel="noopener">Google Maps</a><a href="${esc(p.ap)}" target="_blank" rel="noopener">Apple Maps</a><a href="${esc(p.w)}" target="_blank" rel="noopener">Waze</a></div>`;
+    if (p.k === 'land') { ui.card.innerHTML = `<button type="button" class="xp-x" aria-label="Close">×</button><span class="xp-kind" style="background:#ffc93c;color:#1a1033">Landmark</span><strong>${esc(p.n)}</strong>${photoFor(p.slug)}` + (driving ? '' : '<div class="xp-acts"><button type="button" class="xp-drive">Drive here</button></div>'); }
+    else ui.card.innerHTML = `<button type="button" class="xp-x" aria-label="Close">×</button><span class="xp-kind ${p.k}">${p.k === 'stay' ? 'Place to stay' : 'Bar or club'}</span><strong>${esc(p.n)}</strong><span class="xp-addr">${esc(p.a)}</span>`
+      + `<div class="xp-acts">${driving ? '' : '<button type="button" class="xp-drive">Drive here</button>'}<a class="xp-more" href="${esc(p.u)}">Read more</a><a href="${esc(p.g)}" target="_blank" rel="noopener">Google Maps</a><a href="${esc(p.ap)}" target="_blank" rel="noopener">Apple Maps</a><a href="${esc(p.w)}" target="_blank" rel="noopener">Waze</a></div>` + photoFor(p.slug);
     ui.card.hidden = false; ui.card.classList.remove('in'); void ui.card.offsetWidth; ui.card.classList.add('in');
     ui.card.querySelector('.xp-x').onclick = hideCard;
     const d = ui.card.querySelector('.xp-drive'); if (d) d.onclick = () => { goPin(p); d.remove(); };
@@ -1434,10 +1463,16 @@
     for (const g of gulls) { const a = time * g.s + g.o; g.m.position.set(g.cx + Math.cos(a) * g.r, g.h + Math.sin(time * .6 + g.o) * 3, g.cz + Math.sin(a) * g.r); g.m.rotation.y = -a + (g.s > 0 ? 0 : Math.PI); const f = reduce ? .2 : Math.sin(time * 7 + g.o * 3) * .5; const p = g.m.geometry.attributes.position; p.setY(1, .15 + f); p.setY(4, .15 + f); p.needsUpdate = true; }
     if (conf) { conf.t += dt; const p = conf.p.geometry.attributes.position; for (let i = 0; i < conf.vel.length; i++) { const v = conf.vel[i]; v[1] -= 22 * dt; v[0] *= .99; v[2] *= .99; p.setXYZ(i, p.getX(i) + v[0] * dt, Math.max(.3, p.getY(i) + v[1] * dt), p.getZ(i) + v[2] * dt); } p.needsUpdate = true; conf.p.material.opacity = clamp(3 - conf.t, 0, 1); if (conf.t > 3) { S.remove(conf.p); conf.p.geometry.dispose(); conf.p.material.dispose(); conf = null; } }
 
-    if (started && !st.auto) { let near = null, nd = 22; for (const p of PINS) { const d = Math.hypot((p.cx ?? p.x) - st.x, (p.cz ?? p.z) - st.z); if (d < nd) { nd = d; near = p; } } if (dismissed && Math.hypot((dismissed.cx ?? dismissed.x) - st.x, (dismissed.cz ?? dismissed.z) - st.z) > 30) dismissed = null; if (near && near !== dismissed && (!cardPin || cardPin === near || ui.card.hidden)) showCard(near, true); else if (cardPin && Math.hypot((cardPin.cx ?? cardPin.x) - st.x, (cardPin.cz ?? cardPin.z) - st.z) > 60 && st.arrived !== cardPin) hideCard(); }
+    if (started && !st.auto) { let near = null, nd = 22; for (const p of PINS.concat(LAND)) { const d = Math.hypot((p.cx ?? p.x) - st.x, (p.cz ?? p.z) - st.z); if (d < nd) { nd = d; near = p; } } if (dismissed && Math.hypot((dismissed.cx ?? dismissed.x) - st.x, (dismissed.cz ?? dismissed.z) - st.z) > 30) dismissed = null; if (near && near !== dismissed && (!cardPin || cardPin === near || ui.card.hidden)) showCard(near, true); else if (cardPin && Math.hypot((cardPin.cx ?? cardPin.x) - st.x, (cardPin.cz ?? cardPin.z) - st.z) > 60 && st.arrived !== cardPin) hideCard(); }
     if (toastT > 0) { toastT -= dt; if (toastT <= 0) ui.toast.hidden = true; }
     if (W.roads.length && Math.hypot(st.x - (frame.rx ?? 1e9), st.z - (frame.rz ?? 1e9)) > 3) { frame.rx = st.x; frame.rz = st.z; const r = roadAt(st.x, st.z), t = r ? (r.name || '') + (r.ms ? ' · ' + r.ms + ' mph' : '') : ''; if (t !== ui.speed.road) { ui.speed.road = t; ui.speed.querySelector('.xp-road').textContent = t; } }
     { const mph = Math.round(Math.abs(st.v) * 2.237); if (mph !== ui.speed.mph) { ui.speed.mph = mph; ui.speed.querySelector('b').textContent = mph; needle.style.transform = `rotate(${-90 + Math.min(mph, 60) / 60 * 180}deg)`; } }
+    if (W.photos.length && (frame.pt = (frame.pt || 0) + dt) > .7) { frame.pt = 0; for (const ph of W.photos) {
+      const d = Math.hypot(ph.x - cam.position.x, ph.z - cam.position.z);
+      if (d < 260 && !ph.state) { ph.state = 1; new T.TextureLoader().load('/img/3d/' + ph.file, t => { t.colorSpace = T.SRGBColorSpace; t.anisotropy = 4; ph.m.material.map = t; ph.m.material.color.setRGB(.92, .92, .92); ph.m.material.needsUpdate = true;
+        const ih = ph.len * t.image.height / t.image.width; ph.m.scale.y = Math.min(ph.h, Math.max(3, ih)); ph.m.visible = true; ph.state = 2; }, undefined, () => { ph.state = 3; }); }
+      if (ph.state === 2) ph.m.visible = d < 420;
+    } }
     if (started) drawMini();
     if (usePost) post.render(S, cam, time); else R.render(S, cam);
     raf = requestAnimationFrame(frame);
@@ -1461,5 +1496,5 @@
     box.classList.add('ready');
     if (new URLSearchParams(location.search).has('go')) begin();
   }).catch(e => { console.error(e); goCap.textContent = 'Could not load the map. Please refresh.'; });
-  window.__xp = { st, cam, R, S, begin, signs: () => SIGNS.length, nums: () => NUMS.length, loose: () => W.loose.length, tier: n => setTier(n), gpu: GPU, sim: secs => { for (let i = 0; i < secs * 120; i++) physics(STEP); }, skip: () => { intro = 1; snap = 1; }, settle: () => { mood.t = mood.target; snap = 1; }, view: (d, p) => { camS.dist = d; camS.pitch = p; snap = 1; }, goPin: s => goPin(PINS.find(p => p.slug === s)), night: v => { mood.target = v ? 1 : 0; } };
+  window.__xp = { st, cam, R, S, begin, signs: () => SIGNS.length, nums: () => NUMS.length, loose: () => W.loose.length, tier: n => setTier(n), gpu: GPU, sim: secs => { for (let i = 0; i < secs * 120; i++) physics(STEP); }, skip: () => { intro = 1; snap = 1; }, settle: () => { mood.t = mood.target; snap = 1; }, view: (d, p) => { camS.dist = d; camS.pitch = p; snap = 1; }, goPin: s => goPin(PINS.find(p => p.slug === s) || LAND.find(p => p.slug === s)), photos: () => W.photos.map(p => [p.file, p.x, p.z, p.nx, p.nz, p.state]), night: v => { mood.target = v ? 1 : 0; } };
 })();

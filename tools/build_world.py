@@ -25,6 +25,9 @@ Output keys:
   a   areas      kept areas plus parking, grass, walls, fences, tram lines
   p   businesses [x, z, kind, name] kind g stay, b pub/bar/club, f food/drink, s shop/other, t tram stop
   ad  house numbers [number, x, z]
+  ph  photo facades  [file, building index, ax, az, bx, bz, credit index]: an openly licensed Wikimedia Commons photo
+      on the real building's street face that looks towards where the photographer stood (photo-pick.json + commons-photos.json)
+  pa  arrival photos [file, venue slug or landmark key, x, z, credit index]
 """
 import json, math, os
 D = os.path.join(os.path.dirname(__file__), '..', 'source', 'data')
@@ -192,8 +195,56 @@ for a in src['areas']:
     if kk: A.append([kk, a.get('n', '')] + enc(pts))
 _seen = set(); A = [a for a in A if not (json.dumps(a) in _seen or _seen.add(json.dumps(a)))]   # re-running must not duplicate kept areas
 
+# ---------------------------------------------------------------- Wikimedia Commons photos (credits in photo-credits.json)
+PH, PA = [], []
+if os.path.exists(os.path.join(D, 'photo-pick.json')) and os.path.exists(os.path.join(D, 'photo-credits.json')):
+    pick = json.load(open(os.path.join(D, 'photo-pick.json'))); cred = json.load(open(os.path.join(D, 'photo-credits.json')))
+    cam = {c[0]: (c[1], c[2]) for c in json.load(open(os.path.join(D, 'commons-photos.json')))}
+    ci = {c['file']: i for i, c in enumerate(cred)}
+    def dec(a):
+        o, x, z = [], 0, 0
+        for i in range(2, len(a) - 1, 2): x += a[i]; z += a[i + 1]; o.append((x, z))
+        return ring(o)
+    FPS = [dec(x) for x in b]
+    def inside(x, z, pts):
+        c, j = False, len(pts) - 1
+        for i in range(len(pts)):
+            a1, b1 = pts[i], pts[j]
+            if (a1[1] > z) != (b1[1] > z) and x < (b1[0] - a1[0]) * (z - a1[1]) / (b1[1] - a1[1]) + a1[0]: c = not c
+            j = i
+        return c
+    def faces(i, cx, cz):
+        pts = FPS[i]; ar = sum(pts[k - 1][0] * pts[k][1] - pts[k][0] * pts[k - 1][1] for k in range(len(pts))) / 2; out = []
+        for k in range(len(pts)):
+            a1, b1 = pts[k], pts[(k + 1) % len(pts)]; dx, dz = b1[0] - a1[0], b1[1] - a1[1]; L = math.hypot(dx, dz)
+            if L < 4: continue
+            nx, nz = dz / L, -dx / L
+            if ar < 0: nx, nz = -nx, -nz
+            mx, mz = (a1[0] + b1[0]) / 2, (a1[1] + b1[1]) / 2; d = math.hypot(cx - mx, cz - mz) or 1
+            dot = (nx * (cx - mx) + nz * (cz - mz)) / d
+            if dot > .35: out.append((L * dot / (d + 15), a1, b1, d))
+        return sorted(out, key=lambda o: -o[0])
+    for f, use, t, crop in pick:
+        c = cred[ci[f]]; cx, cz = cam.get(c['title'], (None, None))
+        if use == 'arrival':
+            PA.append([f, t, cx, cz, ci[f]]); continue
+        if cx is None: continue
+        bi = None
+        if t.get('poi') or t.get('pin'):
+            nm = (t.get('poi') or t.get('pin')).lower()
+            q = next((q for q in P if q[3].lower() == nm), None) or next((q for q in P if nm in q[3].lower()), None)
+            if q:
+                bi = next((i for i, pts in enumerate(FPS) if len(pts) > 2 and inside(q[0], q[1], pts)), None)
+                if bi is None: bi = min(range(len(FPS)), key=lambda i: min(math.hypot(p[0] - q[0], p[1] - q[1]) for p in FPS[i]) if len(FPS[i]) > 2 else 1e9)
+        best = None
+        for i in ([bi] if bi is not None else range(len(FPS))):
+            if len(FPS[i]) < 3: continue
+            for sc, a1, b1, d in faces(i, cx, cz)[:1]:
+                if (bi is not None or d < 45) and (best is None or sc > best[0]): best = (sc, i, a1, b1)
+        if best: PH.append([f, best[1], round(best[2][0], 1), round(best[2][1], 1), round(best[3][0], 1), round(best[3][1], 1), ci[f]])
+
 W = dict(old)
-W.update({'p': P, 'ad': AD, 'b': b, 'bm': bm, 'r': r, 'rw': rw, 'o': ow, 'sw': ''.join(sw), 'ln': ''.join(ln), 'ms': ms, 'x': xs, 'f': F, 'a': A})
+W.update({'p': P, 'ad': AD, 'ph': PH, 'pa': PA, 'b': b, 'bm': bm, 'r': r, 'rw': rw, 'o': ow, 'sw': ''.join(sw), 'ln': ''.join(ln), 'ms': ms, 'x': xs, 'f': F, 'a': A})
 json.dump(W, open(os.path.join(D, 'world.json'), 'w'), separators=(',', ':'))
-print('businesses', len(P), 'house numbers', len(AD), 'buildings', len(b), 'with height', sum(1 for x in b if x[0] > 0), 'streets', len(r), 'crossings', len(xs), 'rainbow', len(rain), 'furniture', len(F), 'areas', len(A),
+print('photo facades', len(PH), 'arrival photos', len(PA), 'businesses', len(P), 'house numbers', len(AD), 'buildings', len(b), 'with height', sum(1 for x in b if x[0] > 0), 'streets', len(r), 'crossings', len(xs), 'rainbow', len(rain), 'furniture', len(F), 'areas', len(A),
       'kb', os.path.getsize(os.path.join(D, 'world.json')) // 1024)
