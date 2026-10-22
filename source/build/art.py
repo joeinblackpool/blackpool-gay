@@ -342,14 +342,14 @@ def hero_scene():
         return re.sub(r'dur="([\d.]+)s"', lambda m: f'dur="{float(m.group(1)) * 65 / w:.3f}s"', g)
     cast = [  # (width, group, walking speed, +1 right / -1 left, start fraction, extra depth)
         (90, allg[0][1], 80, 1, .15, 0), (90, allg[1][1], 55, 1, .55, 0), (110, allg[2][1], 45, 1, .85, 0),
-        (70, bear(), 58, -1, .3, 8), (60, glam(), 82, -1, .7, 8), (44, allg[5][1], 38, -1, .05, 10)]
+        (70, bear(), 58, -1, .3, 8), (60, glam(), 82, -1, .7, 8), (44, allg[5][1], 38, -1, .05, 10), (130, kite_boy(), 52, 1, .4, -2)]
     ppl = []
     for w, g, sp, d, f0, dy in cast:
-        v = d * sp - P; bw, bh = w + 100, 214; dur = (1600 + bw) / abs(v)
+        v = d * sp - P; bw, bh = w + 100, (360 if w == 130 else 214); dur = (1600 + bw) / abs(v)
         body = paced(g, sp)
         if d < 0: body = f'<g transform="translate({w} 0) scale(-1 1)">{body}</g>'
-        ppl.append(f'<div class="pw" style="top:{(551 + dy) / 9:.4f}%;height:{bh / 9:.4f}%;--b:{bw / 16:.4f}%;animation-duration:{dur:.2f}s;animation-delay:-{f0 * dur:.2f}s{";animation-direction:reverse" if v < 0 else ""}">'
-                   f'<div><svg viewBox="-46 -204 {bw} {bh}" preserveAspectRatio="none" aria-hidden="true" focusable="false"><g transform="scale(1.02)">{body}</g></svg></div></div>')
+        ppl.append(f'<div class="pw" style="top:{(765 - bh + dy) / 9:.4f}%;height:{bh / 9:.4f}%;--b:{bw / 16:.4f}%;animation-duration:{dur:.2f}s;animation-delay:-{f0 * dur:.2f}s{";animation-direction:reverse" if v < 0 else ""}">'
+                   f'<div><svg viewBox="-46 {10 - bh} {bw} {bh}" preserveAspectRatio="none" aria-hidden="true" focusable="false"><g transform="scale(1.02)">{body}</g></svg></div></div>')
     people_div = (f'<div class="ly ly-people"><svg class="pdefs" width="0" height="0" aria-hidden="true" focusable="false"><defs>{WALKER_DEFS}</defs></svg>{"".join(ppl)}</div>')
     kerb = '<svg class="kerb" viewBox="0 0 1600 20" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M0 2 Q800 30 1600 2 V20 H0Z" fill="#fff8f3"/></svg>'
     return ('<div class="stage scene" aria-hidden="true">'
@@ -578,6 +578,27 @@ def glam():
     return g
 
 
+def kite_boy():
+    """A lad strolling the Prom flying a rainbow kite on a long string; the kite sways and tugs in the sea breeze. Feet on y=0."""
+    hand = (12.6, -85)
+    kite = ('<g transform="translate(96 -300)">'
+            '<clipPath id="kclip"><path d="M0 -34 L24 0 L0 40 L-24 0z"/></clipPath><g clip-path="url(#kclip)">'
+            + ''.join(f'<rect x="-26" y="{-34 + i * 74 / 6:.1f}" width="52" height="{74 / 6 + .5:.1f}" fill="{c}"/>' for i, c in enumerate(RAINBOW)) + '</g>'
+            '<path d="M0 -34 L24 0 L0 40 L-24 0z" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="1"/><path d="M0 -34 V40 M-24 0 H24" stroke="#fff" stroke-opacity=".7" stroke-width="1.4"/>'
+            '<g><path d="M0 40 q-8 14 2 26 q10 12 0 26 q-8 12 4 24" stroke="#fff" stroke-width="1.2" fill="none" opacity=".8"/>'
+            + ''.join(f'<path d="M{-5 + (i % 2) * 6} {52 + i * 18} l5 -4 l0 8z M{1 + (i % 2) * 6} {52 + i * 18} l5 -4 l0 8z" fill="{c}"/>' for i, c in enumerate(['#ff2e88', '#ffc93c', '#2f9bff', '#7b2ff7']))
+            + '<animateTransform attributeName="transform" type="skewX" values="0;9;-7;0" dur="1.6s" repeatCount="indefinite"/></g>'
+            '<animateTransform attributeName="transform" type="rotate" additive="sum" values="-8 0 0;10 0 0;-8 0 0" dur="3.1s" repeatCount="indefinite" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1"/></g>')
+    string = f'<path d="M{hand[0]} {hand[1]} Q 70 -150 96 -262" stroke="#fff6ec" stroke-width="1.1" fill="none" opacity=".85"/>'
+    flying = (f'<g>{string}{kite}<animateTransform attributeName="transform" type="rotate" values="-5 {hand[0]} {hand[1]};4 {hand[0]} {hand[1]};-5 {hand[0]} {hand[1]}" '
+              f'dur="4.4s" repeatCount="indefinite" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1"/></g>')
+    lad = _walk('#c98f6d', 'url(#wrb)', '#2d3f66', '#ff2e88',
+                '<path d="M-11 -112 q0 -12 12 -12 q12 0 12 11 h6 q1 3 -2 4 h-28z" fill="#2f9bff"/>',
+                arm_front=-150, legs_bare=True, sleeves='#c98f6d', phase=.2, h=.72,
+                extra_front='<path d="M-10.6 -52 h21.2 l1.4 14 h-10 l-2 -4 l-2 4 h-10z" fill="#2d3f66"/>')
+    return f'<g>{flying}{lad}</g>'
+
+
 def _legs4(color, xs, top, dur, phase=0, amp=22):
     """Four little trotting legs, diagonal pairs in step."""
     out = ''
@@ -764,25 +785,35 @@ def biplane(raw=False):
     return f'<svg viewBox="0 0 340 84" aria-hidden="true" focusable="false">{defs}{banner}{rope}{plane}</svg>'
 
 
-def skywriter(word='Hiya', T=24.0):
-    """The biplane skywriting a word in smoke: it crosses the sky left to right and the letters appear right behind its tail,
-    puff up, hang there, then drift and fade before the next pass. Plane and smoke share one SMIL clock. viewBox 0 0 1600 220."""
-    x0, x1, cross = -140.0, 1760.0, .62          # plane x runs x0 -> x1 over the first 62% of the loop
-    tail = 6                                     # the tail is ~6 units behind the plane's origin
-    kt = f'0;{cross:.3f};{cross + .001:.3f};1'
-    font = "'Segoe Script','Snell Roundhand','Apple Chancery','Brush Script MT','Lucida Handwriting','Dancing Script',cursive"
-    letters = (f'<text x="900" y="128" text-anchor="middle" font-family="{font}" font-size="104" font-style="italic" font-weight="700" letter-spacing="6"'
-               f' fill="#fff" stroke="#fff" stroke-width="13" stroke-linejoin="round" stroke-opacity=".38" paint-order="stroke">{word}</text>')
-    smoke = (f'<clipPath id="swclip"><rect x="0" y="0" height="220" width="0">'
-             f'<animate attributeName="width" values="{x0 + tail:.0f};{x1:.0f};0;0" keyTimes="{kt}" dur="{T}s" repeatCount="indefinite"/></rect></clipPath>'
-             f'<g clip-path="url(#swclip)"><g opacity=".92">{letters}'
-             f'<animate attributeName="opacity" values=".92;.92;.92;0;0" keyTimes="0;{cross:.3f};.82;.95;1" dur="{T}s" repeatCount="indefinite"/>'
-             f'<animateTransform attributeName="transform" type="translate" values="0 0;0 0;-14 -10;-14 -10" keyTimes="0;{cross:.3f};.95;1" dur="{T}s" repeatCount="indefinite"/></g></g>')
-    puffs = ''.join(f'<circle cx="{-8 - i * 9}" cy="{24 + (i % 2) * 2}" r="{3 + i * 1.3:.1f}" fill="#fff" opacity="{.75 - i * .12:.2f}"/>' for i in range(6))
-    plane = (f'<g><g transform="translate(0 -26) scale(.9)">{puffs}{biplane(raw=True)}</g>'
-             f'<animateTransform attributeName="transform" type="translate" values="{x0:.0f} 96;{x1:.0f} 96;{x1:.0f} 96;{x1:.0f} 96" keyTimes="{kt}" dur="{T}s" repeatCount="indefinite"/></g>')
-    bob = '<animateTransform attributeName="transform" type="translate" values="0 0;0 -10;0 6;0 0" dur="3.6s" repeatCount="indefinite" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1;.45 0 .55 1"/>'
-    return f'<svg viewBox="0 0 1600 220" aria-hidden="true" focusable="false">{smoke}<g>{plane}{bob}</g></svg>'
+def skywriter(word='Hiya', T=26.0):
+    """Real skywriting: the biplane flies the strokes of a joined-up "Hiya" and leaves a puffy cloud trail exactly where it has been,
+    then carries on out of shot still trailing smoke; the word hangs, drifts and fades before the next pass.
+    The plane (animateMotion) and the smoke reveal (stroke-dashoffset) run on one SMIL clock along the same path. viewBox 0 0 1600 230."""
+    lead = 'M-160 150 L700 150 '
+    word_d = ('M700 150 L716 40 L704 150 Q714 96 744 92 M744 92 L758 40 L746 150 '            # H (cross stroke flows into the second stem)
+              'Q762 166 776 98 L774 150 '                                                     # i (its dot is puffed in afterwards)
+              'Q786 166 800 102 Q800 150 816 148 Q832 144 836 102 L828 194 Q820 218 802 208 Q788 198 810 182 Q834 166 852 150 '   # y with its loop
+              'Q862 104 888 112 Q902 120 886 146 Q870 162 860 146 Q854 126 882 116 Q896 112 898 122 L900 146 Q904 158 918 150 '    # a
+              'Q980 126 1120 122 L1780 112')                                                  # trail out of shot
+    # one continuous flight path (the H's second stem is reached through its cross stroke)
+    fly = (lead + word_d[len('M700 150 '):]).replace(' M744 92 ', ' ')   # one subpath, so the smoke reveal and the plane stay in step
+    smoke_d = word_d.replace(' M744 92 ', ' ')
+    cross = .72
+    kt = f'0;{cross:.3f};1'
+    reveal = (f'<mask id="swm" maskUnits="userSpaceOnUse" x="-200" y="-40" width="2100" height="320">'
+              f'<path d="{fly}" pathLength="1000" fill="none" stroke="#fff" stroke-width="40" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="1000 1000">'
+              f'<animate attributeName="stroke-dashoffset" values="1000;0;0" keyTimes="{kt}" dur="{T}s" repeatCount="indefinite"/></path></mask>')
+    puff = lambda w, op, dash='': f'<path d="{smoke_d}" fill="none" stroke="#fff" stroke-width="{w}" stroke-opacity="{op}" stroke-linecap="round" stroke-linejoin="round"{dash}/>'
+    cloud = (puff(17, .22) + puff(11, .55, ' stroke-dasharray="0.1 7.5"') + puff(6, .9, ' stroke-dasharray="0.1 5"')
+             + '<g opacity="0"><circle cx="778" cy="76" r="7" fill="#fff" opacity=".85"/><circle cx="773" cy="72" r="4" fill="#fff" opacity=".6"/><circle cx="778" cy="76" r="12" fill="#fff" opacity=".2"/>'
+             f'<animate attributeName="opacity" values="0;0;1;1" keyTimes="0;.62;.63;1" dur="{T}s" repeatCount="indefinite"/></g>')
+    smoke = (f'<g mask="url(#swm)"><g>{cloud}'
+             f'<animate attributeName="opacity" values="1;1;1;0;0" keyTimes="0;{cross:.3f};.86;.98;1" dur="{T}s" repeatCount="indefinite"/>'
+             f'<animateTransform attributeName="transform" type="translate" values="0 0;0 0;-16 -8;-16 -8" keyTimes="0;{cross:.3f};.98;1" dur="{T}s" repeatCount="indefinite"/></g></g>')
+    puffs = ''.join(f'<circle cx="{-6 - i * 8}" cy="0" r="{2.6 + i * 1.1:.1f}" fill="#fff" opacity="{.8 - i * .13:.2f}"/>' for i in range(6))
+    plane = (f'<g><g transform="scale(.7) translate(6 -24)">{biplane(raw=True)}</g>{puffs}'
+             f'<animateMotion dur="{T}s" repeatCount="indefinite" rotate="auto" keyPoints="0;1;1" keyTimes="{kt}" calcMode="linear" path="{fly}"/></g>')
+    return f'<svg viewBox="0 0 1600 230" aria-hidden="true" focusable="false"><defs>{reveal}</defs><g transform="translate(70 0)">{smoke}{plane}</g></svg>'
 
 
 def balloon():

@@ -356,7 +356,7 @@ a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible,te
 
 /* sky band: the part of the stage the hero actually shows, so the sky never gets cropped off on wide screens */
 .stage .skyband{position:absolute;left:0;right:0;bottom:0;height:min(100%,var(--hh,100%));pointer-events:none}
-.stage .ov-sky{position:absolute;left:0;top:1.5%;width:100%;aspect-ratio:1600/220}.stage .ov-sky svg{display:block;width:100%;height:100%;overflow:visible}
+.stage .ov-sky{position:absolute;left:0;top:1.5%;width:100%;aspect-ratio:1600/230}.stage .ov-sky svg{display:block;width:100%;height:100%;overflow:visible}
 @media(max-width:760px){.stage .ov-sky{top:.5%}}
 .stage .ov-fly2{top:46%;width:12%;animation-duration:27s;animation-delay:13s}.stage .ov-fly2 .fly-bob{animation-delay:-1.4s}
 .stage .mwink{transform-box:fill-box;transform-origin:50% 0;transform:scaleY(0);animation:mWink 8s ease-in-out infinite}
