@@ -745,7 +745,7 @@
     const wantYaw = st.h + Math.PI + camS.userYaw; camS.yaw += Math.atan2(Math.sin(wantYaw - camS.yaw), Math.cos(wantYaw - camS.yaw)) * Math.min(1, dt * 2.6);
     const ahead = clamp(st.v, -4, 26) * .35;
     camTarget.set(st.x + Math.sin(st.h) * ahead, 1.6, st.z + Math.cos(st.h) * ahead);
-    const cd = camS.dist * (1 + Math.abs(st.v) / 70);
+    const cd = camS.dist * (1 + Math.abs(st.v) / 70) * (cam.aspect < 1 ? 1.5 : 1);
     camPos.set(camTarget.x + Math.sin(camS.yaw) * Math.cos(camS.pitch) * cd, camTarget.y + Math.sin(camS.pitch) * cd, camTarget.z + Math.cos(camS.yaw) * Math.cos(camS.pitch) * cd);
     const fovT = 42 + Math.max(0, st.v - 14) * .5; if (Math.abs(cam.fov - fovT) > .05) { cam.fov += (fovT - cam.fov) * Math.min(1, dt * 3); cam.updateProjectionMatrix(); }
     if (!started || intro < 1) {
