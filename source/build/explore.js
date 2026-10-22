@@ -47,6 +47,10 @@
   box.insertBefore(R.domElement, box.firstChild);
   const S = new T.Scene();
   const cam = new T.PerspectiveCamera(42, 1, 0.5, 4000);
+  // quality tiers: 2 = bloom + shadows + sharp, 1 = shadows, 0 = light (software rendering / weak devices)
+  const GPU = (() => { try { const gl = R.getContext(), d = gl.getExtension('WEBGL_debug_renderer_info'); return d ? gl.getParameter(d.UNMASKED_RENDERER_WEBGL) : ''; } catch (e) { return ''; } })();
+  const SOFT = /swiftshader|basic render|llvmpipe|softpipe|software/i.test(GPU);
+  let tier = 2, usePost = false, warned = false;
 
   // ------------------------------------------------------------------ post-processing: HDR, MSAA, bloom, ACES, vignette, grain
   const post = (function () {
@@ -563,7 +567,7 @@
   const endPad = () => { pad.on = false; pad.x = pad.y = 0; padIn.style.transform = ''; };
   ui.pad.addEventListener('pointerup', endPad); ui.pad.addEventListener('pointercancel', endPad);
   function movePad(e) { const r = ui.pad.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2; let dx = (e.clientX - cx) / (r.width / 2), dy = (e.clientY - cy) / (r.height / 2); const l = Math.hypot(dx, dy); if (l > 1) { dx /= l; dy /= l; } pad.x = dx; pad.y = dy; padIn.style.transform = `translate(${dx * 34}px,${dy * 34}px)`; }
-  const camS = { yaw: 0, pitch: .56, dist: 15, userYaw: 0, userT: 0 }, ptr = new Map();
+  const camS = { yaw: 0, pitch: .56, dist: 17, userYaw: 0, userT: 0 }, ptr = new Map();
   let downAt = null;
   R.domElement.addEventListener('pointerdown', e => { if (!started) return; R.domElement.focus({ preventScroll: true }); ptr.set(e.pointerId, [e.clientX, e.clientY]); downAt = [e.clientX, e.clientY, performance.now()]; R.domElement.setPointerCapture(e.pointerId); });
   R.domElement.addEventListener('pointermove', e => {
@@ -672,16 +676,24 @@
     NIGHT.value = lerp(a.win, b.win, t);
     head.intensity = lerp(0, 80, t);
     for (const c of clouds) mix('cloud', c.m.material.color);
-    if (post) { post.comp.uniforms.exposure.value = lerp(a.exp, b.exp, t); post.comp.uniforms.strength.value = lerp(a.bloom, b.bloom, t); post.bright.uniforms.th.value = lerp(a.th, b.th, t); } else R.toneMappingExposure = lerp(a.exp, b.exp, t);
+    R.toneMappingExposure = lerp(a.exp, b.exp, t) * .9; if (post) { post.comp.uniforms.exposure.value = lerp(a.exp, b.exp, t); post.comp.uniforms.strength.value = lerp(a.bloom, b.bloom, t); post.bright.uniforms.th.value = lerp(a.th, b.th, t); }
   }
 
   // ------------------------------------------------------------------ loop
   const tmp = new T.Vector3(), camTarget = new T.Vector3(), camPos = new T.Vector3();
   let lastT = performance.now(), visible = true, frames = 0, fpsT = 0, raf = 0;
+  function setTier(n) {
+    tier = n; usePost = !!post && n === 2;
+    R.toneMapping = usePost ? T.NoToneMapping : T.ACESFilmicToneMapping;
+    sun.castShadow = n >= 1;
+    dpr = n === 2 ? Math.min(devicePixelRatio || 1, 2) : n === 1 ? Math.min(devicePixelRatio || 1, 1.5) : Math.min(devicePixelRatio || 1, 1) * .75;
+    R.setPixelRatio(dpr); resize();
+  }
   function resize() { const w = box.clientWidth, h = box.clientHeight; R.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix(); if (post) post.size(Math.round(w * dpr), Math.round(h * dpr)); }
   new ResizeObserver(resize).observe(box); resize();
-  new IntersectionObserver(es => { visible = es[0].isIntersecting; if (visible && !raf) { lastT = performance.now(); raf = requestAnimationFrame(frame); } }, { threshold: 0 }).observe(box);
-  document.addEventListener('visibilitychange', () => { if (!document.hidden && !raf) { lastT = performance.now(); raf = requestAnimationFrame(frame); } });
+  setTier(SOFT ? 0 : 2);
+  new IntersectionObserver(es => { visible = es[0].isIntersecting; if (visible && !raf) { lastT = performance.now(); frame.prev = 0; frames = 0; fpsT = 0; raf = requestAnimationFrame(frame); } }, { threshold: 0 }).observe(box);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !raf) { lastT = performance.now(); frame.prev = 0; frames = 0; fpsT = 0; raf = requestAnimationFrame(frame); } });
 
   // fixed-step vehicle physics (120 Hz) so driving feels identical at any frame rate
   const STEP = 1 / 120; let acc = 0;
@@ -708,7 +720,8 @@
   function frame(now) {
     raf = 0; if (!visible || document.hidden) return;
     const dt = Math.min((now - lastT) / 1000, window.__xpDt || 1 / 20); lastT = now; const time = now / 1000;
-    frames++; fpsT += dt; if (fpsT > 2.5) { const fps = frames / fpsT; if (fps < 38 && dpr > 1) { dpr = Math.max(1, dpr - .5); R.setPixelRatio(dpr); resize(); } frames = 0; fpsT = 0; }
+    frames++; fpsT += (now - (frame.prev || now)) / 1000; frame.prev = now;
+    if (fpsT > 3) { const fps = frames / fpsT; if (fps < 32 && tier > 0) setTier(tier - 1); else if (fps < 12 && tier === 0 && started && !warned) { warned = true; toast('Your browser is drawing 3D without a graphics card, so it may feel slow. The flat map is below.'); } frames = 0; fpsT = 0; }
     mood.t += (mood.target - mood.t) * Math.min(1, dt * 1.4); applyMood(mood.t);
 
     acc = Math.min(acc + dt, .25); while (acc >= STEP) { physics(STEP); acc -= STEP; }
@@ -763,7 +776,7 @@
     if (toastT > 0) { toastT -= dt; if (toastT <= 0) ui.toast.hidden = true; }
     ui.speed.firstChild.textContent = Math.round(Math.abs(st.v) * 2.237);
     if (started) drawMini();
-    if (post) post.render(S, cam, time); else R.render(S, cam);
+    if (usePost) post.render(S, cam, time); else R.render(S, cam);
     raf = requestAnimationFrame(frame);
   }
 
@@ -785,5 +798,5 @@
     box.classList.add('ready');
     if (new URLSearchParams(location.search).has('go')) begin();
   }).catch(e => { console.error(e); goBtn.textContent = 'Could not load the map. Please refresh.'; });
-  window.__xp = { st, cam, begin, sim: secs => { for (let i = 0; i < secs * 120; i++) physics(STEP); }, skip: () => { intro = 1; snap = 1; }, settle: () => { mood.t = mood.target; snap = 1; }, view: (d, p) => { camS.dist = d; camS.pitch = p; snap = 1; }, goPin: s => goPin(PINS.find(p => p.slug === s)), night: v => { mood.target = v ? 1 : 0; } };
+  window.__xp = { st, cam, begin, tier: n => setTier(n), gpu: GPU, sim: secs => { for (let i = 0; i < secs * 120; i++) physics(STEP); }, skip: () => { intro = 1; snap = 1; }, settle: () => { mood.t = mood.target; snap = 1; }, view: (d, p) => { camS.dist = d; camS.pitch = p; snap = 1; }, goPin: s => goPin(PINS.find(p => p.slug === s)), night: v => { mood.target = v ? 1 : 0; } };
 })();
