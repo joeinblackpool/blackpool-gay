@@ -284,30 +284,31 @@
     const named = new Map();
     for (let ri = 0; ri < Wd.r.length; ri++) {
       const r = Wd.r[ri], cls = r[0], pts = dec(r, 2); if (pts.length < 2) continue;
-      if (cls !== 4) ribbon(ground, pts, RW[cls] + 4.5, 0.14, rgb('#e2d7ea'), true);
-      ribbon(roads, pts, RW[cls], RY[cls], rgb(RC[cls]), true);
+      const rw = (Wd.rw && Wd.rw[ri]) || RW[cls];
+      if (cls !== 4) ribbon(ground, pts, rw + (cls ? 4.6 : 1.6), 0.14, rgb('#e2d7ea'), true);
+      ribbon(roads, pts, rw, RY[cls], rgb(RC[cls]), true);
       if (cls >= 2) for (let i = 0; i < pts.length - 1; i++) {
         const a = pts[i], b = pts[i + 1], l = Math.hypot(b[0] - a[0], b[1] - a[1]);
         for (let s = 2; s < l - 3; s += 9) { const t0 = s / l, t1 = Math.min((s + 4) / l, 1); ribbon(marks, [[lerp(a[0], b[0], t0), lerp(a[1], b[1], t0)], [lerp(a[0], b[0], t1), lerp(a[1], b[1], t1)]], .35, RY[cls] + .02, rgb('#fbf3ff'), false); }
       }
-      W.roads.push({ cls, name: r[1], pts });
+      W.roads.push({ cls, name: r[1], pts, w: (Wd.rw && Wd.rw[ri]) || RW[cls] });
       for (let i = 0; i < pts.length - 1; i++) { const a = pts[i], b = pts[i + 1]; for (let x = Math.floor(Math.min(a[0], b[0]) / 20); x <= Math.floor(Math.max(a[0], b[0]) / 20); x++) for (let z = Math.floor(Math.min(a[1], b[1]) / 20); z <= Math.floor(Math.max(a[1], b[1]) / 20); z++) { const k = x + ',' + z; let c = W.rg.get(k); if (!c) W.rg.set(k, c = []); c.push([a[0], a[1], b[0], b[1], cls]); } }
       if (r[1]) { const e = named.get(r[1]) || []; e.push(pts); named.set(r[1], e); }
       // one-way streets from OpenStreetMap: '+' only in drawing order, '-' only against it; cost is travel time
       const ow = (Wd.o && Wd.o[ri]) || '', SPD = [4.5, 8.9, 11.2, 13.4, 4.5];
-      for (let i = 0; i < pts.length; i++) {
-        const k = pts[i][0] + ',' + pts[i][1]; let n = W.nodes.get(k); if (!n) { n = { x: pts[i][0], z: pts[i][1], e: [] }; W.nodes.set(k, n); }
-        if (i) { const p = W.nodes.get(pts[i - 1][0] + ',' + pts[i - 1][1]), d = Math.hypot(n.x - p.x, n.z - p.z), cost = d / SPD[cls], f = ow[i - 1] || '0';
+      if (cls !== 4) for (let i = 0; i < pts.length; i++) {
+        const k = Math.round(pts[i][0] * 10) + ',' + Math.round(pts[i][1] * 10); let n = W.nodes.get(k); if (!n) { n = { x: pts[i][0], z: pts[i][1], e: [] }; W.nodes.set(k, n); }
+        if (i) { const p = W.nodes.get(Math.round(pts[i - 1][0] * 10) + ',' + Math.round(pts[i - 1][1] * 10)), d = Math.hypot(n.x - p.x, n.z - p.z), cost = d / SPD[cls], f = ow[i - 1] || '0';
           if (f !== '+') n.e.push([p, cost]); if (f !== '-') p.e.push([n, cost]); }
       }
     }
     const gMesh = ground.mesh(new T.MeshStandardMaterial({ vertexColors: true, roughness: 1 })); gMesh.receiveShadow = true; S.add(gMesh);
     const rMesh = roads.mesh(new T.MeshStandardMaterial({ vertexColors: true, roughness: .8, metalness: .05 })); rMesh.receiveShadow = true; S.add(rMesh);
     S.add(marks.mesh(new T.MeshBasicMaterial({ vertexColors: true })));
+    buildStreetDetail(Wd);
     streetLabels(named);
 
     const PAL = ['#f7e6d4', '#f4d3c4', '#ead6f3', '#d8e4fb', '#fbe8b8', '#e3f1da', '#f9d6e6', '#ddd4f6', '#f3efe8', '#e6dccf', '#ffd9c2', '#cfe9f1'];
-    const filled = fillGaps(Wd, RW); for (const f of filled) Wd.b.push(f);
     const venueOf = new Map();
     for (const pin of PINS) { let best = null; for (let i = 0; i < Wd.b.length; i++) { const pts = ring(dec(Wd.b[i], 2)); if (pts.length > 2 && inside(pin.x, pin.z, pts)) { best = i; break; } } if (best != null && !venueOf.has(best)) venueOf.set(best, pin); else pin.free = true; }
     let towerXZ = null;
@@ -323,13 +324,14 @@
     Wd.b.forEach((b, i) => {
       const pts = ring(dec(b, 2)); if (pts.length < 3) return;
       const A = Math.abs(area(pts)), c = centroid(pts), r = hash(c[0], c[1]);
-      let h = b[0] || (A > 2500 ? 14 + r * 8 : A > 600 ? 10 + r * 6 : 6.5 + r * 5);
+      const meta = (Wd.bm && Wd.bm[i]) || [];
+      let h = b[0] > 2.5 ? b[0] : (A > 2500 ? 14 + r * 8 : A > 600 ? 10 + r * 6 : 6.5 + r * 5);
       if (/Tower, Ballroom/.test(b[1])) { h = 24; towerXZ = c; }
       if (/Winter Gardens/.test(b[1])) h = 20;
       addCollider(pts);
       const pin = venueOf.get(i);
       if (pin) { venueBuilding(pin, pts, Math.max(h, 9), bPOI.get(i)); return; }
-      blackpoolHouse(bld, glow, pts, h, A, r, bPOI.get(i) || []);
+      blackpoolHouse(bld, glow, pts, h, A, r, bPOI.get(i) || [], meta);
     });
     S.add(glow.mesh(new T.MeshBasicMaterial({ vertexColors: true, toneMapped: false })));
     const bm = bld.mesh(withWindows(new T.MeshStandardMaterial({ vertexColors: true, roughness: .78, flatShading: true }), 1));
@@ -411,17 +413,20 @@
   const PAL2 = ['#f3dfe8', '#e2ecf6', '#f3ead2', '#e6def5', '#d9eedf', '#f6d9cc', '#efe7dc', '#fde3c8', '#dcebf0', '#f2d6e4'];
   const SLATE = ['#5b5070', '#544a68', '#625874', '#4e4562'], CREAM = rgb('#fbf5ea'), BRICK = rgb('#a85d4b'), BAY = rgb('#fbf8f2'), LEAD = rgb('#4a4060');
   const SHOP = [rgb('#ffd59a', 1.5), rgb('#ffb3d6', 1.45), rgb('#bfe9ff', 1.4), rgb('#fff0c2', 1.5)], AWN = ['#ff2e88', '#0fb5ae', '#ffc93c', '#8b5cf6', '#e4413f'];
-  function blackpoolHouse(B, G, pts, h, A, r, pois) {
+  const colourOf = c => { if (!c) return null; try { const k = new T.Color().setStyle(c.replace(/\s+/g, ''), T.SRGBColorSpace); return [k.r, k.g, k.b]; } catch (e) { return null; } };
+  const NONHOUSE = /^(retail|commercial|office|industrial|church|school|college|train_station|warehouse|supermarket|civic|public|hospital|service|shelter|garage|roof)$/;
+  function blackpoolHouse(B, G, pts, h, A, r, pois, meta) {
+    meta = meta || [];
     const kinds = pois.map(q => q.k), commercial = kinds.some(k => k === 's' || k === 'f' || k === 'b'), guest = kinds.includes('g');
-    const brick = r > .8, wall = brick ? BRICK : rgb(PAL2[Math.floor(r * 97) % PAL2.length]);
-    const house = (A < 2400 && h < 16) || (guest && h < 18);
+    const brick = meta[4] === 'brick' || (!meta[4] && r > .8), wall = colourOf(meta[1]) || (brick ? BRICK : rgb(PAL2[Math.floor(r * 97) % PAL2.length]));
+    const house = !NONHOUSE.test(meta[0] || '') && ((A < 2400 && h < 16) || (guest && h < 18));
     if (house) { walls(B, pts, 0, h - .6, wall, wall.map(v => v * .6)); walls(B, pts, h - .6, h, CREAM, CREAM); flat(B, pts, h, rgb('#7b7090')); }
     else prism(B, pts, 0, h, wall, wall.map(v => v * .8));
     if (house) {
       const o = obb(pts); let su = o.u1 - o.u0, sv = o.v1 - o.v0;
-      if (su * sv > 0 && A / (su * sv) > .72) {
+      if (su * sv > 0 && A / (su * sv) > .72 && meta[3] !== 'flat') {
         if (sv > su) { [o.ux, o.uz, o.vx, o.vz] = [o.vx, o.vz, -o.ux, -o.uz]; const u0 = o.u0, u1 = o.u1; o.u0 = o.v0; o.u1 = o.v1; o.v0 = -u1; o.v1 = -u0; [su, sv] = [sv, su]; }
-        const rh = clamp(sv * .42, 1.6, 5.5), vm = (o.v0 + o.v1) / 2, e = .35, roof = rgb(r < .18 ? '#9a5a4a' : SLATE[Math.floor(r * 31) % SLATE.length]);
+        const rh = clamp(sv * .42, 1.6, 5.5), vm = (o.v0 + o.v1) / 2, e = .35, roof = colourOf(meta[2]) || rgb(r < .18 ? '#9a5a4a' : SLATE[Math.floor(r * 31) % SLATE.length]);
         quad(B, OP(o, o.u0 - e, o.v0 - e, h - .2), OP(o, o.u1 + e, o.v0 - e, h - .2), OP(o, o.u1 + e, vm, h + rh), OP(o, o.u0 - e, vm, h + rh), roof, [-o.vx, 1, -o.vz]);
         quad(B, OP(o, o.u0 - e, o.v1 + e, h - .2), OP(o, o.u0 - e, vm, h + rh), OP(o, o.u1 + e, vm, h + rh), OP(o, o.u1 + e, o.v1 + e, h - .2), roof.map(v => v * .82), [o.vx, 1, o.vz]);
         B.tri(OP(o, o.u0, o.v0, h), OP(o, o.u0, o.v1, h), OP(o, o.u0, vm, h + rh), wall, [-o.ux, 0, -o.uz]);
@@ -475,6 +480,64 @@
     }
   }
 
+
+  // ------------------------------------------------------------------ real street detail from OpenStreetMap: crossings, furniture, car parks, grass, walls, tram rails
+  const PROGRESS = ['#ffffff', '#f5a9b8', '#5bcefa', '#784f17', '#1a1a1a', '#e40303', '#ff8c00', '#ffed00', '#008026', '#004dff', '#750787'];
+  function roadWidthAt(x, z) {
+    let best = 1e9, w = 9;
+    for (const r of W.roads) { if (r.cls === 4) continue; for (let i = 0; i < r.pts.length - 1; i++) { const a = r.pts[i], b = r.pts[i + 1], dx = b[0] - a[0], dz = b[1] - a[1], l2 = dx * dx + dz * dz || 1, t = clamp(((x - a[0]) * dx + (z - a[1]) * dz) / l2, 0, 1), d = Math.hypot(x - a[0] - dx * t, z - a[1] - dz * t); if (d < best) { best = d; w = r.w; } } }
+    return w;
+  }
+  const circ = (x, z, r, n = 8) => Array.from({ length: n }, (_, i) => [x + Math.cos(i / n * Math.PI * 2) * r, z + Math.sin(i / n * Math.PI * 2) * r]);
+  function buildStreetDetail(Wd) {
+    const M = new Builder(), G = new Builder(), Y = .34, UP = [0, 1, 0];
+    // crossings
+    for (const [x, z, kind, ang] of Wd.x || []) {
+      const ux = Math.cos(ang), uz = Math.sin(ang), vx = -uz, vz = ux, half = roadWidthAt(x, z) / 2;
+      const Q = (a, b, y) => [x + ux * a + vx * b, y, z + uz * a + vz * b];
+      if (kind === 'rainbowlights') {   // the multicoloured crossings at the Springfield Road traffic lights: colour between the studs, no zebra stripes or beacons
+        const n = PROGRESS.length, bw = 2 * half / n;
+        PROGRESS.forEach((c, k) => quad(M, Q(-1.6, -half + k * bw, Y - .01), Q(1.6, -half + k * bw, Y - .01), Q(1.6, -half + (k + 1) * bw, Y - .01), Q(-1.6, -half + (k + 1) * bw, Y - .01), rgb(c), UP));
+      }
+      if (kind === 'signals' || kind === 'rainbowlights') {
+        for (const a of [-1.7, 1.7]) for (let b = -half; b < half - .3; b += 1.1) quad(M, Q(a - .08, b, Y), Q(a + .08, b, Y), Q(a + .08, b + .55, Y), Q(a - .08, b + .55, Y), rgb('#fbf3ff'), UP);
+        continue;
+      }
+      if (kind === 'rainbow') {   // Progress Pride colours under the white stripes, as painted on Dickson Road in March 2024
+        const n = PROGRESS.length, bw = 2 * half / n;
+        PROGRESS.forEach((c, k) => quad(M, Q(-1.6, -half + k * bw, Y - .01), Q(1.6, -half + k * bw, Y - .01), Q(1.6, -half + (k + 1) * bw, Y - .01), Q(-1.6, -half + (k + 1) * bw, Y - .01), rgb(c), UP));
+      }
+      for (let b = -half + .3; b < half - .3; b += 1) quad(M, Q(-1.5, b, Y + .01), Q(1.5, b, Y + .01), Q(1.5, b + .5, Y + .01), Q(-1.5, b + .5, Y + .01), rgb('#ffffff'), UP);
+      for (const side of [-1, 1]) {   // Belisha beacons
+        const p = Q(0, side * (half + .9), 0);
+        for (let k = 0; k < 5; k++) prism(M, circ(p[0], p[2], .07, 6), k * .55, (k + 1) * .55, rgb(k % 2 ? '#ffffff' : '#1a1a1a'), rgb('#1a1a1a'));
+        prism(G, circ(p[0], p[2], .24, 8), 2.75, 3.15, rgb('#ffb21e', 2.4), rgb('#ffcc55', 2.4));
+      }
+    }
+    // furniture
+    const RB = ['#ff2d55', '#ff9f1c', '#ffe45e', '#2ee59d', '#2fb8ff', '#b56bff'];
+    const lamp = (x, z, glow) => { prism(M, circ(x, z, .09, 6), 0, 7, rgb('#3a3350'), rgb('#3a3350')); prism(M, circ(x, z, .18, 6), 7, 7.25, rgb('#3a3350'), rgb('#3a3350')); prism(G, circ(x, z, .32, 8), 6.55, 7, glow, glow); };
+    for (const [k, x, z] of Wd.f || []) {
+      // real lamp posts only; those on Dickson Road in Claremont carry the council's rainbow lighting
+      if (k === 'lamp') { const nr = nearRoad(x, z), dick = W.roads.some(r => r.name === 'Dickson Road' && r.pts.some(p => Math.hypot(p[0] - x, p[1] - z) < 60)); lamp(x, z, dick && z > -140 && z < 300 ? rgb(RB[Math.floor(hash(x * 3, z * 7) * 6)], 2.2) : rgb('#ffd88a', 2)); }
+      else if (k === 'tree') { prism(M, circ(x, z, .18, 6), 0, 2.4, rgb('#6b4a3a'), rgb('#6b4a3a')); prism(M, circ(x, z, 1.8, 7), 2.2, 4.6, rgb('#5e9e63'), rgb('#7cc07f')); prism(M, circ(x, z, 1.2, 7), 4.6, 5.8, rgb('#6db070'), rgb('#8fd191')); }
+      else if (k === 'bench') prism(M, [[x - .8, z - .25], [x + .8, z - .25], [x + .8, z + .25], [x - .8, z + .25]], .4, .5, rgb('#8a6a4a'), rgb('#a07c58'));
+      else if (k === 'signals') { prism(M, circ(x, z, .08, 6), 0, 3, rgb('#2a2440'), rgb('#2a2440')); prism(M, [[x - .18, z - .14], [x + .18, z - .14], [x + .18, z + .14], [x - .18, z + .14]], 2.2, 3.1, rgb('#1a1a1a'), rgb('#1a1a1a')); prism(G, circ(x, z, .11, 6), 2.85, 3.0, rgb('#ff3030', 2), rgb('#ff3030', 2)); prism(G, circ(x, z, .11, 6), 2.35, 2.5, rgb('#3dff6a', 2), rgb('#3dff6a', 2)); }
+      else if (k === 'busstop') { prism(M, circ(x, z, .06, 6), 0, 2.8, rgb('#d9d4e6'), rgb('#d9d4e6')); prism(M, [[x - .25, z - .03], [x + .25, z - .03], [x + .25, z + .03], [x - .25, z + .03]], 2.3, 2.8, rgb('#1f6fd1'), rgb('#1f6fd1')); }
+      else if (k === 'postbox') prism(M, circ(x, z, .28, 10), 0, 1.5, rgb('#d81e1e'), rgb('#1a1a1a'));
+      else if (k === 'phone') prism(M, [[x - .5, z - .5], [x + .5, z - .5], [x + .5, z + .5], [x - .5, z + .5]], 0, 2.5, rgb('#d81e1e'), rgb('#b01818'));
+    }
+    // areas
+    for (const a of Wd.a) {
+      const kind = a[0], line = dec(a, 2), pts = ring(line);
+      if (kind === 'parking' && pts.length > 2) flat(M, pts, .1, rgb('#6f6787'));
+      else if (kind === 'grass' && pts.length > 2) flat(M, pts, .13, rgb('#8fcf88'));
+      else if (kind === 'wall') for (let i = 0; i < line.length - 1; i++) { const p = line[i], q = line[i + 1], dx = q[0] - p[0], dz = q[1] - p[1], L = Math.hypot(dx, dz) || 1, nx = -dz / L * .15, nz = dx / L * .15; prism(M, [[p[0] + nx, p[1] + nz], [q[0] + nx, q[1] + nz], [q[0] - nx, q[1] - nz], [p[0] - nx, p[1] - nz]], 0, 1.4, rgb('#a8705c'), rgb('#c4907a')); }
+      else if (kind === 'tram') for (const d of [-.72, .72]) ribbon(M, offsetLine(line, d), .12, .32, rgb('#cfc8dc'), false);
+    }
+    const m1 = M.mesh(new T.MeshStandardMaterial({ vertexColors: true, roughness: .8, flatShading: true })); m1.receiveShadow = true; S.add(m1);
+    S.add(G.mesh(new T.MeshBasicMaterial({ vertexColors: true, toneMapped: false })));
+  }
   // ------------------------------------------------------------------ no gaps: terraces along every street frontage OpenStreetMap leaves empty
   function fillGaps(Wd, RW) {
     const G = 2, X0 = W.bounds.x0, Z0 = W.bounds.z0, NX = Math.ceil((W.bounds.x1 - X0) / G), NZ = Math.ceil((W.bounds.z1 - Z0) / G), occ = new Uint8Array(NX * NZ);
