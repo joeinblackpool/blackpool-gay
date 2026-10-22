@@ -335,7 +335,7 @@ def hero_scene():
                f'<svg viewBox="{cvx} {cvy} {cvw} {cvh}" aria-hidden="true" focusable="false"><defs><radialGradient id="hpool"><stop offset="0" stop-color="#fff2c8" stop-opacity=".32"/><stop offset="1" stop-color="#fff2c8" stop-opacity="0"/></radialGradient></defs><ellipse cx="417" cy="110" rx="174" ry="15" fill="url(#hpool)"/>{car("h")}</svg></div></div>')
     # Prom walkers: they stroll the same way the car is going, so they drift slowly back as it overtakes them
     # each group is its own small layer inside the moving strip, so a leg swing repaints a few hundred pixels, not the whole strip
-    allg = walkers(); groups = allg[:3]; spots = [120, 640, 1240]   # the Posse dances up front instead
+    allg = walkers(); groups = allg[:3] + [(70, bear())]; spots = [120, 640, 1240, 930]   # the Posse dances up front instead
     def pbox(x, w):
         bx, by, bw, bh = x - 46, 755 - 204, w + 100, 214
         return (f'<div class="pg" style="left:{bx / 3840 * 100:.4f}%;top:{by / 9:.4f}%;width:{bw / 3840 * 100:.4f}%;height:{bh / 9:.4f}%">'
@@ -529,6 +529,29 @@ def walkers():
     queen += ('<path d="M27 -70 q18 26 32 44" stroke="#ff2e88" stroke-width="1.4" fill="none"/>'
               '<g transform="translate(52 0)">' + dog() + '</g>')
     return [(90, g1), (90, g2), (110, queen), (200, posse()), (40, cat()), (40, flamingo())]
+
+
+def bear():
+    """Our own leather bear (original drawing): a big brown bear in a black leather biker jacket, studded collar and cap,
+    strolling to the right with a rainbow pin. Feet on y=0, about 150 tall."""
+    sw = lambda a, px, py, ph=0: (f'<animateTransform attributeName="transform" type="rotate" values="{-a} {px} {py};{a} {px} {py};{-a} {px} {py}" keyTimes="0;.5;1" '
+                                   f'calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1" dur="1.05s" begin="-{ph:.3f}s" repeatCount="indefinite"/>')
+    leg = lambda col, ph: (f'<g><path d="M-8 -62 h17 l-1 50 h-14z" fill="{col}"/><path d="M-9 -14 h17 q8 0 9 8 v6 h-27z" fill="#111"/><path d="M-9 -2 h27" stroke="#3a3a3a" stroke-width="2"/>{sw(20, 0, -62, ph)}</g>')
+    arm = lambda col, ph: (f'<g><path d="M-6 -122 q-4 26 -2 44 h13 q2 -20 0 -44z" fill="{col}"/><ellipse cx="-1" cy="-74" rx="8" ry="7" fill="#7a4626"/>{sw(16, -1, -118, ph)}</g>')
+    body = ('<path d="M-26 -60 q-6 -40 2 -64 q12 -16 34 -10 q16 6 18 24 q4 26 -4 50z" fill="#1b1b22"/>'                 # jacket back
+            '<path d="M10 -128 q16 8 18 28 q2 22 -6 40 h-14 q-6 -30 2 -68z" fill="#8a5330"/><path d="M12 -110 q10 6 10 18 M10 -96 q9 5 8 16 M13 -82 q6 4 5 12" stroke="#6e3f22" stroke-width="1.6" fill="none"/>'   # chest fur
+            '<path d="M8 -130 q-2 36 2 70 h-6 q-6 -36 -2 -72z" fill="#2a2a33"/><path d="M10 -128 v66" stroke="#c0c0c8" stroke-width="1.2"/>'   # lapel + zip
+            '<circle cx="-4" cy="-100" r="4" fill="url(#wrb)"/>'                                                             # rainbow pin
+            '<path d="M-24 -62 h48 v6 h-48z" fill="#2a2a33"/><circle cx="-14" cy="-59" r="1.2" fill="#c0c0c8"/><circle cx="0" cy="-59" r="1.2" fill="#c0c0c8"/><circle cx="14" cy="-59" r="1.2" fill="#c0c0c8"/>')
+    head = ('<circle cx="-4" cy="-166" r="7" fill="#7a4626"/><circle cx="-4" cy="-166" r="3.6" fill="#b5784a"/>'                # ear
+            '<ellipse cx="6" cy="-148" rx="22" ry="20" fill="#8a5330"/>'
+            '<ellipse cx="26" cy="-141" rx="13" ry="9" fill="#c08a5a"/><ellipse cx="37" cy="-145" rx="4.6" ry="3.6" fill="#1a1012"/><path d="M28 -134 q5 3 9 -1" stroke="#4a2414" stroke-width="1.6" fill="none" stroke-linecap="round"/>'
+            '<g class="blink"><circle cx="16" cy="-153" r="2.4" fill="#1a1012"/></g><path d="M11 -159 q5 -3 10 0" stroke="#4a2a18" stroke-width="2.2" fill="none" stroke-linecap="round"/>'
+            '<path d="M-14 -162 q2 -14 20 -14 q16 0 20 10 l6 2 q-2 4 -8 4 h-38z" fill="#111"/><path d="M-12 -158 h44" stroke="#c0c0c8" stroke-width="1.4"/>'   # biker cap
+            '<path d="M-10 -130 q14 6 30 0 v6 q-16 6 -30 0z" fill="#111"/>' + ''.join(f'<circle cx="{x}" cy="-127" r="1.3" fill="#d8d8e0"/>' for x in (-6, 0, 6, 12, 18)))   # studded collar
+    fig = (leg('#2b3550', .525) + arm('#141419', .525) + f'<g>{body}{head}<animateTransform attributeName="transform" type="translate" values="0 0;0 -2.2;0 0;0 -2.2;0 0" dur="1.05s" repeatCount="indefinite"/></g>'
+           + leg('#34406a', 0) + arm('#1b1b22', 0))
+    return f'<g transform="scale(.92)">{fig}</g>'
 
 
 def _legs4(color, xs, top, dur, phase=0, amp=22):
