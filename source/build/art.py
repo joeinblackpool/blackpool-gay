@@ -342,3 +342,43 @@ def lost_svg():
             '<path d="M-40 184 H600" stroke="#d9c7ea" stroke-width="4"/><g transform="translate(140 60)">' + car('l', beam=False) + '</g>'
             '<g transform="translate(470 40)"><rect x="-4" y="0" width="8" height="144" rx="4" fill="#2a1d4a"/><path d="M-60 6 H40 L58 26 L40 46 H-60Z" fill="#ff3d9a"/>'
             '<text x="-8" y="33" text-anchor="middle" font-size="19" font-weight="800" fill="#fff" font-family="system-ui,sans-serif">This way?</text></g></svg>')
+
+
+def hub_sil(kind):
+    """Small silhouette for the inner-page marquee header (aria-hidden, decorative)."""
+    ink, lit, pink = '#2a1d4a', '#ffc93c', '#ff2e88'
+    if kind == 'stays':   # a seafront guest house with a lit VACANCIES sign
+        win = ''.join(f'<rect x="{x}" y="{y}" width="16" height="20" rx="2" fill="{lit if (x + y) % 3 else "#3a2a5c"}"/>' for x in (34, 74, 114, 154) for y in (70, 112))
+        return (f'<svg class="sil" viewBox="0 0 220 250" aria-hidden="true" focusable="false"><path d="M14 250 V54 L110 6 L206 54 V250Z" fill="{ink}"/>{win}'
+                f'<rect x="20" y="150" width="180" height="34" rx="6" fill="#1a1033" stroke="{pink}" stroke-width="2"/><text x="110" y="173" text-anchor="middle" font-family="Monoton,sans-serif" font-size="15" fill="{pink}" style="filter:drop-shadow(0 0 4px {pink})">VACANCIES</text>'
+                f'<rect x="92" y="196" width="36" height="54" rx="18" fill="#3a2a5c"/><circle cx="110" cy="30" r="9" fill="{lit}"/></svg>')
+    if kind == 'nightlife':   # the Tower and a mirrorball
+        half = lambda y: 6 + 30 * ((y - 30) / 190) ** 1.7
+        legs = ' '.join(f'{110 - half(y):.1f},{y}' for y in range(30, 221, 10)) + ' ' + ' '.join(f'{110 + half(y):.1f},{y}' for y in range(220, 29, -10))
+        tiles = ''.join(f'<rect x="{180 + dx}" y="{60 + dy}" width="7" height="7" fill="{lit if (dx * dy) % 3 == 0 else "#f6eefb"}" opacity="{.5 + (dx % 3) * .2:.1f}"/>' for dx in range(-21, 22, 8) for dy in range(-21, 22, 8) if dx * dx + dy * dy < 500)
+        return (f'<svg class="sil" viewBox="0 0 230 250" aria-hidden="true" focusable="false"><polygon points="{legs}" fill="none" stroke="{ink}" stroke-width="6"/>'
+                f'<rect x="96" y="14" width="28" height="18" fill="{ink}"/><path d="M100 14 L110 0 L120 14Z" fill="{ink}"/><rect x="50" y="220" width="120" height="30" fill="{ink}"/>'
+                f'<path d="M180 0 V36" stroke="{ink}" stroke-width="2"/><circle cx="180" cy="60" r="24" fill="#3a2a5c"/>{tiles}</svg>')
+    if kind == 'whats-on':   # Winter Gardens style dome and theatre front
+        return (f'<svg class="sil" viewBox="0 0 240 250" aria-hidden="true" focusable="false"><rect x="10" y="110" width="220" height="140" fill="{ink}"/><path d="M60 110 a60 60 0 0 1 120 0z" fill="{ink}"/>'
+                f'<rect x="112" y="34" width="16" height="18" fill="{ink}"/><path d="M108 34 l12 -16 l12 16z" fill="{ink}"/>'
+                + ''.join(f'<circle cx="{30 + i * 18}" cy="128" r="3.4" fill="{lit if i % 2 else pink}"/>' for i in range(11))
+                + ''.join(f'<path d="M{34 + i * 36} 236 v-40 a12 12 0 0 1 24 0 v40z" fill="#3a2a5c"/>' for i in range(6)) + '</svg>')
+    # default: a slice of skyline with the Tower
+    half = lambda y: 5 + 26 * ((y - 40) / 160) ** 1.7
+    legs = ' '.join(f'{120 - half(y):.1f},{y}' for y in range(40, 201, 10)) + ' ' + ' '.join(f'{120 + half(y):.1f},{y}' for y in range(200, 39, -10))
+    return (f'<svg class="sil" viewBox="0 0 240 250" aria-hidden="true" focusable="false"><polygon points="{legs}" fill="none" stroke="{ink}" stroke-width="5"/>'
+            f'<rect x="106" y="22" width="28" height="18" fill="{ink}"/><rect x="40" y="200" width="160" height="50" fill="{ink}"/><rect x="0" y="210" width="40" height="40" fill="{ink}"/><rect x="200" y="190" width="40" height="60" fill="{ink}"/></svg>')
+
+
+def novacancies_svg():
+    """404: a guest-house window with a neon NO VACANCIES sign, the car parked below."""
+    return ('<svg viewBox="0 0 520 380" role="img" aria-label="A guest-house window with a neon No Vacancies sign, and Jay and Theo parked outside">'
+            '<defs><filter id="nv" x="-20%" y="-60%" width="140%" height="220%"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>'
+            '<rect x="40" y="10" width="440" height="230" rx="14" fill="#2a1d4a"/><rect x="58" y="28" width="404" height="194" rx="8" fill="#120a26"/>'
+            '<path d="M260 28 V222 M58 125 H462" stroke="#2a1d4a" stroke-width="10"/>'
+            '<rect x="58" y="28" width="404" height="194" rx="8" fill="url(#nvg)" opacity="0"/>'
+            '<g filter="url(#nv)" font-family="Monoton,sans-serif" text-anchor="middle"><text class="neon-no" x="260" y="104" font-size="54" fill="#ff2e88">NO</text>'
+            '<text x="260" y="186" font-size="38" fill="#ff2e88">VACANCIES</text></g>'
+            '<path d="M30 250 H490" stroke="#3a2a5c" stroke-width="6" stroke-linecap="round"/>'
+            '<g transform="translate(120 238) scale(.9)">' + car('nv', beam=False) + '</g></svg>')

@@ -20,23 +20,23 @@
   // ------------------------------------------------------------------ UI shell
   box.innerHTML = '';
   const ui = {
-    start: el('div', 'xp-start', '<div class="xp-start-in"><p class="xp-kicker">Blackpool.Gay in 3D</p><p class="xp-title">Drive the Rainbow Quarter</p><p class="xp-sub">Real streets, the Tower, North Pier and every gay hotel, bar and club, in a pink soft-top with Jay and Theo.</p><button type="button" class="xp-go" disabled>Loading Blackpool…</button><p class="xp-keys">' + (touch ? 'Drag the pad to drive. Tap a building or the map to go there.' : 'Arrow keys or WASD to drive, Shift for a boost. Click anywhere to drive there.') + '</p></div>'),
+    start: el('div', 'xp-start', '<div class="xp-start-in"><div class="xp-arch" aria-hidden="true">' + Array.from({ length: 14 }, (_, i) => `<i style="--i:${i}"></i>`).join('') + '</div><p class="xp-kicker">Blackpool.Gay in 3D</p><p class="xp-title">Drive the Rainbow Quarter</p><p class="xp-sub">Real streets, the Tower, North Pier and every gay hotel, bar and club, in a pink soft-top with Jay and Theo.</p><button type="button" class="xp-go" disabled aria-describedby="xpcap"><span>START</span></button><p class="xp-cap" id="xpcap">Loading Blackpool…</p><p class="xp-keys">' + (touch ? 'Drag the pad to drive. Tap a building or the map to go there.' : 'Arrow keys or WASD to drive, Shift for a boost. Click anywhere to drive there.') + '</p></div>'),
     hud: el('div', 'xp-hud'),
     card: el('div', 'xp-card'),
     toast: el('div', 'xp-toast'),
     mini: el('canvas', 'xp-mini'),
-    speed: el('div', 'xp-speed', '<b>0</b><span>mph</span>'),
+    speed: el('div', 'xp-speed', '<svg viewBox="0 0 132 78" aria-hidden="true"><defs><linearGradient id="xpg" x1="0" x2="1"><stop offset="0" stop-color="#0fb5ae"/><stop offset=".55" stop-color="#ffc93c"/><stop offset="1" stop-color="#ff2e88"/></linearGradient></defs><path d="M12 70 A54 54 0 0 1 120 70" fill="none" stroke="rgba(255,246,236,.14)" stroke-width="9" stroke-linecap="round"/><path d="M12 70 A54 54 0 0 1 120 70" fill="none" stroke="url(#xpg)" stroke-width="5" stroke-linecap="round" stroke-dasharray="2 6"/><g class="xp-needle"><path d="M66 70 L66 24" stroke="#fff6ec" stroke-width="3" stroke-linecap="round"/><circle cx="66" cy="70" r="6" fill="#ff2e88"/></g></svg><b>0</b><span>mph</span>'),
     pad: el('div', 'xp-pad', '<i></i>')
   };
   ui.hud.innerHTML = '<label class="xp-sel"><span>Drive to</span><select aria-label="Drive to a venue"><option value="">Choose a place…</option></select></label>'
-    + '<button type="button" class="xp-b" data-a="night" aria-pressed="false">Illuminations</button>'
+    + '<button type="button" class="xp-b" data-a="night" aria-pressed="false"><i class="xp-bulb" aria-hidden="true"></i><span>Illuminations</span></button>'
     + '<button type="button" class="xp-b" data-a="full">Full screen</button>';
   ui.card.hidden = true; ui.toast.hidden = true; ui.toast.setAttribute('role', 'status');
   if (!box.requestFullscreen && !box.webkitRequestFullscreen) ui.hud.querySelector('[data-a=full]').hidden = true; ui.mini.width = ui.mini.height = 340;
   ui.mini.setAttribute('aria-label', 'Mini map. Click to drive there.');
   if (!touch) ui.pad.hidden = true;
   Object.values(ui).forEach(n => box.appendChild(n));
-  const goBtn = ui.start.querySelector('.xp-go');
+  const goBtn = ui.start.querySelector('.xp-go'), goCap = ui.start.querySelector('.xp-cap'), needle = ui.speed.querySelector('.xp-needle');
 
   // ------------------------------------------------------------------ renderer
   const R = new T.WebGLRenderer({ antialias: false, powerPreference: 'high-performance' });
@@ -619,7 +619,7 @@
   function goPin(p) { const tx = p.cx ?? p.x, tz = p.cz ?? p.z; const n = nearestNode(tx, tz); driveTo(n ? n.x : tx, n ? n.z : tz, p); showCard(p, true); }
   ui.hud.addEventListener('click', e => {
     const b = e.target.closest('[data-a]'); if (!b) return;
-    if (b.dataset.a === 'night') { mood.target = mood.target ? 0 : 1; b.setAttribute('aria-pressed', mood.target ? 'true' : 'false'); b.textContent = mood.target ? 'Sunset' : 'Illuminations'; }
+    if (b.dataset.a === 'night') { mood.target = mood.target ? 0 : 1; b.setAttribute('aria-pressed', mood.target ? 'true' : 'false'); b.querySelector('span').textContent = mood.target ? 'Sunset' : 'Illuminations'; }
     if (b.dataset.a === 'full') { if (document.fullscreenElement || document.webkitFullscreenElement) (document.exitFullscreen || document.webkitExitFullscreen).call(document); else (box.requestFullscreen || box.webkitRequestFullscreen || (() => {})).call(box); }
   });
   let cardPin = null;
@@ -665,7 +665,7 @@
     for (const p of PINS) { x.fillStyle = p.k === 'stay' ? '#ff4fa3' : '#33d1ff'; x.beginPath(); x.arc(((p.cx ?? p.x) - b.x0) * MS, ((p.cz ?? p.z) - b.z0) * MS, 6 / s, 0, 7); x.fill(); x.strokeStyle = '#fff'; x.lineWidth = 2 / s; x.stroke(); }
     x.restore();
     x.save(); x.translate(w / 2, h / 2); x.rotate(-st.h + Math.PI); x.fillStyle = '#ff3d9a'; x.strokeStyle = '#fff'; x.lineWidth = 3; x.beginPath(); x.moveTo(0, -14); x.lineTo(10, 11); x.lineTo(0, 5); x.lineTo(-10, 11); x.closePath(); x.fill(); x.stroke(); x.restore();
-    x.strokeStyle = 'rgba(255,255,255,.9)'; x.lineWidth = 5; x.beginPath(); x.arc(w / 2, h / 2, w / 2 - 3, 0, 7); x.stroke();
+    x.fillStyle = '#ffc93c'; x.beginPath(); x.moveTo(w / 2, 4); x.lineTo(w / 2 + 12, 30); x.lineTo(w / 2 - 12, 30); x.closePath(); x.fill(); x.fillStyle = '#1a1033'; x.font = '800 16px system-ui,sans-serif'; x.textAlign = 'center'; x.fillText('N', w / 2, 27);
   }
 
   let conf = null;
@@ -813,7 +813,7 @@
 
     if (started && !st.auto) { let near = null, nd = 22; for (const p of PINS) { const d = Math.hypot((p.cx ?? p.x) - st.x, (p.cz ?? p.z) - st.z); if (d < nd) { nd = d; near = p; } } if (dismissed && Math.hypot((dismissed.cx ?? dismissed.x) - st.x, (dismissed.cz ?? dismissed.z) - st.z) > 30) dismissed = null; if (near && near !== dismissed && (!cardPin || cardPin === near || ui.card.hidden)) showCard(near, true); else if (cardPin && Math.hypot((cardPin.cx ?? cardPin.x) - st.x, (cardPin.cz ?? cardPin.z) - st.z) > 60 && st.arrived !== cardPin) hideCard(); }
     if (toastT > 0) { toastT -= dt; if (toastT <= 0) ui.toast.hidden = true; }
-    ui.speed.firstChild.textContent = Math.round(Math.abs(st.v) * 2.237);
+    { const mph = Math.round(Math.abs(st.v) * 2.237); if (mph !== ui.speed.mph) { ui.speed.mph = mph; ui.speed.querySelector('b').textContent = mph; needle.style.transform = `rotate(${-90 + Math.min(mph, 60) / 60 * 180}deg)`; } }
     if (started) drawMini();
     if (usePost) post.render(S, cam, time); else R.render(S, cam);
     raf = requestAnimationFrame(frame);
@@ -833,9 +833,9 @@
   fetch(CFG.world).then(r => r.json()).then(Wd => {
     buildWorld(Wd);
     pendingTo = startPos();
-    goBtn.disabled = false; goBtn.textContent = pendingTo ? 'Drive to ' + pendingTo.n : 'Start the engine';
+    goBtn.disabled = false; goCap.textContent = pendingTo ? 'Drive to ' + pendingTo.n : 'Start the engine';
     box.classList.add('ready');
     if (new URLSearchParams(location.search).has('go')) begin();
-  }).catch(e => { console.error(e); goBtn.textContent = 'Could not load the map. Please refresh.'; });
+  }).catch(e => { console.error(e); goCap.textContent = 'Could not load the map. Please refresh.'; });
   window.__xp = { st, cam, R, S, begin, tier: n => setTier(n), gpu: GPU, sim: secs => { for (let i = 0; i < secs * 120; i++) physics(STEP); }, skip: () => { intro = 1; snap = 1; }, settle: () => { mood.t = mood.target; snap = 1; }, view: (d, p) => { camS.dist = d; camS.pitch = p; snap = 1; }, goPin: s => goPin(PINS.find(p => p.slug === s)), night: v => { mood.target = v ? 1 : 0; } };
 })();
