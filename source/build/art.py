@@ -155,25 +155,44 @@ def skyline(p='s', ground=742, fill='#24113f', glow='#ffa36b', lights=True, seed
              + f'<path d="M1386 {G - 120} v-22 a12 12 0 0 1 24 0 v22z" fill="{glow if lights else fill}" opacity="{.55 if lights else 1}"/>')
     # 8 Pleasure Beach rollercoaster with its tall pole
     S.append(f'<rect x="1462" y="{G - 232}" width="9" height="232"/><rect x="1456" y="{G - 244}" width="21" height="14" rx="3"/>')
-    keys = [(1440, G - 14), (1500, G - 212), (1540, G - 30), (1580, G - 150), (1612, G - 40), (1650, G - 110), (1700, G - 50)]
-    def ty(x):
+    # a full circuit: lift hill, camelbacks, a vertical loop, a last hop, then a low return run back to the station
+    def cosrun(keys, step=3):
+        pts = []
         for (x0, y0), (x1, y1) in zip(keys, keys[1:]):
-            if x0 <= x <= x1:
-                t = (x - x0) / (x1 - x0)
-                return y0 + (y1 - y0) * (1 - math.cos(t * math.pi)) / 2
-        return keys[-1][1]
-    xs = list(range(1440, 1701, 3))
-    track = 'M' + ' L'.join(f'{x} {ty(x):.1f}' for x in xs)
-    C = [f'<path d="{track}" fill="none" stroke="{fill}" stroke-width="5.5" stroke-linejoin="round"/>', f'<path d="{track}" transform="translate(0 7)" fill="none" stroke="{fill}" stroke-width="2.2"/>']
-    sup = list(range(1446, 1700, 11))
+            for x in range(x0, x1, step):
+                t = (x - x0) / (x1 - x0); pts.append((x, y0 + (y1 - y0) * (1 - math.cos(t * math.pi)) / 2))
+        return pts
+    run1 = cosrun([(1440, G - 16), (1495, G - 212), (1545, G - 40), (1580, G - 130), (1615, G - 34)])
+    LX, LY, LR = 1632, G - 72, 38
+    loop = [(1615 + i * 2.125, G - 34) for i in range(8)] + [(LX + LR * math.sin(t / 60 * 2 * math.pi), LY + LR * math.cos(t / 60 * 2 * math.pi)) for t in range(61)]
+    run3 = [(LX + 4 + i * 2, G - 34) for i in range(6)] + cosrun([(1646, G - 34), (1680, G - 92), (1705, G - 16)]) + [(1705, G - 16)]
+    fwd = run1 + loop + run3
+    ret = [(1705, G - 16), (1709, G - 11), (1702, G - 8)] + [(x, G - 8) for x in range(1696, 1445, -8)] + [(1444, G - 8), (1437, G - 11), (1440, G - 16)]
+    d = lambda pts: 'M' + ' L'.join(f'{x:.1f} {y:.1f}' for x, y in pts)
+    length = lambda pts: sum(math.hypot(x1 - x0, y1 - y0) for (x0, y0), (x1, y1) in zip(pts, pts[1:]))
+    hills = run1 + run3
+    C = [f'<path d="{d(fwd)}" fill="none" stroke="{fill}" stroke-width="5.5" stroke-linejoin="round"/>',
+         f'<path d="{d(run1)}" transform="translate(0 7)" fill="none" stroke="{fill}" stroke-width="2.2"/><path d="{d(run3[6:])}" transform="translate(0 7)" fill="none" stroke="{fill}" stroke-width="2.2"/>',
+         f'<circle cx="{LX}" cy="{LY}" r="{LR - 7}" fill="none" stroke="{fill}" stroke-width="2.2"/>',
+         f'<path d="{d(ret)}" fill="none" stroke="{fill}" stroke-width="3.4"/>']
+    hy = {}
+    for x, y in hills: hy[int(x)] = min(y, hy.get(int(x), 9e9))
+    sup = [x for x in range(1446, 1700, 11) if not (LX - LR - 4 < x < LX + LR + 4)]
+    near = lambda x: hy[min(hy, key=lambda k: abs(k - x))]
     for i, x in enumerate(sup):
-        C.append(f'<path d="M{x} {ty(x) + 6:.1f} V{G}" stroke="{fill}" stroke-width="1.8"/>')
-        if i: C.append(f'<path d="M{sup[i - 1]} {ty(sup[i - 1]) + 9:.1f} L{x} {G} M{sup[i - 1]} {G} L{x} {ty(x) + 9:.1f}" stroke="{fill}" stroke-width=".8"/>')
+        C.append(f'<path d="M{x} {near(x) + 6:.1f} V{G}" stroke="{fill}" stroke-width="1.8"/>')
+        if i and sup[i] - sup[i - 1] < 15: C.append(f'<path d="M{sup[i - 1]} {near(sup[i - 1]) + 9:.1f} L{x} {G} M{sup[i - 1]} {G} L{x} {near(x) + 9:.1f}" stroke="{fill}" stroke-width=".8"/>')
+    C.append(f'<path d="M{LX - 22} {LY + 30} L{LX - 30} {G} M{LX + 22} {LY + 30} L{LX + 30} {G} M{LX} {LY + LR} V{G}" stroke="{fill}" stroke-width="1.8"/>')
     S.append(''.join(C))
     train = ''
     if lights:
-        train = (f'<g><rect x="-20" y="-8" width="40" height="8" rx="3" fill="#ff3d9a"/>' + ''.join(f'<rect x="{-18 + i * 12}" y="-12" width="7" height="4" rx="2" fill="#ffd88a"/>' for i in range(4))
-                 + f'<animateMotion dur="10s" repeatCount="indefinite" rotate="auto" path="{track}"/></g>')
+        T = 12; f = length(fwd) / (length(fwd) + length(ret))
+        car = f'<rect x="-20" y="-8" width="40" height="8" rx="3" fill="#ff3d9a"/>' + ''.join(f'<rect x="{-18 + i * 12}" y="-12" width="7" height="4" rx="2" fill="#ffd88a"/>' for i in range(4))
+        # outbound car, then the same car heading home (flipped so it stays upright while travelling left)
+        train = (f'<g>{car}<animateMotion dur="{T}s" repeatCount="indefinite" rotate="auto" calcMode="linear" keyPoints="0;1;1" keyTimes="0;{f:.3f};1" path="{d(fwd)}"/>'
+                 f'<animate attributeName="opacity" values="1;0" keyTimes="0;{f:.3f}" calcMode="discrete" dur="{T}s" repeatCount="indefinite"/></g>'
+                 f'<g opacity="0"><g transform="scale(1 -1)">{car}</g><animateMotion dur="{T}s" repeatCount="indefinite" rotate="auto" calcMode="linear" keyPoints="0;0;1" keyTimes="0;{f:.3f};1" path="{d(ret)}"/>'
+                 f'<animate attributeName="opacity" values="0;1" keyTimes="0;{f:.3f}" calcMode="discrete" dur="{T}s" repeatCount="indefinite"/></g>')
     sil = f'<g fill="{fill}" filter="url(#{p}g)">' + ''.join(S) + '</g>'
     defs = (f'<filter id="{p}g" x="-4%" y="-12%" width="108%" height="124%"><feGaussianBlur in="SourceAlpha" stdDeviation="4.5" result="b"/>'
             f'<feFlood flood-color="{glow}" flood-opacity=".85"/><feComposite in2="b" operator="in" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>'
@@ -511,11 +530,14 @@ def dog():
     """A fluffy little white dog with a rainbow bow on its collar, trotting, tail wagging. Feet on y=0, faces right."""
     tail = ('<g><path d="M-13 -20 q-9 -6 -5 -16 q4 6 9 9z" fill="#fbf6ff"/>'
             '<animateTransform attributeName="transform" type="rotate" values="-14 -12 -20;14 -12 -20;-14 -12 -20" dur=".36s" repeatCount="indefinite"/></g>')
+    fluff = ''.join(f'<circle cx="{x}" cy="{y}" r="{r}" fill="#fbf6ff"/>' for x, y, r in ((9.4, -32.6, 4.4), (13.4, -35.2, 4.8), (17.8, -34.2, 4.4), (20.6, -31, 3.4)))
     body = ('<ellipse cx="0" cy="-17" rx="15" ry="9" fill="#fbf6ff"/><path d="M-12 -24 q4 -5 9 -2 q5 -5 10 -1 q5 -4 9 1" stroke="#e7dcf2" stroke-width="1.4" fill="none"/>'
-            '<circle cx="14" cy="-27" r="8" fill="#fbf6ff"/><ellipse cx="21" cy="-25" rx="4.6" ry="3.4" fill="#fbf6ff"/><circle cx="25" cy="-26" r="1.7" fill="#1a1033"/>'
-            '<circle cx="16.6" cy="-29" r="1.3" fill="#1a1033"/><path d="M9 -33 q-2 -7 3 -9 q3 4 2 9z" fill="#e7dcf2"/><path d="M20 -21 q2 3 4 0" stroke="#ff6fa8" stroke-width="1.6" fill="none" stroke-linecap="round"/>'
-            '<path d="M7 -22 q5 3 10 -1" stroke="#ff2e88" stroke-width="2.4" fill="none"/>'
-            '<path d="M12 -20 l-6 -5 v9z M12 -20 l6 -5 v9z" fill="url(#wrb)" stroke="#1a1033" stroke-width=".6"/><circle cx="12" cy="-20" r="1.8" fill="#ffc93c"/>')
+            '<circle cx="14" cy="-27" r="8" fill="#fbf6ff"/>' + fluff +
+            '<path d="M10.6 -35 q3 -2.4 6 -.6 M14 -36.6 q3 -1.6 5.6 .4" stroke="#e7dcf2" stroke-width="1" fill="none" stroke-linecap="round"/>'
+            '<ellipse cx="21" cy="-25" rx="4.6" ry="3.4" fill="#fbf6ff"/><circle cx="25" cy="-26" r="1.7" fill="#1a1033"/>'
+            '<circle cx="16.6" cy="-28.4" r="1.3" fill="#1a1033"/><path d="M8.6 -31 q-3.6 3 -2.4 10 q3.4 .6 4.6 -3 q.6 -4 -2.2 -7z" fill="#ece2f6"/><path d="M20 -21 q2 3 4 0" stroke="#ff6fa8" stroke-width="1.6" fill="none" stroke-linecap="round"/>'
+            '<path d="M6 -22.6 q6 3.4 12 -1" stroke="#ff2e88" stroke-width="2.6" fill="none"/>'
+            '<path d="M10 -18 l-8.4 -6 q-1.8 6 0 12z M10 -18 l8.4 -6 q1.8 6 0 12z" fill="url(#wrb)" stroke="#1a1033" stroke-width=".7" stroke-linejoin="round"/><circle cx="10" cy="-18" r="2.3" fill="#ffc93c" stroke="#1a1033" stroke-width=".6"/>')
     bob = '<animateTransform attributeName="transform" type="translate" values="0 0;0 -1.4;0 0" dur=".36s" repeatCount="indefinite"/>'
     return f'<g>{tail}{_legs4("#efe6f7", (-9, -4, 6, 11), -12, ".36s")}<g>{body}{bob}</g></g>'
 
