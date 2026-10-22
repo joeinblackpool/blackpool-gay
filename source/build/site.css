@@ -257,3 +257,11 @@ a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible,te
 .vface{max-width:760px;margin:0 0 26px;border-radius:18px;overflow:hidden;background:#170c2c;box-shadow:0 22px 44px -26px rgba(26,16,51,.75)}
 .vface svg{display:block;width:100%;height:auto}
 .vface figcaption{font-size:.78rem;color:#cbbbe6;padding:8px 14px 10px;background:#170c2c}
+/* spot the symbols */
+.symbols{margin:40px 0}
+.symgrid{list-style:none;padding:0;margin:20px 0;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.symgrid li{display:grid;grid-template-columns:64px 1fr;gap:14px;align-items:start;background:#fff;border-radius:16px;padding:16px;box-shadow:0 1px 0 rgba(26,16,51,.06),0 12px 28px -18px rgba(26,16,51,.4)}
+.symgrid svg{width:64px;height:64px;background:#1A1033;border-radius:14px;padding:7px;box-sizing:border-box}
+.symgrid h3{margin:2px 0 4px;font-size:1.05rem}
+.symgrid .spot{color:#C2185B;font-weight:700;font-size:.86rem;margin:0 0 6px}
+.symgrid p{margin:0 0 4px;font-size:.93rem}

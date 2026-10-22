@@ -246,7 +246,7 @@ LORD_PICS = [('lord-street-mardi-gras', 'The street party outside Mardi Gras on 
 pc = CORE['pride']
 lordlink = '<a class="card ticket feature" href="/pride/lord-street/"><strong>Lord Street Pride street party</strong><span class="k">Free, in the Rainbow Quarter</span><span>Photos, what happened in 2026 and the bars and hotels right on the street.</span></a>'
 add('/pride/', shell('/pride/', 'Blackpool Pride 2027: Dates, Parade & Gay Hotels | Blackpool.gay', pc['description'], 'Blackpool Pride: June 2027, dates TBA', pc.get('intro', ''),
-    NEXTPRIDE + gallery(PRIDE_PICS, 'Blackpool Pride photos') + pc['body_html'] + '<h2>Lord Street street party</h2><div class="cards">' + lordlink + '</div>' + everyone(), [('Pride', None)],
+    NEXTPRIDE + gallery(PRIDE_PICS, 'Blackpool Pride photos') + pc['body_html'] + '<h2>Lord Street street party</h2><div class="cards">' + lordlink + '<a class="card ticket" href="/cast/#symbols"><strong>Spot the symbols</strong><span class="k">A short history of Pride signs</span><span>The rainbow flag, the pink triangle, the green carnation and more, hidden in our Prom scene.</span></a></div>' + everyone(), [('Pride', None)],
     [{'@type': 'Article', 'headline': 'Blackpool Pride: June 2027, dates TBA', 'description': pc['description'], 'url': SITE + '/pride/', 'image': [SITE + f'/img/pride/{k}.webp' for k, _ in PRIDE_PICS], 'dateModified': TODAY, 'author': {'@id': SITE + '/#org'}, 'publisher': {'@id': SITE + '/#org'}, 'inLanguage': 'en-GB'}]))
 lord = [s for s in allstays + bars if 'Lord Street' in VBY[s]['address']]
 lord = sorted(dict.fromkeys(lord), key=lambda s: int(re.match(r'\d+', VBY[s]['address']).group()))
@@ -283,11 +283,52 @@ CAST = [
     (castpic(5, 'A pink flamingo strutting'), 'Flo', 'The flamingo',
      'Nobody knows where Flo came from. Everybody agrees she should stay.'),
 ]
+
+RB = ['#e40303', '#ff8c00', '#ffed00', '#008026', '#004dff', '#750787']
+SYMBOLS = [
+    ('<g>' + ''.join(f'<rect x="8" y="{12 + i * 4}" width="30" height="4" fill="{c}"/>' for i, c in enumerate(['#ff69b4', '#e40303', '#ff8c00', '#ffed00', '#008026', '#40e0d0', '#3e2fbf', '#8b00ff'])) + '<path d="M8 10 V48" stroke="#fff6ec" stroke-width="2"/></g>',
+     'The rainbow flag', 'Spot it on the banner plane, every venue front, Kai\'s T-shirt and Rue\'s skirt.',
+     'Artist Gilbert Baker made the first rainbow flags for San Francisco Pride on 25 June 1978. There were eight stripes, and each one meant something: hot pink for sexuality, red for life, orange for healing, yellow for sunlight, green for nature, turquoise for magic and art, indigo for serenity and violet for spirit.'),
+    ('<path d="M10 12 L40 12 L25 40 Z" fill="#FF2E88" transform="rotate(180 25 26)"/>',
+     'The pink triangle', 'It is your mouse pointer.',
+     'The Nazis forced gay men in the camps to wear a pink triangle. In 1986 six New York activists put it on their Silence = Death poster, flipped to point upwards, and ACT UP made it the face of its fight against AIDS. A badge of persecution became a badge of defiance.'),
+    ('<path d="M26 44 V30 M26 30 l-4 14" stroke="#ff7fae" stroke-width="2" fill="none"/><ellipse cx="22" cy="26" rx="11" ry="6" fill="#ff8fbd"/><path d="M30 24 q6 -6 1 -12 q-4 -5 2 -8" stroke="#ff6fa8" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="34" cy="5" r="3.4" fill="#ff6fa8"/><path d="M36 4 q4 0 4 4" stroke="#1a1033" stroke-width="2" fill="none"/>',
+     'The pink flamingo', 'That is Flo, strutting the Prom.',
+     'John Waters\' 1972 cult film Pink Flamingos, starring Divine, was billed as an exercise in poor taste. It turned the plastic lawn flamingo into a byword for camp: glorious bad taste, worn with pride.'),
+    ('<path d="M25 44 V24" stroke="#2e8b3e" stroke-width="2"/><path d="M25 34 q-7 -2 -9 -8" stroke="#2e8b3e" stroke-width="2" fill="none"/>' + ''.join(f'<circle cx="{25 + dx}" cy="{18 + dy}" r="5" fill="{c}"/>' for dx, dy, c in ((0, 0, '#3fcf62'), (-5, 2, '#5ee07c'), (5, 2, '#2fb854'), (0, -5, '#6cf08a'))),
+     'The green carnation', 'Ollie wears one on his lapel.',
+     'At the 1892 premiere of Lady Windermere\'s Fan, Oscar Wilde had friends wear green carnations in their buttonholes. Asked what it meant, he said: "Nothing whatever, but that is just what nobody will guess." It went on to be read as a quiet signal between gay men.'),
+    ('<g>' + ''.join(f'<g transform="translate({x} {y})">' + ''.join(f'<circle cx="{dx}" cy="{dy}" r="4.4" fill="#7b4bd1"/>' for dx, dy in ((0, -5), (4.8, -1.6), (3, 4.2), (-3, 4.2), (-4.8, -1.6))) + '<circle r="2.4" fill="#ffe45e"/></g>' for x, y in ((18, 20), (32, 30))) + '</g>',
+     'Violets', 'Amara wears them in her hair.',
+     'The poet Sappho, writing on Lesbos in the 6th century BC, described garlands of violets. Women who loved women have given and worn violets ever since, from 1920s Paris to New York audiences at the 1926 play The Captive.'),
+    ('<path d="M18 8 h12 a8 8 0 0 1 8 8 v14 a8 8 0 0 1 -8 8 h-4 a8 8 0 0 1 -8 -8 v-14" stroke="#c0c0c0" stroke-width="3.4" fill="none"/><path d="M22 38 l-4 10 M26 38 l3 9" stroke="#ffc93c" stroke-width="3" stroke-linecap="round"/>',
+     'The carabiner', 'Clipped to Rue\'s skirt, keys and all.',
+     'A climbing clip loaded with keys on a belt loop: practical, and a famously knowing nod in lesbian style.'),
+    ('<path d="M25 6 V46" stroke="#c9a7ff" stroke-width="3"/><path d="M23 14 q-14 -4 -14 8 q0 12 14 8z M27 14 q14 -4 14 8 q0 12 -14 8z" fill="#c9a7ff"/>',
+     'The labrys', 'Printed on Rue\'s top.',
+     'A double-headed axe linked in myth to the Amazons. Lesbian feminists took it up in the 1970s as a sign of strength and self-reliance.'),
+    ('<text x="25" y="40" text-anchor="middle" font-size="38" font-weight="800" fill="#ffc93c" font-family="Georgia,serif">λ</text>',
+     'The lambda', 'On the chain round Kai\'s neck.',
+     'Designer Tom Doerr chose the Greek letter in 1970 for New York\'s Gay Activists Alliance. In science it marks a change in energy, which was the point. It became a sign of gay liberation everywhere.'),
+    ('<circle cx="25" cy="22" r="13" fill="#8a5a3c"/><circle cx="16" cy="28" r="4" fill="none" stroke="#ffc93c" stroke-width="2.6"/>',
+     'The right ear', 'Kai\'s earring is in his right ear.',
+     'Schoolyard lore in the 1980s and 1990s said one earring in the right ear meant you were gay: "left is right, right is wrong". It was always a myth. Kai just likes the earring.'),
+    ('<path d="M10 14 H40 L25 40 Z" fill="#ff2e88"/><circle cx="20" cy="20" r="1.6" fill="#fff"/><circle cx="30" cy="20" r="1.6" fill="#fff"/><circle cx="25" cy="28" r="1.6" fill="#fff"/>',
+     'The bandana', 'Round the cowboy\'s neck, where it is just a bandana.',
+     'In 1970s gay bars, a coloured handkerchief in a back pocket was a whole silent language, the hanky code: the colour and the side said what you were after. We will leave the translation to the bars.'),
+    ('<path d="M15 16 h20 l-3 30 h-14z" fill="#fff6ec" opacity=".9"/><path d="M16 26 h18 l-2 20 h-14z" fill="#a0663c"/><path d="M27 16 l5 -12" stroke="#ff2e88" stroke-width="2.4"/><rect x="18" y="20" width="5" height="5" fill="#d8f3ff"/><rect x="25" y="22" width="5" height="5" fill="#d8f3ff"/>',
+     'Iced coffee', 'Rue\'s drink, whatever the weather.',
+     'The newest symbol here and the only joke: the running gag that queer people drink iced coffee all year round. Even in Blackpool in October.'),
+]
+symbols_html = ('<section class="symbols" id="symbols" aria-labelledby="symh"><h2 id="symh">Spot the symbols</h2>'
+                '<p>Look closer at the Prom and you will find a short history of queer culture hiding in plain sight. Each of these signs began as a code, a joke or a badge, and each one is somewhere in our scene.</p>'
+                '<ul class="symgrid">' + ''.join(f'<li><svg viewBox="0 0 50 50" aria-hidden="true" focusable="false">{ic}</svg><div><h3>{E(n)}</h3><p class="spot">{E(w)}</p><p>{E(t)}</p></div></li>' for ic, n, w, t in SYMBOLS) + '</ul>'
+                '<p class="small">Sources: <a href="https://lgbthistoryuk.org/wiki/Green_carnation" rel="noopener">LGBT History UK</a>, <a href="https://www.kew.org/read-and-watch/plants-LGBTQ-symbols" rel="noopener">Kew</a>, <a href="https://www.villagevoice.com/how-six-nyc-activists-changed-history-with-silence-death/" rel="noopener">Village Voice</a>, <a href="https://en.wikipedia.org/wiki/Gilbert_Baker_(artist)" rel="noopener">Gilbert Baker</a>, <a href="https://en.wikipedia.org/wiki/Tom_Doerr" rel="noopener">Tom Doerr</a>, <a href="https://www.sensesofcinema.com/2022/great-actors/divine/" rel="noopener">Senses of Cinema</a>.</p></section>')
 cast_body = ('<p>Everyone you see on the home page has a name. These are illustrations, drawn for Blackpool.gay: no real people, just the kind of crowd you meet on a good night in the Rainbow Quarter.</p>'
              f'<svg class="pdefs" width="0" height="0" aria-hidden="true" focusable="false"><defs>{art.WALKER_DEFS}</defs></svg>'
-             '<div class="cast">' + ''.join(f'<article class="castcard"><div class="castpic">{pic}</div><h2>{E(n)}</h2><p class="k">{E(r)}</p><p>{E(b)}</p></article>' for pic, n, r, b in CAST) + '</div>'
+             '<div class="cast">' + ''.join(f'<article class="castcard"><div class="castpic">{pic}</div><h2>{E(n)}</h2><p class="k">{E(r)}</p><p>{E(b)}</p></article>' for pic, n, r, b in CAST) + '</div>' + symbols_html +
              '<p><a class="btn" href="/">See them on the Prom</a> <a class="btn alt" href="/explore/">Drive it in 3D</a></p>')
-add('/cast/', shell('/cast/', f'Meet the Cast: the Characters of Blackpool.gay | {NAME}', 'Meet the illustrated cast of Blackpool.gay: Jay and Theo in the pink soft-top, Kai and Ollie, Amara and Rue, Lady Illuminata and Biscuit, the Prom Posse, Ziggy, Flo and the banner plane.',
+add('/cast/', shell('/cast/', f'Meet the Cast & Spot the Queer Symbols | {NAME}', 'Meet the illustrated cast of Blackpool.gay, and spot the queer symbols hidden in the scene: the rainbow flag, pink triangle, green carnation, violets, lambda and more, with their history.',
     'Meet the cast', 'The characters strolling the Prom on our home page.', cast_body, [('Meet the cast', None)]))
 for key, path, crumb in (('safety', '/safety/', 'Safety'), ('about', '/about/', 'About')):
     c = CORE.get(key)

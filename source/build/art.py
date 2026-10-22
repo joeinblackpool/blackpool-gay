@@ -414,16 +414,16 @@ def novacancies_svg():
 
 
 # ---------------------------------------------------------------- Promenade walkers (side view, facing right, feet on y=0)
-def _walk(skin, top, legs, shoes, hair, face='', extra_front='', extra_back='', arm_back=None, arm_front=None, phase=0, h=1.0, sleeves=None, legs_bare=False, bob=True):
+def _walk(skin, top, legs, shoes, hair, face='', extra_front='', extra_back='', arm_back=None, arm_front=None, phase=0, h=1.0, sleeves=None, legs_bare=False, bob=True, holding=''):
     """One walking figure. arm_back/arm_front: None = swinging arm, or a fixed angle in degrees (for holding hands)."""
     dur = '1.05s'; d = f'-{phase:.2f}s'
     leg_fill = skin if legs_bare else legs
     def leg(vals):
         return (f'<g><path d="M-4.6 -50 h9.2 l-.8 46 h-7.6z" fill="{leg_fill}"/><path d="M-4.4 -5 h10.6 q4.6 0 4.6 5 h-15.2z" fill="{shoes}"/>'
                 f'<animateTransform attributeName="transform" type="rotate" values="{vals}" keyTimes="0;.5;1" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1" dur="{dur}" begin="{d}" repeatCount="indefinite"/></g>')
-    def arm(fixed, vals):
+    def arm(fixed, vals, item=''):
         sl = sleeves or skin
-        body = f'<path d="M-3.4 -88 h6.8 l-.8 20 h-5.2z" fill="{sl}"/><path d="M-2.8 -69 h5.6 l-.6 15 h-4.4z" fill="{skin}"/><circle cx="0" cy="-53" r="3.6" fill="{skin}"/>'
+        body = f'<path d="M-3.4 -88 h6.8 l-.8 20 h-5.2z" fill="{sl}"/><path d="M-2.8 -69 h5.6 l-.6 15 h-4.4z" fill="{skin}"/>{item}<circle cx="0" cy="-53" r="3.6" fill="{skin}"/>'
         if isinstance(fixed, str): return fixed
         if fixed is not None: return f'<g transform="rotate({fixed} 0 -88)">{body}</g>'
         return (f'<g>{body}<animateTransform attributeName="transform" type="rotate" values="{vals}" keyTimes="0;.5;1" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1" dur="{dur}" begin="{d}" repeatCount="indefinite"/></g>')
@@ -432,7 +432,7 @@ def _walk(skin, top, legs, shoes, hair, face='', extra_front='', extra_back='', 
            + leg('-20 0 -50;20 0 -50;-20 0 -50')
            + f'<rect x="-3.4" y="-97" width="7" height="9" rx="2.5" fill="{skin}"/><path d="M-10 -107 q0 -14 11 -14 q12 0 12 13 q0 6 -3.4 9.4 q-3.6 4 -8.6 4 q-8 0 -11 -7z" fill="{skin}"/>'
            + hair + f'<ellipse cx="6.8" cy="-108" rx="1.3" ry="1.7" fill="#1b1420"/><path d="M4 -100.5 q2.8 1.8 5.6 -.6" stroke="#4a1f1f" stroke-width="1.3" fill="none" stroke-linecap="round"/>'
-           + face + extra_front + arm(arm_front, '20 0 -88;-20 0 -88;20 0 -88'))
+           + face + extra_front + arm(arm_front, '20 0 -88;-20 0 -88;20 0 -88', holding))
     if bob: fig = f'<g>{fig}<animateTransform attributeName="transform" type="translate" values="0 0;0 -1.6;0 0;0 -1.6;0 0" dur="{dur}" begin="{d}" repeatCount="indefinite"/></g>'
     return f'<g transform="scale({h})">{fig}</g>'
 
@@ -446,7 +446,8 @@ def walkers():
               '<path d="M-3.4 -88 l-5 9" stroke="#ff2d55" stroke-width="7.4" stroke-linecap="round"/>')
     kai = _walk('#8a5a3c', 'url(#wrb)', '#8a5a3c', '#ffffff',
                 '<path d="M-11 -110 q-2 -13 9 -16 q8 -3 16 1 q4 3 2 7 q-5 -4 -11 -2 l-1 -2 q-5 5 -15 12z" fill="#20140f"/><path d="M2 -127 q6 -6 13 -2" stroke="#20140f" stroke-width="3" fill="none" stroke-linecap="round"/>',
-                face='<path d="M-1 -100 q2 7 9 6 q4 -1 5 -6 q-3 3 -8 2.4 q-4 -.4 -6 -2.4z" fill="#20140f"/><circle cx="-2.4" cy="-104" r="1.5" fill="#ffc93c"/>',
+                face='<path d="M-1 -100 q2 7 9 6 q4 -1 5 -6 q-3 3 -8 2.4 q-4 -.4 -6 -2.4z" fill="#20140f"/><circle cx="-2.4" cy="-104" r="1.5" fill="#ffc93c"/>'
+                     '<path d="M-9 -88 q3 7 6 0" stroke="#ffc93c" stroke-width=".9" fill="none"/><path d="M-7.4 -82.6 l3.4 6.6 M-5.6 -79.2 l-2.2 3.2" stroke="#ffc93c" stroke-width="1.5" stroke-linecap="round" fill="none"/>',
                 arm_front=-HOLD, arm_back=akimbo, phase=0, legs_bare=True, sleeves='#ff2d55',
                 extra_front='<path d="M-10.6 -52 h21.2 l1.4 12 h-10 l-2 -4 l-2 4 h-10z" fill="#4a78c2"/><path d="M-10 -51 h20" stroke="#2f5a9e" stroke-width="1.2"/>')
     # Ollie: open pink bomber over a white tee, ginger quiff, sunnies pushed up, a fluttering fan held high
@@ -458,11 +459,12 @@ def walkers():
                   '<path d="M-11 -108 q-1 -15 13 -16 q10 -1 13 7 q-6 -4 -11 -1 q-3 -6 -15 10z" fill="#d9763a"/><path d="M-6 -121 q5 -4 13 -1" stroke="#1a1033" stroke-width="2.6" fill="none"/>',
                   sleeves='#ff2e88', arm_back=HOLD, arm_front=fan, phase=.18, h=.95, legs_bare=True,
                   extra_front='<path d="M-11.6 -88 q-1 18 1 40 h5 l-1 -40z" fill="#ff2e88"/><path d="M4 -87 q2 18 7 38 h-4 q-4 -18 -7 -38z" fill="#ff2e88"/><path d="M-2 -88 q3 6 6 0" stroke="#ffc93c" stroke-width="1.4" fill="none"/>'
-                              '<path d="M-10.6 -52 h21.2 l1 10 h-9 l-2 -3 l-2 3 h-10z" fill="#1a1033"/>')
+                              '<path d="M-10.6 -52 h21.2 l1 10 h-9 l-2 -3 l-2 3 h-10z" fill="#1a1033"/>'
+                              '<path d="M7 -78 l-1.4 6" stroke="#2e8b3e" stroke-width="1.2"/><circle cx="7.6" cy="-80" r="2.6" fill="#3fcf62"/><circle cx="5.6" cy="-80.6" r="1.9" fill="#5ee07c"/><circle cx="9.2" cy="-81.6" r="1.9" fill="#2fb854"/><circle cx="7.6" cy="-82.4" r="1.6" fill="#6cf08a"/>')
     ollie = f'<g>{ollie}<animateTransform attributeName="transform" type="rotate" values="-2.4 0 0;2.4 0 0;-2.4 0 0" dur="1.05s" begin="-.18s" repeatCount="indefinite"/></g>'
     g1 = f'<g>{kai}</g><g transform="translate(44 0)">{ollie}</g>' + clasp.format(a='#b98a62', b='#7a4c33')
     # Amara: sunflower-yellow sundress, afro with a flower, gold hoops, pink sandals
-    amara_hair = '<circle cx="-1" cy="-114" r="15" fill="#1a1210"/><circle cx="-10" cy="-106" r="9" fill="#1a1210"/><circle cx="-12" cy="-122" r="4.6" fill="#ff2e88"/><circle cx="-12" cy="-122" r="1.8" fill="#ffc93c"/>'
+    amara_hair = '<circle cx="-1" cy="-114" r="15" fill="#1a1210"/><circle cx="-10" cy="-106" r="9" fill="#1a1210"/>' + ''.join(f'<g transform="translate({x} {y})">' + ''.join(f'<circle cx="{dx}" cy="{dy}" r="1.9" fill="#7b4bd1"/>' for dx, dy in ((0, -2.2), (2.1, -.7), (1.3, 1.8), (-1.3, 1.8), (-2.1, -.7))) + '<circle r="1.1" fill="#ffe45e"/></g>' for x, y in ((-13, -121), (-7, -126), (-15, -114)))
     amara = _walk('#6b3f2a', '#ffc93c', '#6b3f2a', '#ff2e88', amara_hair, arm_front=-HOLD, phase=.4, legs_bare=True, sleeves='#ffc93c',
                   face='<path d="M4.4 -101 q2.6 1.8 5.2 -.4" stroke="#b0123f" stroke-width="1.8" fill="none" stroke-linecap="round"/>',
                   extra_front='<path d="M-11 -66 l-7 30 h36 l-7 -30z" fill="#ffc93c"/><path d="M-14 -46 h30" stroke="#e8ad1f" stroke-width="1.4"/><circle cx="-3" cy="-100" r="3" fill="none" stroke="#ffc93c" stroke-width="1.4"/>')
@@ -471,7 +473,10 @@ def walkers():
                 '<path d="M-12 -98 q-2 10 -1 18" stroke="#8a63e0" stroke-width="1.6" fill="none"/>')
     rue = _walk('#e8b48f', '#c9a7ff', '#e8b48f', '#f6f1ea', rue_hair, sleeves='#c9a7ff', arm_back=HOLD, phase=.55, h=.97, legs_bare=True,
                 face='<path d="M4.4 -100.6 q2.6 1.8 5.2 -.4" stroke="#c2185b" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="-3" cy="-100" r="2.8" fill="none" stroke="#ffc93c" stroke-width="1.3"/>',
-                extra_front='<path d="M-10 -68 h20 l7 26 h-34z" fill="url(#wrb)"/><path d="M-10 -68 h20" stroke="#1a1033" stroke-width="1.6"/>')
+                extra_front='<path d="M-10 -68 h20 l7 26 h-34z" fill="url(#wrb)"/><path d="M-10 -68 h20" stroke="#1a1033" stroke-width="1.6"/>'
+                            '<path d="M-8 -68 v4 a2.4 2.4 0 0 0 4.8 0 v-4" stroke="#c0c0c0" stroke-width="1.3" fill="none"/><path d="M-6.6 -61.6 l-1.4 5 M-5 -61.6 l1 4.4" stroke="#ffc93c" stroke-width="1.4" stroke-linecap="round"/>'
+                            '<path d="M2 -85.4 v12.4" stroke="#4b2a8a" stroke-width="1.1"/><path d="M1.4 -82.6 q-5.4 -1.4 -5.4 3 q0 4.4 5.4 3z M2.6 -82.6 q5.4 -1.4 5.4 3 q0 4.4 -5.4 3z" fill="#4b2a8a"/>',
+                holding='<path d="M-3.4 -58 h6.8 l-.8 11 h-5.2z" fill="#fff6ec" opacity=".85"/><path d="M-3 -54 h6 l-.6 7 h-4.8z" fill="#a0663c"/><path d="M1 -58 l2.4 -6" stroke="#ff2e88" stroke-width="1.2"/>')
     g2 = f'<g>{amara}</g><g transform="translate(44 0)">{rue}</g>' + clasp.format(a='#a87856', b='#6b3f2a')
     # the drag queen: beehive, sequin gown with a slit, feather boa, gold handbag, heels, a sashay
     sequins = ''.join(f'<circle cx="{x}" cy="{y}" r="1.1" fill="#fff" opacity=".8"/>' for x, y in [(-6, -78), (4, -70), (-2, -60), (8, -48), (-8, -40), (2, -30), (-4, -18), (9, -12), (-10, -8), (6, -36)])
