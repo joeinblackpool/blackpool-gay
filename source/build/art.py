@@ -327,7 +327,7 @@ def hero_scene():
                f'<svg viewBox="{cvx} {cvy} {cvw} {cvh}" aria-hidden="true" focusable="false"><defs><radialGradient id="hpool"><stop offset="0" stop-color="#fff2c8" stop-opacity=".32"/><stop offset="1" stop-color="#fff2c8" stop-opacity="0"/></radialGradient></defs><ellipse cx="417" cy="110" rx="174" ry="15" fill="url(#hpool)"/>{car("h")}</svg></div></div>')
     # Prom walkers: they stroll the same way the car is going, so they drift slowly back as it overtakes them
     # each group is its own small layer inside the moving strip, so a leg swing repaints a few hundred pixels, not the whole strip
-    groups = walkers(); spots = [90, 380, 690, 1010, 1390, 1690]
+    allg = walkers(); groups = allg[:3] + allg[4:]; spots = [90, 420, 760, 1330, 1680]   # the Posse dances up front instead
     def pbox(x, w):
         bx, by, bw, bh = x - 46, 755 - 186, w + 100, 196
         return (f'<div class="pg" style="left:{bx / 3840 * 100:.4f}%;top:{by / 9:.4f}%;width:{bw / 3840 * 100:.4f}%;height:{bh / 9:.4f}%">'
@@ -345,7 +345,9 @@ def hero_scene():
             + layer('ly-road', 1600, road)
             + f'<div class="ly ly-dash" style="left:0;top:0;width:200%;height:100%"><div class="rl rl-dash"><svg viewBox="0 0 3200 900" preserveAspectRatio="none" aria-hidden="true" focusable="false">{dashes}</svg></div></div>'
             + f'<div class="ly ly-lamps" style="left:0;top:0;width:160%;height:100%"><div class="rl rl-lamps"><svg viewBox="0 0 2560 900" preserveAspectRatio="none" aria-hidden="true" focusable="false">{lamps}</svg></div></div>'
-            + people_div + car_div + kerb + '</div>')
+            + people_div + car_div
+            + f'<div class="ly-posse"><svg viewBox="-30 -150 260 160" aria-hidden="true" focusable="false"><ellipse cx="100" cy="2" rx="132" ry="7" fill="#120a24" opacity=".45"/>{allg[3][1]}</svg></div>'
+            + kerb + '</div>')
 
 
 SCENE_CSS = ('.twinkle{animation:tw 3s ease-in-out infinite}.twinkle:nth-child(3n){animation-delay:-1s}@keyframes tw{50%{opacity:.25}}'

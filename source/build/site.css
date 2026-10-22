@@ -265,3 +265,8 @@ a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible,te
 .symgrid h3{margin:2px 0 4px;font-size:1.05rem}
 .symgrid .spot{color:#C2185B;font-weight:700;font-size:.86rem;margin:0 0 6px}
 .symgrid p{margin:0 0 4px;font-size:.93rem}
+/* the Prom Posse dances up front, pinned to the left of the screen, in front of the car */
+.stage .ly-posse{position:absolute;left:calc(50% - 50vw + 14px);bottom:1.2%;width:20%;aspect-ratio:260/160;z-index:3}
+.stage .ly-posse svg{display:block;width:100%;height:100%;overflow:visible}
+.hero .ly-posse{animation:fadeUp .8s ease 1.3s both}
+@media(max-width:760px){.stage .ly-posse{left:calc(53% - 50vw + 4px);bottom:.4%;width:min(14%,31vw)}}
