@@ -162,31 +162,39 @@ def skyline(p='s', ground=742, fill='#24113f', glow='#ffa36b', lights=True, seed
             for x in range(x0, x1, step):
                 t = (x - x0) / (x1 - x0); pts.append((x, y0 + (y1 - y0) * (1 - math.cos(t * math.pi)) / 2))
         return pts
-    run1 = cosrun([(1440, G - 16), (1495, G - 212), (1545, G - 40), (1580, G - 130), (1615, G - 34)])
-    LX, LY, LR = 1632, G - 72, 38
-    loop = [(1615 + i * 2.125, G - 34) for i in range(8)] + [(LX + LR * math.sin(t / 60 * 2 * math.pi), LY + LR * math.cos(t / 60 * 2 * math.pi)) for t in range(61)]
-    run3 = [(LX + 4 + i * 2, G - 34) for i in range(6)] + cosrun([(1646, G - 34), (1680, G - 92), (1705, G - 16)]) + [(1705, G - 16)]
+    run1 = cosrun([(1440, G - 16), (1532, G - 214), (1604, G - 40), (1664, G - 128), (1716, G - 34)])
+    # a clothoid-style loop: taller than wide, tighter at the top, entering and leaving level and stepping sideways as it goes round
+    LX, LR, LRy, LS = 1734, 33, 50, 30
+    LY = G - 34 - LRy
+    def tear(rx, ry, n=72):
+        out = []
+        for i in range(n + 1):
+            a = i / n * 2 * math.pi
+            out.append((LX + LS * (a - math.sin(a) * .35) / (2 * math.pi) + rx * math.sin(a) * (.82 + .18 * math.cos(a)), LY + ry * math.cos(a) + (LRy - ry)))
+        return out
+    loop = [(1716 + i * 2.25, G - 34) for i in range(8)] + tear(LR, LRy)
+    run3 = [(LX + LS + 2 + i * 2.5, G - 34) for i in range(6)] + cosrun([(LX + LS + 17, G - 34), (1824, G - 104), (1866, G - 16)]) + [(1866, G - 16)]
     fwd = run1 + loop + run3
-    ret = [(1705, G - 16), (1709, G - 11), (1702, G - 8)] + [(x, G - 8) for x in range(1696, 1445, -8)] + [(1444, G - 8), (1437, G - 11), (1440, G - 16)]
+    ret = [(1866, G - 16), (1870, G - 11), (1863, G - 8)] + [(x, G - 8) for x in range(1856, 1445, -8)] + [(1444, G - 8), (1437, G - 11), (1440, G - 16)]
     d = lambda pts: 'M' + ' L'.join(f'{x:.1f} {y:.1f}' for x, y in pts)
     length = lambda pts: sum(math.hypot(x1 - x0, y1 - y0) for (x0, y0), (x1, y1) in zip(pts, pts[1:]))
     hills = run1 + run3
     C = [f'<path d="{d(fwd)}" fill="none" stroke="{fill}" stroke-width="5.5" stroke-linejoin="round"/>',
          f'<path d="{d(run1)}" transform="translate(0 7)" fill="none" stroke="{fill}" stroke-width="2.2"/><path d="{d(run3[6:])}" transform="translate(0 7)" fill="none" stroke="{fill}" stroke-width="2.2"/>',
-         f'<circle cx="{LX}" cy="{LY}" r="{LR - 7}" fill="none" stroke="{fill}" stroke-width="2.2"/>',
+         f'<path d="{d(tear(LR - 6, LRy - 7))}" fill="none" stroke="{fill}" stroke-width="2.2"/>',
          f'<path d="{d(ret)}" fill="none" stroke="{fill}" stroke-width="3.4"/>']
     hy = {}
     for x, y in hills: hy[int(x)] = min(y, hy.get(int(x), 9e9))
-    sup = [x for x in range(1446, 1700, 11) if not (LX - LR - 4 < x < LX + LR + 4)]
+    sup = [x for x in range(1446, 1862, 11) if not (LX - LR - 6 < x < LX + LS + LR + 6)]
     near = lambda x: hy[min(hy, key=lambda k: abs(k - x))]
     for i, x in enumerate(sup):
         C.append(f'<path d="M{x} {near(x) + 6:.1f} V{G}" stroke="{fill}" stroke-width="1.8"/>')
         if i and sup[i] - sup[i - 1] < 15: C.append(f'<path d="M{sup[i - 1]} {near(sup[i - 1]) + 9:.1f} L{x} {G} M{sup[i - 1]} {G} L{x} {near(x) + 9:.1f}" stroke="{fill}" stroke-width=".8"/>')
-    C.append(f'<path d="M{LX - 22} {LY + 30} L{LX - 30} {G} M{LX + 22} {LY + 30} L{LX + 30} {G} M{LX} {LY + LR} V{G}" stroke="{fill}" stroke-width="1.8"/>')
+    C.append(f'<path d="M{LX - 20} {LY + 16} L{LX - 30} {G} M{LX + LS + 20} {LY + 16} L{LX + LS + 30} {G} M{LX + LS / 2} {LY - LRy + 6} V{G}" stroke="{fill}" stroke-width="1.8"/>')
     S.append(''.join(C))
     train = ''
     if lights:
-        T = 12; f = length(fwd) / (length(fwd) + length(ret))
+        T = 15; f = length(fwd) / (length(fwd) + length(ret))
         car = f'<rect x="-20" y="-8" width="40" height="8" rx="3" fill="#ff3d9a"/>' + ''.join(f'<rect x="{-18 + i * 12}" y="-12" width="7" height="4" rx="2" fill="#ffd88a"/>' for i in range(4))
         # outbound car, then the same car heading home (flipped so it stays upright while travelling left)
         train = (f'<g>{car}<animateMotion dur="{T}s" repeatCount="indefinite" rotate="auto" calcMode="linear" keyPoints="0;1;1" keyTimes="0;{f:.3f};1" path="{d(fwd)}"/>'
@@ -201,7 +209,7 @@ def skyline(p='s', ground=742, fill='#24113f', glow='#ffa36b', lights=True, seed
             + (f'<animateTransform attributeName="gradientTransform" type="translate" from="0 0" to="0 -220" dur="5s" repeatCount="indefinite"/>' if lights else '') + '</linearGradient>')
     if split:
         return {'defs': defs, 'static': sil + ''.join(W), 'plain': f'<g fill="{fill}">' + ''.join(S) + '</g>' + ''.join(W), 'shape': ''.join(S), 'wheel': (cx, cy, r, ''.join(wheel)), 'tower': (tc, tt, tb_, led + flag),
-                'train': train, 'coaster': (1430, G - 260, 1710, G)}
+                'train': train, 'coaster': (1430, G - 260, 1880, G)}
     body = (sil + f'<g filter="url(#{p}g)"><g class="spinslow" style="transform-origin:{cx}px {cy}px">' + ''.join(wheel) + '</g></g>'
             + ''.join(W) + led + flag + train)
     return defs, body
@@ -209,11 +217,11 @@ def skyline(p='s', ground=742, fill='#24113f', glow='#ffa36b', lights=True, seed
 
 def lamps_row(y_top, step, n, sag, bulb_r, post_w, ground, k0=0, pal=None):
     pal = pal or BULBS
-    out = []
+    out = ['<defs><radialGradient id="lhalo"><stop offset="0" stop-color="#fff4d0" stop-opacity=".5"/><stop offset=".45" stop-color="#ffd88a" stop-opacity=".16"/><stop offset="1" stop-color="#ffd88a" stop-opacity="0"/></radialGradient></defs>']
     for k in range(n):
         x = k * step
         out.append(f'<rect x="{x - post_w / 2}" y="{y_top + 4}" width="{post_w}" height="{ground - y_top - 4}" rx="{post_w / 2}" fill="#1a0e30"/>'
-                   f'<path d="M{x - 9} {y_top + 6} h18" stroke="#1a0e30" stroke-width="3" stroke-linecap="round"/><circle cx="{x}" cy="{y_top}" r="{post_w * 1.4:.1f}" fill="#fff4d0"/><circle cx="{x}" cy="{y_top}" r="{post_w * 3.6:.1f}" fill="#fff4d0" opacity=".16"/>')
+                   f'<path d="M{x - 9} {y_top + 6} h18" stroke="#1a0e30" stroke-width="3" stroke-linecap="round"/><circle cx="{x}" cy="{y_top}" r="{post_w * 1.4:.1f}" fill="#fff4d0"/><circle cx="{x}" cy="{y_top}" r="{post_w * 4.4:.1f}" fill="url(#lhalo)"/>')
         out.append(f'<path d="M{x} {y_top + 10} Q{x + step / 2} {y_top + 10 + sag * 2} {x + step} {y_top + 10}" fill="none" stroke="#1a0e30" stroke-width="1.4"/>')
         pts = [(x + t * step, y_top + 10 + math.sin(t * math.pi) * sag) for t in [i / 12 for i in range(1, 12)]]
         out.extend(f'<circle class="bulb" cx="{px:.1f}" cy="{py:.1f}" r="{bulb_r}" fill="{pal[(i + k + k0) % len(pal)]}"/>' for i, (px, py) in enumerate(pts))
@@ -341,8 +349,8 @@ def hero_scene():
             + f'<div class="ly ly-clouds par" data-d="14"><svg viewBox="0 0 1600 900" preserveAspectRatio="none" aria-hidden="true" focusable="false">{clouds}</svg></div>'
             + f'<div class="ly ly-far par" data-d="9" style="left:0;top:0;width:240%;height:100%"><div class="rl rl-far"><svg viewBox="0 0 3840 900" preserveAspectRatio="none" aria-hidden="true" focusable="false">{far_svg}</svg></div></div>'
             + f'<div class="ov-fly"><div class="fly-bob">{flying_flamingo()}</div></div>'
-            + f'<div class="ov-sparkles" aria-hidden="true">{sky_sparkles()}</div><div class="ov-moon par" data-d="3"><div class="moon-rock">{moon_svg()}</div></div>'
-            + f'<div class="ov-plane"><div class="ov-plane-bob">{biplane()}</div></div>'
+            + f'<div class="ov-sparkles" aria-hidden="true">{sky_sparkles()}</div>'
+            + f'<div class="ov-plane"><div class="ov-plane-bob">{biplane()}</div></div><div class="ov-moon par" data-d="3"><div class="moon-rock">{moon_svg()}</div></div>'
             + sky_strip.replace('class="ly ly-sky2"', 'class="ly ly-sky2 par" data-d="5"', 1)
             + layer('ly-road', 1600, road)
             + f'<div class="ly ly-dash" style="left:0;top:0;width:200%;height:100%"><div class="rl rl-dash"><svg viewBox="0 0 3200 900" preserveAspectRatio="none" aria-hidden="true" focusable="false">{dashes}</svg></div></div>'
@@ -582,14 +590,14 @@ def flamingo():
 CROSS_X = 520                      # where the rainbow zebra sits in each pavement tile
 POSSE_TILE = round(123 * 13.6)   # metres of pavement the car passes in one routine, in stage units
 POSSE_DUR = 13.6     # 32 beats at 141 bpm: walk in (8 beats), Y-M-C-A twice (16), walk off (8)
-def _timeline(pose, beats=32, ease=.35):
+def _timeline(pose, beats=32, ease=.24):
     """SMIL values/keyTimes for a per-beat pose function: each beat moves to its pose in the first `ease` of the beat, then holds."""
     times, vals = [], []
     for k in range(beats):
         t0, t1 = k / beats, (k + ease) / beats
         times += [t0, t1]; vals += [pose(k - 1) if k else pose(0), pose(k)]
     times.append(1); vals.append(pose(beats - 1))
-    return ';'.join(vals), ';'.join(f'{t:.4f}' for t in times), ';'.join(['.4 0 .2 1'] * (len(times) - 1))
+    return ';'.join(vals), ';'.join(f'{t:.4f}' for t in times), ';'.join(['.3 0 .15 1'] * (len(times) - 1))
 
 def _anim(kind, pose, extra=''):
     v, kt, ks = _timeline(pose)
@@ -670,13 +678,13 @@ def posse(walk=True):
 
 def biplane():
     """A little biplane towing a waving rainbow banner. viewBox 0 0 320 80, flies to the right."""
-    cols = ['#ff2d55', '#ff9f1c', '#ffe45e', '#2ee59d', '#2fb8ff', '#b56bff']
+    cols = RAINBOW
     def flag(a):
         return (f'M6 {12 + a} C46 {12 - a} 86 {12 + a} 126 {12 - a * .6} L170 12 L170 52 L126 {52 - a * .6} C86 {52 + a} 46 {52 - a} 6 {52 + a} Z')
     shapes = [flag(a) for a in (4, -4, 4)]
     stripes = ''.join(f'<rect x="0" y="{12 + i * 40 / 6:.2f}" width="172" height="{40 / 6 + .4:.2f}" fill="{c}"/>' for i, c in enumerate(cols))
     banner = (f'<clipPath id="bpclip"><path d="{shapes[0]}"><animate attributeName="d" values="{";".join(shapes)}" dur="1.1s" repeatCount="indefinite"/></path></clipPath>'
-              f'<g clip-path="url(#bpclip)">{stripes}</g>'
+              f'<g clip-path="url(#bpclip)">{stripes}<text x="88" y="37.5" text-anchor="middle" font-family="Bricolage Grotesque,Arial Black,system-ui,sans-serif" font-weight="900" font-size="15" letter-spacing=".5" fill="#fff" stroke="#1a1033" stroke-width="3" paint-order="stroke">BLACKPOOL.GAY</text></g>'
               f'<path d="M6 12 V52" stroke="#fff6ec" stroke-width="2.4"/>')
     rope = '<path d="M170 22 L214 40 M170 42 L214 40" stroke="#fff6ec" stroke-width="1" opacity=".8"/>'
     plane = ('<g transform="translate(214 18)">'
@@ -688,7 +696,7 @@ def biplane():
              '<circle cx="44" cy="15" r="4.4" fill="#f1c7a3"/><path d="M39.6 13 q4.4 -6 9 -1.6" fill="#7a4a2a"/><path d="M40 14 h8" stroke="#2a1d4a" stroke-width="1.6"/>'  # pilot + goggles
              '<path d="M40 19 q-10 0 -18 -4 q8 6 18 7z" fill="#ffc93c"><animate attributeName="d" values="M40 19 q-10 0 -18 -4 q8 6 18 7z;M40 19 q-10 4 -18 2 q8 2 18 3z;M40 19 q-10 0 -18 -4 q8 6 18 7z" dur=".5s" repeatCount="indefinite"/></path>'  # scarf
              '<circle cx="78" cy="23" r="3" fill="#ffc93c"/>'
-             '<ellipse cx="80" cy="23" rx="1.6" ry="13" fill="#fff6ec" opacity=".55"><animate attributeName="ry" values="13;4;13" dur=".12s" repeatCount="indefinite"/></ellipse>'  # propeller blur
+             '<ellipse cx="80" cy="23" rx="2.2" ry="13" fill="#fff6ec" opacity=".32"/>'  # propeller blur
              '<path d="M36 41 l-4 6 M60 41 l4 6" stroke="#2a1d4a" stroke-width="1.6"/><circle cx="31" cy="48" r="3.4" fill="#2a1d4a"/><circle cx="65" cy="48" r="3.4" fill="#2a1d4a"/>'
              '</g>')
     return f'<svg viewBox="0 0 320 80" aria-hidden="true" focusable="false">{banner}{rope}{plane}</svg>'
@@ -696,7 +704,7 @@ def biplane():
 
 def moon_svg():
     """A smiling full moon in a cowboy hat with a rainbow band. viewBox 0 0 200 200."""
-    rb = ['#e40303', '#ff8c00', '#ffed00', '#008026', '#004dff', '#750787']
+    rb = RAINBOW
     band = ''.join(f'<path d="M44 {92 + i * 3.2} Q100 {104 + i * 3.2} 156 {92 + i * 3.2}" stroke="{c}" stroke-width="3.4" fill="none"/>' for i, c in enumerate(rb))
     return ('<svg viewBox="0 0 200 200" aria-hidden="true" focusable="false"><defs><radialGradient id="mglow"><stop offset=".5" stop-color="#fff3c8" stop-opacity=".55"/><stop offset="1" stop-color="#fff3c8" stop-opacity="0"/></radialGradient>'
             '<radialGradient id="mface" cx=".4" cy=".35"><stop offset="0" stop-color="#fffbe9"/><stop offset="1" stop-color="#f3dfa6"/></radialGradient></defs>'
@@ -709,9 +717,9 @@ def moon_svg():
             + band + '<path d="M60 64 Q70 54 80 58" stroke="#f0bb7c" stroke-width="3" fill="none" stroke-linecap="round" opacity=".7"/></svg>')
 
 
-def sky_sparkles(n=22, seed=11):
+def sky_sparkles(n=12, seed=11):
     rnd = random.Random(seed)
-    return ''.join(f'<i class="spk" style="left:{rnd.uniform(1, 98):.2f}%;top:{rnd.uniform(1, 30):.2f}%;--s:{rnd.choice([7, 9, 11, 14])}px;animation-duration:{rnd.uniform(2.2, 5.4):.2f}s;animation-delay:-{rnd.uniform(0, 5):.2f}s"></i>' for _ in range(n))
+    return ''.join(f'<i class="spk" style="left:{rnd.uniform(1, 98):.2f}%;top:{rnd.uniform(1, 30):.2f}%;--s:{rnd.choice([7, 9, 11, 14])}px;animation-duration:{rnd.uniform(5, 8.5):.2f}s;animation-delay:-{rnd.uniform(0, 8):.2f}s"></i>' for _ in range(n))
 
 
 def bulb_glints(y_top=624, step=240, n=11, sag=30, every=4, W=2560, H=900):
