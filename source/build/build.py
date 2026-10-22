@@ -107,7 +107,7 @@ def shell(path, title, desc, h1, intro, body, crumbs=None, ld=None, noindex=Fals
     body_html = (f'<body><a class="skip" href="#main">Skip to content</a><div class="flag" aria-hidden="true"></div><header class="top"><div class="wrap topin"><a class="logo" href="/">Blackpool<b>.gay</b></a><nav class="nav" aria-label="Main">{navh}</nav></div></header>' +
                  (hero or phead(path, h1, intro, crumb_html)) + f'<main id="main" class="wrap{" wide" if wide else ""}">' + body + '</main>'
                  f'<footer class="foot"><div class="wrap"><div class="marq" aria-hidden="true">' + ''.join(f'<span style="--i:{i}">{ch}</span>' for i, ch in enumerate('BLACKPOOL.GAY')) + '</div><div class="fgrid"><div><a class="logo" href="/">Blackpool<b>.gay</b></a><p>Independent stay-first guide to LGBTQ+ Blackpool. Facts checked, never paid placements.</p></div>'
-                 f'<div><h2>Stay</h2><a href="/stays/">All stays</a><a href="/stays/men-only-hotels/">Men-only hotels</a><a href="/stays/adults-only-guest-houses/">Adults-only guest houses</a><a href="/stays/near-queen-street/">Near Queen Street</a><a href="/stays/pride-weekend-hotels/">Pride weekend</a></div>'
+                 f'<div><h2>Stay</h2><a href="/stays/">All stays</a><a href="/stays/men-only-hotels/">Men-only hotels</a><a href="/stays/adults-only-guest-houses/">Adults-only guest houses</a><a href="/stays/near-queen-street/">Near Queen Street</a><a href="/stays/pride-weekend-hotels/">Pride weekend</a><a href="/pride/lord-street/">Lord Street Pride</a></div>'
                  f'<div><h2>Go out</h2><a href="/nightlife/">Nightlife</a><a href="/open-tonight/">Open tonight</a><a href="/whats-on/">What\'s on</a><a href="/map/">Map</a><a href="/explore/">Drive in 3D</a><a href="/safety/">Getting home safely</a></div>'
                  f'<div><h2>About</h2><a href="/about/">About &amp; corrections</a><a href="/forum/">Community forum</a><a href="https://rainbowquarter.co.uk/" rel="noopener">Venue history: Rainbow Quarter</a></div></div>'
                  f'<p class="small">Last updated {UPDATED} · Opening hours and prices are as listed by venues; always check before you travel.</p></div></footer>'
@@ -228,7 +228,40 @@ for s, c in TYPES.items():
         add(f'/plan/{s}/', shell(f'/plan/{s}/', c['title'], c['description'], c['h1'], c.get('intro', ''), c['body_html'], [('Plan your trip', '/plan/'), (c['h1'], None)], [{'@type': 'Article', 'headline': c['h1'], 'description': c['description'], 'url': SITE + f'/plan/{s}/', 'datePublished': TODAY, 'dateModified': TODAY, 'author': {'@id': SITE + '/#org'}, 'publisher': {'@id': SITE + '/#org'}, 'inLanguage': 'en-GB'}]))
 plans = [(s, c) for s, c in TYPES.items() if c.get('section') == 'plan']
 add('/plan/', shell('/plan/', f'Plan a Gay Weekend in Blackpool | {NAME}', 'Practical guides for a gay weekend in Blackpool: first-timer plan, getting home late, drag nights, groups and where to eat.', 'Plan your Blackpool trip', 'Practical guides for your stay.', '<div class="cards">' + ''.join(f'<a class="card" href="/plan/{s}/"><strong>{E(c["h1"])}</strong><span>{E(c.get("intro", ""))}</span></a>' for s, c in plans) + '</div>', [('Plan your trip', None)]))
-for key, path, crumb in (('pride', '/pride/', 'Pride'), ('safety', '/safety/', 'Safety'), ('about', '/about/', 'About')):
+# ---------------------------------------------------------------- Pride + Lord Street Pride (photos live in /public/img, served as static assets)
+DIMS = json.load(open(os.path.join(D, 'photo-dims.json')))
+def gallery(items, label):
+    return (f'<div class="pgal" role="list" aria-label="{E(label)}">' + ''.join(
+        f'<figure class="pic" role="listitem" style="--r:{(-1.6, 1.2, -0.8, 1.8, -1.2)[i % 5]}deg"><a href="/img/pride/{k}.webp"><img src="/img/pride/{k}.webp" width="{DIMS[k][0]}" height="{DIMS[k][1]}" alt="{E(alt)}" loading="{"eager" if i == 0 else "lazy"}" decoding="async"></a><figcaption>{E(alt)}</figcaption></figure>'
+        for i, (k, alt) in enumerate(items)) + '</div>')
+NEXTPRIDE = '<p class="nextpride"><span class="np-k">Next Blackpool Pride</span><strong>June 2027</strong><span class="np-tba">Dates TBA</span></p>'
+def bar_ticket(s): return f'<a class="card ticket" href="/nightlife/{s}/"><strong>{E(VBY[s]["name"])}</strong><span class="k">{E(VBY[s]["kind"])}</span><span>{E(CARDS.get(s, {}).get("intro", "") or VBY[s]["address"])}</span></a>'
+def everyone(): return (f'<h2>Every LGBTQ+ hotel and guest house ({len(allstays)})</h2><div class="cards">' + ''.join(card(s) for s in allstays) + '</div>'
+                        + f'<h2>Every bar, club and sauna ({len(bars)})</h2><div class="cards">' + ''.join(bar_ticket(s) for s in bars) + '</div>')
+PRIDE_PICS = [('prom-crowd', 'Crowds fill the Promenade for Blackpool Pride'), ('tower-flags', 'Pride flags flying below Blackpool Tower'), ('parade', 'The Pride parade on the Promenade'),
+              ('lord-street-samba', 'Samba drummers on Pride weekend'), ('festival-poster-2026', 'The 20th anniversary programme: 5 to 7 June 2026')]
+LORD_PICS = [('lord-street-mardi-gras', 'The street party outside Mardi Gras on Lord Street'), ('lord-street-flags', 'Pride flags over the street party'), ('lord-street-crowd', 'A packed Rainbow Quarter street for Pride'),
+             ('lord-street-samba', 'Samba drummers working the crowd'), ('lord-street-poster-2024', 'Poster for the free Mardi Gras Pride street party, Sunday 9 June 2024')]
+pc = CORE['pride']
+lordlink = '<a class="card ticket feature" href="/pride/lord-street/"><strong>Lord Street Pride street party</strong><span class="k">Free, in the Rainbow Quarter</span><span>Photos, what happened in 2026 and the bars and hotels right on the street.</span></a>'
+add('/pride/', shell('/pride/', 'Blackpool Pride 2027: Dates, Parade & Gay Hotels | Blackpool.gay', pc['description'], 'Blackpool Pride: June 2027, dates TBA', pc.get('intro', ''),
+    NEXTPRIDE + gallery(PRIDE_PICS, 'Blackpool Pride photos') + pc['body_html'] + '<h2>Lord Street street party</h2><div class="cards">' + lordlink + '</div>' + everyone(), [('Pride', None)],
+    [{'@type': 'Article', 'headline': 'Blackpool Pride: June 2027, dates TBA', 'description': pc['description'], 'url': SITE + '/pride/', 'image': [SITE + f'/img/pride/{k}.webp' for k, _ in PRIDE_PICS], 'dateModified': TODAY, 'author': {'@id': SITE + '/#org'}, 'publisher': {'@id': SITE + '/#org'}, 'inLanguage': 'en-GB'}]))
+lord = [s for s in allstays + bars if 'Lord Street' in VBY[s]['address']]
+lord = sorted(dict.fromkeys(lord), key=lambda s: int(re.match(r'\d+', VBY[s]['address']).group()))
+LORD_BODY = (NEXTPRIDE + gallery(LORD_PICS, 'Lord Street Pride photos') +
+    '<p>When Blackpool Pride comes to town, Lord Street becomes the party. The street sits in the middle of the Rainbow Quarter, lined with gay-owned guest houses and bars, and on Pride weekend it closes to traffic for a free street party with live music, DJs, stalls and food.</p>'
+    '<h2>When is the Lord Street Pride street party in 2027?</h2><p>Expect it in June 2027, alongside the main Blackpool Pride festival. Dates are TBA: nothing had been announced when we checked on 22 October 2026, so we are not guessing. Watch <a href="https://www.blackpoolpride.org">blackpoolpride.org</a>, and we will update this page as soon as dates are confirmed.</p>'
+    '<h2>What happened in 2026</h2><p>For the 20th anniversary of Blackpool Pride, more than 20 Rainbow Quarter businesses hosted a community street party on Saturday 6 and Sunday 7 June 2026, alongside the main festival on the Tower Festival Headland. Lord Street had music and performances from local talent across both days. Gates opened at 12pm, with DJs from 1pm and live entertainment from 5pm, and entry was free but one-in-one-out once the street was full.</p>'
+    '<h2>How it started: the Mardi Gras community day</h2><p>In 2024 Mardi Gras, the bar and hotel at 41-43 Lord Street, closed off the street for a free Pride community day on Sunday 9 June, from 12pm to 8pm. There were 21 acts, stalls and hot food, with guest appearances from Su Pollard and Cheryl Fergison and sets from Angie Brown, Katherine Ellis, Samantha Atkinson and Ross Alexander and the Blitz Kidz. Owner John Street summed it up: entry was free and everyone was welcome.</p>'
+    '<h2>Bars and hotels on Lord Street</h2><p>Stay on the street and the party is on your doorstep. These are all on Lord Street, in house-number order.</p><div class="cards">'
+    + ''.join(card(s) if s in allstays else bar_ticket(s) for s in lord) + '</div>'
+    '<h2>Tips for the street party</h2><ul><li>Arrive early: the street fills up and entry goes one-in-one-out.</li><li>Book your room as soon as the 2027 dates are out. Rooms on Lord Street go first.</li><li>Agree a meeting point, because phone signal can struggle in a packed street.</li><li>The parade is on the Promenade on the Saturday morning, a ten-minute walk away. See <a href="/pride/">Blackpool Pride</a> for parade details.</li></ul>'
+    + everyone())
+add('/pride/lord-street/', shell('/pride/lord-street/', 'Lord Street Pride Street Party Blackpool 2027 | Blackpool.gay', 'The free Lord Street Pride street party in Blackpool\'s Rainbow Quarter: June 2027, dates TBA. Photos, what happened in 2026, and every bar and hotel on the street.',
+    'Lord Street Pride street party', 'Free, loud and right outside the guest houses: the Rainbow Quarter\'s own Pride party.', LORD_BODY, [('Pride', '/pride/'), ('Lord Street', None)],
+    [{'@type': 'Article', 'headline': 'Lord Street Pride street party', 'url': SITE + '/pride/lord-street/', 'image': [SITE + f'/img/pride/{k}.webp' for k, _ in LORD_PICS], 'dateModified': TODAY, 'author': {'@id': SITE + '/#org'}, 'publisher': {'@id': SITE + '/#org'}, 'inLanguage': 'en-GB'}]))
+for key, path, crumb in (('safety', '/safety/', 'Safety'), ('about', '/about/', 'About')):
     c = CORE.get(key)
     if c: add(path, shell(path, c['title'], c['description'], c['h1'], c.get('intro', ''), c['body_html'], [(crumb, None)]))
 fc = CORE.get('forum', {})
@@ -251,7 +284,7 @@ NOTFOUND = shell('/404/', f'Page not found | {NAME}', 'This page does not exist.
 FIXED = {}
 def _fix(m):
     href, inner = m.group(1), m.group(2)
-    if href in PAGES or not href.startswith('/') or href.startswith('/api/'): return m.group(0)
+    if href in PAGES or not href.startswith('/') or href.startswith('/api/') or href.startswith('/img/'): return m.group(0)
     for alt in (href.replace('/stays/', '/nightlife/'), href.replace('/nightlife/', '/stays/')):
         if alt in PAGES: FIXED[href] = alt; return m.group(0).replace(f'href="{href}"', f'href="{alt}"')
     FIXED[href] = None; return inner

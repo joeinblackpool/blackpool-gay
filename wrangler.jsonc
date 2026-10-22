@@ -3,6 +3,7 @@
   "main": "src/index.js",
   "compatibility_date": "2026-10-01",
   "workers_dev": true,
+  "assets": { "directory": "./public" },
   "routes": [
     { "pattern": "blackpool.gay", "custom_domain": true }
   ],
