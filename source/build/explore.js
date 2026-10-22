@@ -57,7 +57,7 @@
   }
 
   // ---- the car
-  // pink boxy soft-top 4x4 (unbadged) with two original Blackpool characters: Ruby (drag queen, driving) and Barney (bear, waving)
+  // pink boxy soft-top 4x4 (unbadged) with a young couple of our own: Jay (driving) and Theo (waving)
   const M = (c, o) => new T.MeshStandardMaterial(Object.assign({ color: c, roughness: .55 }, o || {}));
   const add = (par, geo, mat, x, y, z, sh = true) => { const m = new T.Mesh(geo, mat); m.position.set(x, y, z); m.castShadow = sh; par.add(m); return m; };
   const Bx = (w, h, d) => new T.BoxGeometry(w, h, d);
@@ -83,26 +83,24 @@
   [-.7, .7].forEach(x => { add(body, Bx(1.1, .3, 1.1), white, x, 2.05, -.3); add(body, Bx(1.1, 1.1, .25), white, x, 2.6, -.85); });
   // steering wheel (driver on the right, UK style)
   add(body, new T.TorusGeometry(.32, .06, 8, 18), black, -.7, 2.75, .45).rotation.x = -.6;
-  const skin1 = M('#8d5a3b'), skin2 = M('#f0c4a0');
-  // Ruby: purple beehive, sequinned teal gown, gold hoops
-  const ruby = new T.Group(); ruby.position.set(-.7, 2.2, -.3); body.add(ruby);
-  add(ruby, Bx(.8, 1.0, .6), M('#19b3a6', { metalness: .5, roughness: .25 }), 0, .55, 0);
-  add(ruby, new T.SphereGeometry(.38, 16, 12), skin1, 0, 1.4, 0);
-  add(ruby, new T.CylinderGeometry(.35, .42, 1.0, 16), M('#8a2be2'), 0, 2.0, -.05);
-  add(ruby, new T.SphereGeometry(.36, 16, 12), M('#8a2be2'), 0, 2.5, -.05);
-  [-1, 1].forEach(s => add(ruby, new T.TorusGeometry(.1, .03, 6, 12), M('#ffd23f', { metalness: .8, roughness: .2 }), s * .38, 1.3, 0));
-  add(ruby, Bx(.22, .07, .05), M('#e0004d'), 0, 1.28, .37);
-  // Barney: big ginger beard, white sailor cap, rainbow vest, waving arm
-  const barney = new T.Group(); barney.position.set(.7, 2.2, -.3); body.add(barney);
-  add(barney, Bx(1.0, 1.05, .7), M('#3a5bd9'), 0, .55, 0);
-  FLAG_STRIPES(barney);
-  add(barney, new T.SphereGeometry(.42, 16, 12), skin2, 0, 1.45, 0);
-  add(barney, new T.SphereGeometry(.34, 14, 10, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2), M('#c0581f'), 0, 1.38, .1);
-  add(barney, new T.CylinderGeometry(.38, .4, .22, 16), white, 0, 1.86, 0);
-  add(barney, new T.CylinderGeometry(.42, .42, .06, 16), M('#10204a'), 0, 1.76, 0);
-  const arm = new T.Group(); arm.position.set(.55, 1.0, 0); barney.add(arm);
+  const skin1 = M('#a0673f'), skin2 = M('#f2c9a5');
+  // Jay (driving): dark curly hair, white vest, sunglasses pushed up
+  const jay = new T.Group(); jay.position.set(-.7, 2.2, -.3); body.add(jay);
+  add(jay, Bx(.95, 1.05, .6), white, 0, .55, 0);
+  add(jay, new T.SphereGeometry(.4, 16, 12), skin1, 0, 1.45, 0);
+  for (let i = 0; i < 9; i++) add(jay, new T.SphereGeometry(.16, 8, 6), M('#1c1410'), Math.cos(i * .7) * .28, 1.75 + (i % 3) * .05, Math.sin(i * .7) * .22 - .05);
+  add(jay, Bx(.6, .1, .08), M('#111'), 0, 1.75, .35);
+  [-1, 1].forEach(s => add(jay, Bx(.22, .7, .22), skin1, s * .55, .65, .2));
+  // Theo (passenger, waving): bleached buzz cut, pink shades, rainbow tank
+  const theo = new T.Group(); theo.position.set(.7, 2.2, -.3); body.add(theo);
+  add(theo, Bx(.95, 1.05, .6), M('#222'), 0, .55, 0);
+  FLAG_STRIPES(theo);
+  add(theo, new T.SphereGeometry(.4, 16, 12), skin2, 0, 1.45, 0);
+  add(theo, new T.SphereGeometry(.41, 16, 10, 0, Math.PI * 2, 0, Math.PI / 2.6), M('#f3e6a8'), 0, 1.47, -.01);
+  add(theo, Bx(.62, .14, .08), M('#ff3fa4', { metalness: .4, roughness: .2 }), 0, 1.5, .37);
+  const arm = new T.Group(); arm.position.set(.55, 1.0, 0); theo.add(arm);
   add(arm, Bx(.22, .9, .22), skin2, 0, .45, 0); add(arm, new T.SphereGeometry(.15, 10, 8), skin2, 0, .95, 0);
-  function FLAG_STRIPES(g) { FLAG.forEach((c, i) => add(g, Bx(1.02, .09, .72), new T.MeshBasicMaterial({ color: c }), 0, .85 - i * .1, 0, false)); }
+  function FLAG_STRIPES(g) { FLAG.forEach((c, i) => add(g, Bx(.97, .09, .62), new T.MeshBasicMaterial({ color: c }), 0, .85 - i * .1, 0, false)); }
   car.userData.wave = arm;
   const wg = new T.CylinderGeometry(.68, .68, .55, 16), wm = M('#141414'), hub = M('#e9e9ef', { metalness: .4 }), wheels = [];
   [[-1.6, 1.7], [1.6, 1.7], [-1.6, -1.7], [1.6, -1.7]].forEach(([x, z]) => { const w = new T.Group(); w.position.set(x, .68, z); const t = new T.Mesh(wg, wm); t.rotation.z = Math.PI / 2; t.castShadow = true; w.add(t); const h = new T.Mesh(new T.CylinderGeometry(.36, .36, .57, 10), hub); h.rotation.z = Math.PI / 2; w.add(h); car.add(w); wheels.push(w); });
