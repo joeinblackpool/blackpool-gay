@@ -212,7 +212,7 @@
         + ' vec3 c = mix(c1, c2, clamp(fr * 1.1 + 0.05 * w0, 0.0, 1.0)) + vec3(1.0, 0.82, 0.55) * pow(s, 120.0) * 5.0 * (1.0 - night * 0.8) + c2 * pow(s, 10.0) * 0.3;'
         + ' float d = length(cameraPosition - vW); c = mix(c, fogC, smoothstep(fogN, fogF, d)); gl_FragColor = vec4(c, 1.0); }'
     }));
-    sea.rotation.x = -Math.PI / 2; sea.position.y = -0.6; S.add(sea);
+    sea.rotation.x = -Math.PI / 2; sea.position.y = -0.6; S.add(sea); W.sea = sea; W.seaRich = sea.material; W.seaLite = new T.MeshBasicMaterial({ color: '#4a3d8f' });
 
     const ground = new Builder(), roads = new Builder(), marks = new Builder(), bld = new Builder();
     const coastA = Wd.a.find(a => a[0] === 'coast');
@@ -279,6 +279,7 @@
     landmarkLabels(Wd);
     buildGulls();
     buildMinimap();
+    applyLite();
   }
 
   function addCollider(pts) { for (let i = 0; i < pts.length; i++) { const a = pts[i], b = pts[(i + 1) % pts.length], s = [a[0], a[1], b[0], b[1]]; const x0 = Math.floor(Math.min(a[0], b[0]) / 20), x1 = Math.floor(Math.max(a[0], b[0]) / 20), z0 = Math.floor(Math.min(a[1], b[1]) / 20), z1 = Math.floor(Math.max(a[1], b[1]) / 20); for (let x = x0; x <= x1; x++) for (let z = z0; z <= z1; z++) { const k = x + ',' + z; let c = W.cells.get(k); if (!c) W.cells.set(k, c = []); c.push(s); } } }
@@ -687,7 +688,15 @@
     R.toneMapping = usePost ? T.NoToneMapping : T.ACESFilmicToneMapping;
     sun.castShadow = n >= 1;
     dpr = n === 2 ? Math.min(devicePixelRatio || 1, 2) : n === 1 ? Math.min(devicePixelRatio || 1, 1.5) : Math.min(devicePixelRatio || 1, 1) * .75;
-    R.setPixelRatio(dpr); resize();
+    R.setPixelRatio(dpr); resize(); applyLite();
+  }
+  // the lightest tier also drops the shader sky/sea, glow sprites and far scenery
+  function applyLite() {
+    const lite = tier === 0; box.classList.toggle('lite', lite);
+    sky.visible = !lite; S.background = lite ? S.fog.color : null; cam.far = lite ? 900 : 4000; cam.updateProjectionMatrix();
+    S.fog.near = lite ? 160 : 450; S.fog.far = lite ? 850 : 2600;
+    if (W.sea) W.sea.material = lite ? W.seaLite : W.seaRich; if (halos) halos.visible = !lite; clouds.forEach(c => { c.m.visible = !lite; });
+    if (lite) dpr = Math.min(dpr, SOFT ? .5 : .75), R.setPixelRatio(dpr), resize();
   }
   function resize() { const w = box.clientWidth, h = box.clientHeight; R.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix(); if (post) post.size(Math.round(w * dpr), Math.round(h * dpr)); }
   new ResizeObserver(resize).observe(box); resize();
@@ -798,5 +807,5 @@
     box.classList.add('ready');
     if (new URLSearchParams(location.search).has('go')) begin();
   }).catch(e => { console.error(e); goBtn.textContent = 'Could not load the map. Please refresh.'; });
-  window.__xp = { st, cam, begin, tier: n => setTier(n), gpu: GPU, sim: secs => { for (let i = 0; i < secs * 120; i++) physics(STEP); }, skip: () => { intro = 1; snap = 1; }, settle: () => { mood.t = mood.target; snap = 1; }, view: (d, p) => { camS.dist = d; camS.pitch = p; snap = 1; }, goPin: s => goPin(PINS.find(p => p.slug === s)), night: v => { mood.target = v ? 1 : 0; } };
+  window.__xp = { st, cam, R, S, begin, tier: n => setTier(n), gpu: GPU, sim: secs => { for (let i = 0; i < secs * 120; i++) physics(STEP); }, skip: () => { intro = 1; snap = 1; }, settle: () => { mood.t = mood.target; snap = 1; }, view: (d, p) => { camS.dist = d; camS.pitch = p; snap = 1; }, goPin: s => goPin(PINS.find(p => p.slug === s)), night: v => { mood.target = v ? 1 : 0; } };
 })();

@@ -58,3 +58,4 @@
 @keyframes xpShimmer{to{background-position:-200% 0}}
 @media(max-width:700px){.xp{height:calc(100svh - 110px);margin-top:10px}.xp-hud{max-width:calc(100% - 28px);top:auto;bottom:150px;left:14px}.xp-hud .xp-b[data-a=full]{display:none}.xp-mini{width:116px;height:116px}.xp-speed{top:138px}.xp-card{bottom:auto;top:14px;width:calc(100% - 150px);padding:12px 14px}.xp-card strong{font-size:17px}.xp-acts a,.xp-acts button{font-size:12px;padding:7px 10px}.xp-start-in{padding:24px 20px}}
 @media(prefers-reduced-motion:reduce){.xp *,.xp{animation:none!important;transition:none!important}}
+.xp.lite *{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}.xp.lite .xp-hud>*,.xp.lite .xp-speed,.xp.lite .xp-toast{background:rgba(24,14,48,.88)}.xp.lite .xp-card{background:#fff}
