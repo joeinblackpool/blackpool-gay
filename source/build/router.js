@@ -5,7 +5,7 @@ const HDR = { 'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
 const PAGE_SET = new Set(URLS);
 const redirect = to => new Response(null, { status: 301, headers: { Location: to, 'Cache-Control': 'public, max-age=86400', ...HDR } });
 const page = (p, st = 200) => new Response(st === 404 ? NOTFOUND : PAGES[p], { status: st, headers: { 'Content-Type': 'text/html; charset=utf-8',
-  'Cache-Control': st === 404 ? 'public, max-age=300' : 'public, max-age=3600', 'Content-Security-Policy': CSP[st === 404 ? '/404/' : p], ...(st === 404 ? { 'X-Robots-Tag': 'noindex' } : {}), ...HDR } });
+  'Cache-Control': st === 404 ? 'public, max-age=300' : 'public, max-age=0, must-revalidate', ...(st === 404 ? {} : { ETag: `W/"${DEPLOY}"` }), 'Content-Security-Policy': CSP[st === 404 ? '/404/' : p], ...(st === 404 ? { 'X-Robots-Tag': 'noindex' } : {}), ...HDR } });
 const notFound = () => page(null, 404);
 const text = (b, ct, cc = 'public, max-age=3600') => new Response(b, { headers: { 'Content-Type': ct, 'Cache-Control': cc, ...HDR } });
 const J = (o, st = 200) => new Response(JSON.stringify(o), { status: st, headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex', ...HDR } });
@@ -74,6 +74,9 @@ export default {
       const u = new URL(request.url), api = u.pathname.startsWith('/api/');
       if (!['GET', 'HEAD'].includes(request.method) && !(api && request.method === 'POST')) return new Response(null, { status: request.method === 'OPTIONS' ? 204 : 405, headers: { Allow: api ? 'GET, HEAD, POST' : 'GET, HEAD', ...HDR } });
       const r = await route(request, env);
+      // pages revalidate on every visit; unchanged since this deploy? answer 304 with no body
+      const et = r.headers.get('ETag'), inm = request.headers.get('If-None-Match');
+      if (et && inm && inm.split(',').some(t => t.trim() === et)) return new Response(null, { status: 304, headers: r.headers });
       return request.method === 'HEAD' ? new Response(null, r) : r;
     } catch (e) { console.error(e && e.stack || e); return new Response('Sorry, something went wrong.', { status: 500, headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store', ...HDR } }); }
   },
