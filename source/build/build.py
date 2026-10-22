@@ -91,7 +91,7 @@ def shell(path, title, desc, h1, intro, body, crumbs=None, ld=None, noindex=Fals
                  f'<main class="wrap{" wide" if wide else ""}">{crumb_html}<h1>{E(h1)}</h1>' + (f'<p class="lede">{E(intro)}</p>' if intro else '') + body + '</main>'
                  f'<footer class="foot"><div class="wrap"><div class="fgrid"><div><a class="logo" href="/">Blackpool<b>.gay</b></a><p>Independent stay-first guide to LGBTQ+ Blackpool. Facts checked, never paid placements.</p></div>'
                  f'<div><h2>Stay</h2><a href="/stays/">All stays</a><a href="/stays/men-only-hotels/">Men-only hotels</a><a href="/stays/adults-only-guest-houses/">Adults-only guest houses</a><a href="/stays/near-queen-street/">Near Queen Street</a><a href="/stays/pride-weekend-hotels/">Pride weekend</a></div>'
-                 f'<div><h2>Go out</h2><a href="/nightlife/">Nightlife</a><a href="/open-tonight/">Open tonight</a><a href="/whats-on/">What\'s on</a><a href="/map/">Map</a><a href="/safety/">Getting home safely</a></div>'
+                 f'<div><h2>Go out</h2><a href="/nightlife/">Nightlife</a><a href="/open-tonight/">Open tonight</a><a href="/whats-on/">What\'s on</a><a href="/map/">Map</a><a href="/explore/">Explore in 3D</a><a href="/safety/">Getting home safely</a></div>'
                  f'<div><h2>About</h2><a href="/about/">About &amp; corrections</a><a href="/forum/">Community forum</a><a href="https://rainbowquarter.co.uk/" rel="noopener">Venue history: Rainbow Quarter</a></div></div>'
                  f'<p class="small">Last updated {UPDATED} · Opening hours and prices are as listed by venues; always check before you travel.</p></div></footer>'
                  + (('<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script><script src="/assets/map.js" defer></script>') if maps else '') + script +
@@ -163,7 +163,23 @@ bars = [s for s in BAR_SLUGS if f'/nightlife/{s}/' in PAGES]
 add('/nightlife/', shell('/nightlife/', nh.get('title', f'Gay Bars Near Your Hotel in Blackpool | {NAME}'), nh.get('description', 'Gay bars, cabaret and clubs near the Rainbow Quarter hotels, with maps, listed hours and walking times.'), nh.get('h1', 'Nightlife near your hotel'), nh.get('intro', ''),
     mapblock(ALLPINS, zoom=16, h=420) + nh.get('body_html', '') + '<h2>Every bar, club and sauna</h2><div class="cards">' + ''.join(f'<a class="card" href="/nightlife/{s}/"><strong>{E(VBY[s]["name"])}</strong><span class="k">{E(VBY[s]["kind"])}</span><span>{E(CARDS[s].get("intro", ""))}</span></a>' for s in bars) + '</div>', [('Nightlife', None)], maps=True))
 add('/map/', shell('/map/', f'Rainbow Quarter Map: Gay Hotels and Bars | {NAME}', 'Interactive map of every gay and gay-friendly hotel, bar, club and sauna in Blackpool, with Google Maps, Apple Maps and Waze links for each.', 'Map of gay Blackpool',
-    'Every stay and bar on one map. Tap a pin for directions.', mapblock(ALLPINS, zoom=16, h=620) + '<h2>Stays</h2><ul>' + ''.join(f'<li><a href="/stays/{s}/">{E(VBY[s]["name"])}</a>, {E(VBY[s]["address"])}</li>' for s in allstays) + '</ul><h2>Bars and clubs</h2><ul>' + ''.join(f'<li><a href="/nightlife/{s}/">{E(VBY[s]["name"])}</a>, {E(VBY[s]["address"])}</li>' for s in bars) + '</ul>', [('Map', None)], maps=True, wide=True))
+    'Every stay and bar on one map. Tap a pin for directions.', '<p><a class="btn" href="/explore/">Try the 3D drive-around version</a></p>' + mapblock(ALLPINS, zoom=16, h=620) + '<h2>Stays</h2><ul>' + ''.join(f'<li><a href="/stays/{s}/">{E(VBY[s]["name"])}</a>, {E(VBY[s]["address"])}</li>' for s in allstays) + '</ul><h2>Bars and clubs</h2><ul>' + ''.join(f'<li><a href="/nightlife/{s}/">{E(VBY[s]["name"])}</a>, {E(VBY[s]["address"])}</li>' for s in bars) + '</ul>', [('Map', None)], maps=True, wide=True))
+
+XPCSS = ('<style>.xp{position:relative;height:min(78vh,720px);border-radius:18px;overflow:hidden;background:#1b1033;touch-action:none;outline:none}.xp canvas{display:block;width:100%;height:100%}'
+  '.xpcard{position:absolute;left:12px;right:12px;bottom:12px;max-width:420px;background:#fff;color:#1d1230;border-radius:14px;padding:12px 14px;box-shadow:0 8px 30px rgba(0,0,0,.35);display:flex;flex-direction:column;gap:2px}.xpcard[hidden]{display:none}.xpcard .k{font-size:.85em;color:#750787}.xpcard .a{font-size:.9em}'
+  '.xphint{position:absolute;top:12px;left:12px;right:12px;color:#fff;background:rgba(20,10,40,.7);padding:8px 12px;border-radius:10px;font-size:.9em;max-width:460px}.xphint[hidden]{display:none}'
+  '.xppad{position:absolute;right:12px;bottom:12px;display:grid;grid-template-columns:repeat(3,48px);gap:6px}.xppad button{width:48px;height:48px;border-radius:12px;border:0;background:rgba(255,255,255,.85);font-size:20px;color:#1d1230}'
+  '.xppad .u{grid-column:2}.xppad .l{grid-column:1;grid-row:2}.xppad .d{grid-column:2;grid-row:2}.xppad .r{grid-column:3;grid-row:2}@media(min-width:900px){.xpcard{right:auto}}@media(max-width:899px){.xpcard{bottom:126px}}</style>')
+xpdata = json.dumps({'pins': ALLPINS, 'c': [53.8228, -3.0525]}, separators=(',', ':')).replace('</', '<\\/')
+add('/explore/', shell('/explore/', f'Drive Around Gay Blackpool in 3D | {NAME}', 'Drive a little car around the Rainbow Quarter in 3D and find every gay hotel, guest house, bar and club in Blackpool, with directions for each.', 'Explore gay Blackpool in 3D',
+    'Drive around the Rainbow Quarter. Pink towers are places to stay and blue towers are bars and clubs. Pull up next to one to see what it is.',
+    XPCSS + '<div class="xp" id="xp" tabindex="0" role="application" aria-label="3D map of gay Blackpool. Use the arrow keys or tap a tower."><div class="xphint" id="xphint">Arrow keys or WASD to drive. On a phone, use the pad or tap anywhere to drive there. Tap a tower to see it.</div>'
+    '<div class="xpcard" id="xpcard" hidden></div><div class="xppad" aria-hidden="true"><button class="u" data-pad="f:1">▲</button><button class="l" data-pad="t:1">◀</button><button class="d" data-pad="f:-1">▼</button><button class="r" data-pad="t:-1">▶</button></div></div>'
+    f'<script type="application/json" id="xpdata">{xpdata}</script><noscript><p>The 3D view needs JavaScript. Use the <a href="/map/">flat map</a> instead.</p></noscript>'
+    '<p class="small">Tower positions come from each venue\'s real address. Streets and other buildings are drawn for fun and are not to scale. For walking directions, use the <a href="/map/">map</a>.</p>'
+    '<h2>Places to stay</h2><ul>' + ''.join(f'<li><a href="/stays/{s}/">{E(VBY[s]["name"])}</a></li>' for s in allstays) + '</ul><h2>Bars and clubs</h2><ul>' + ''.join(f'<li><a href="/nightlife/{s}/">{E(VBY[s]["name"])}</a></li>' for s in bars) + '</ul>',
+    [('Map', '/map/'), ('Explore in 3D', None)], wide=True,
+    script='<script src="https://unpkg.com/three@0.149.0/build/three.min.js" crossorigin=""></script><script src="/assets/explore.js" defer></script>'))
 
 # open tonight (client-side, Europe/London time) from listed hours
 ot = {s: {'n': VBY[s]['name'], 'u': f'/nightlife/{s}/', 'h': HOURS[s], 'k': VBY[s]['kind']} for s in bars if s in HOURS}
@@ -242,7 +258,7 @@ out = ['// blackpool.gay Worker. Generated by source/build/build.py: edit the so
 for p in URLS: out.append(f'{js(p)}:{chunk(PAGES[p])},')
 out += ['};', f'const NOTFOUND={chunk(NOTFOUND)};', f'const CSP={js(CSPS)};', f'const URLS={js(URLS)};',
         f'const SITEMAP={chunk(SITEMAP)};const ROBOTS={js(ROBOTS)};const LLMS={chunk(LLMS)};',
-        f'const ASSETS={js({"/assets/map.js": A("map.js"), "/assets/tonight.js": A("tonight.js"), "/assets/forum.js": A("forum.js"), "/favicon.svg": A("favicon.svg")})};',
+        f'const ASSETS={js({"/assets/map.js": A("map.js"), "/assets/tonight.js": A("tonight.js"), "/assets/forum.js": A("forum.js"), "/assets/explore.js": A("explore.js"), "/favicon.svg": A("favicon.svg")})};',
         f'const BIN={js({k: base64.b64encode(open(os.path.join(B, f), "rb").read()).decode() for k, f in (("/og.png", "og.png"), ("/apple-touch-icon.png", "icon.png"))})};',
         A('router.js')]
 open(os.path.join(ROOT, 'src', 'index.js'), 'w').write('\n'.join(out))
