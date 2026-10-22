@@ -307,10 +307,15 @@ def hero_scene():
     car_div = (f'<div class="ly ly-car" style="left:{pct(cxp + cvx * cs)};top:{pct(cyp + cvy * cs, 900)};width:{pct(cvw * cs)};height:{pct(cvh * cs, 900)}"><div class="carsettle">'
                f'<svg viewBox="{cvx} {cvy} {cvw} {cvh}" aria-hidden="true" focusable="false"><defs><radialGradient id="hpool"><stop offset="0" stop-color="#fff2c8" stop-opacity=".32"/><stop offset="1" stop-color="#fff2c8" stop-opacity="0"/></radialGradient></defs><ellipse cx="417" cy="110" rx="174" ry="15" fill="url(#hpool)"/>{car("h")}</svg></div></div>')
     # Prom walkers: they stroll the same way the car is going, so they drift slowly back as it overtakes them
-    groups = walkers(); spots = [250, 960, 1560]
-    ppl = ''.join(f'<g transform="translate({x + ox} 755) scale(1.02)">{g}</g>' for ox in (0, 1920) for x, (w, g) in zip(spots, groups))
-    people_div = (f'<div class="ly ly-people" style="left:0;top:0;width:240%;height:100%"><div class="rl rl-people"><svg viewBox="0 0 3840 900" preserveAspectRatio="none" aria-hidden="true" focusable="false">'
-                  f'<defs>{WALKER_DEFS}</defs>{ppl}</svg></div></div>')
+    # each group is its own small layer inside the moving strip, so a leg swing repaints a few hundred pixels, not the whole strip
+    groups = walkers(); spots = [200, 640, 1060, 1440, 1720]
+    def pbox(x, w):
+        bx, by, bw, bh = x - 46, 755 - 186, w + 100, 196
+        return (f'<div class="pg" style="left:{bx / 3840 * 100:.4f}%;top:{by / 9:.4f}%;width:{bw / 3840 * 100:.4f}%;height:{bh / 9:.4f}%">'
+                f'<svg viewBox="{bx} {by} {bw} {bh}" preserveAspectRatio="none" aria-hidden="true" focusable="false">')
+    ppl = ''.join(pbox(x + ox, w) + f'<g transform="translate({x + ox} 755) scale(1.02)">{g}</g></svg></div>' for ox in (0, 1920) for x, (w, g) in zip(spots, groups))
+    people_div = (f'<div class="ly ly-people" style="left:0;top:0;width:240%;height:100%"><div class="rl rl-people">'
+                  f'<svg class="pdefs" width="0" height="0" aria-hidden="true" focusable="false"><defs>{WALKER_DEFS}</defs></svg>{ppl}</div></div>')
     kerb = '<svg class="kerb" viewBox="0 0 1600 20" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M0 2 Q800 30 1600 2 V20 H0Z" fill="#fff8f3"/></svg>'
     return ('<div class="stage scene" aria-hidden="true">'
             + layer('ly-sky', 1600, sky)
@@ -418,6 +423,7 @@ def _walk(skin, top, legs, shoes, hair, face='', extra_front='', extra_back='', 
     def arm(fixed, vals):
         sl = sleeves or skin
         body = f'<path d="M-3.4 -88 h6.8 l-.8 20 h-5.2z" fill="{sl}"/><path d="M-2.8 -69 h5.6 l-.6 15 h-4.4z" fill="{skin}"/><circle cx="0" cy="-53" r="3.6" fill="{skin}"/>'
+        if isinstance(fixed, str): return fixed
         if fixed is not None: return f'<g transform="rotate({fixed} 0 -88)">{body}</g>'
         return (f'<g>{body}<animateTransform attributeName="transform" type="rotate" values="{vals}" keyTimes="0;.5;1" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1" dur="{dur}" begin="{d}" repeatCount="indefinite"/></g>')
     fig = (arm(arm_back, '-20 0 -88;20 0 -88;-20 0 -88') + leg('20 0 -50;-20 0 -50;20 0 -50') + extra_back
@@ -431,21 +437,41 @@ def _walk(skin, top, legs, shoes, hair, face='', extra_front='', extra_back='', 
 
 
 def walkers():
-    """Three groups strolling the Prom: two men hand in hand, two women hand in hand, a drag queen. Returns [(width, svg_group)]."""
-    # Kai and Ollie
-    kai = _walk('#8a5a3c', '#0fb5ae', '#2f4a7a', '#f6f1ea', '<path d="M-10 -110 q-1 -12 11 -13 q11 0 12.6 9 q-4 -2 -9 -2 l-2 -3 q-4 4 -12.6 9z" fill="#20140f"/>',
-                face='<path d="M-1 -100 q2 7 9 6 q4 -1 5 -6 q-3 3 -8 2.4 q-4 -.4 -6 -2.4z" fill="#20140f"/>', arm_front=-36, phase=0)
-    ollie = _walk('#f2c9a5', '#ff2e88', '#1a1033', '#1a1033', '<path d="M-11 -108 q-1 -15 13 -15 q9 0 12 6 q-6 -4 -11 0 q-3 -6 -14 9z" fill="#d9763a"/>',
-                  sleeves='#ff2e88', arm_back=36, phase=.12, h=.95, legs_bare=True,
-                  extra_front='<path d="M-9 -78 h18" stroke="#ffc93c" stroke-width="2.2"/>')
-    g1 = f'<g>{kai}</g><g transform="translate(44 0)">{ollie}</g>'
-    # Amara and Rue
-    amara_hair = '<circle cx="-1" cy="-114" r="15" fill="#1a1210"/><circle cx="-10" cy="-106" r="9" fill="#1a1210"/>'
-    amara = _walk('#6b3f2a', '#ffc93c', '#6b3f2a', '#ff2e88', amara_hair, arm_front=-36, phase=.4, legs_bare=True,
-                  extra_front='<path d="M-11 -62 l-5 26 h32 l-5 -26z" fill="#ffc93c"/><path d="M-12 -44 h28" stroke="#e8ad1f" stroke-width="1.4"/><circle cx="12.8" cy="-103" r="1.6" fill="#ffc93c"/>')
-    rue = _walk('#e8b48f', '#3d6db5', '#1a1033', '#f6f1ea', '<path d="M-11 -106 q-2 -16 12 -16 q13 0 13 10 l-6 -1 q-6 -3 -12 1 q-3 1 -7 6z" fill="#8b5cf6"/><path d="M-11 -106 q-1 4 1 8" stroke="#5b3aa8" stroke-width="2.4"/>',
-                sleeves='#3d6db5', arm_back=36, phase=.55, h=.97, extra_front='<path d="M-2 -88 l2 14 l2 -14" stroke="#f6f1ea" stroke-width="1.6" fill="none"/>')
-    g2 = f'<g>{amara}</g><g transform="translate(44 0)">{rue}</g>'
+    """Three groups strolling the Prom: two camp lads hand in hand, two women hand in hand, a drag queen. Returns [(width, svg_group)]."""
+    HOLD = 39   # arm angle at which partners 44 units apart meet exactly: 35*sin(39deg) = 22
+    clasp = '<circle cx="22" cy="-60.8" r="4.4" fill="{a}"/><path d="M19.4 -62 q2.6 -2.6 5.2 0" stroke="{b}" stroke-width="1.4" fill="none" stroke-linecap="round"/>'
+    # Kai: rainbow T-shirt, tiny denim shorts, white high-tops, quiff and beard, free hand on his hip
+    akimbo = ('<path d="M-3.4 -86 l-8 14" stroke="#8a5a3c" stroke-width="6.4" stroke-linecap="round"/><path d="M-11.4 -72 l6.6 9" stroke="#8a5a3c" stroke-width="5.6" stroke-linecap="round"/>'
+              '<path d="M-3.4 -88 l-5 9" stroke="#ff2d55" stroke-width="7.4" stroke-linecap="round"/>')
+    kai = _walk('#8a5a3c', 'url(#wrb)', '#8a5a3c', '#ffffff',
+                '<path d="M-11 -110 q-2 -13 9 -16 q8 -3 16 1 q4 3 2 7 q-5 -4 -11 -2 l-1 -2 q-5 5 -15 12z" fill="#20140f"/><path d="M2 -127 q6 -6 13 -2" stroke="#20140f" stroke-width="3" fill="none" stroke-linecap="round"/>',
+                face='<path d="M-1 -100 q2 7 9 6 q4 -1 5 -6 q-3 3 -8 2.4 q-4 -.4 -6 -2.4z" fill="#20140f"/><circle cx="-2.4" cy="-104" r="1.5" fill="#ffc93c"/>',
+                arm_front=-HOLD, arm_back=akimbo, phase=0, legs_bare=True, sleeves='#ff2d55',
+                extra_front='<path d="M-10.6 -52 h21.2 l1.4 12 h-10 l-2 -4 l-2 4 h-10z" fill="#4a78c2"/><path d="M-10 -51 h20" stroke="#2f5a9e" stroke-width="1.2"/>')
+    # Ollie: open pink bomber over a white tee, ginger quiff, sunnies pushed up, a fluttering fan held high
+    fan = ('<g><path d="M2 -86 l11 -6" stroke="#ff2e88" stroke-width="7" stroke-linecap="round"/><path d="M13 -92 l5 -13" stroke="#f2c9a5" stroke-width="5.4" stroke-linecap="round"/>'
+           '<g><path d="M18 -106 l-14 -12 a19 19 0 0 1 26 -7z" fill="#ffc93c"/><path d="M18 -106 l-14 -12 M18 -106 l-7 -16 M18 -106 l1 -18 M18 -106 l9 -16 M18 -106 l12 -13" stroke="#ff2e88" stroke-width="1.3"/>'
+           '<animateTransform attributeName="transform" type="rotate" values="-14 18 -106;12 18 -106;-14 18 -106" dur=".42s" repeatCount="indefinite"/></g>'
+           '<circle cx="18" cy="-106" r="3.4" fill="#f2c9a5"/></g>')
+    ollie = _walk('#f2c9a5', '#ffffff', '#f2c9a5', '#ff2e88',
+                  '<path d="M-11 -108 q-1 -15 13 -16 q10 -1 13 7 q-6 -4 -11 -1 q-3 -6 -15 10z" fill="#d9763a"/><path d="M-6 -121 q5 -4 13 -1" stroke="#1a1033" stroke-width="2.6" fill="none"/>',
+                  sleeves='#ff2e88', arm_back=HOLD, arm_front=fan, phase=.18, h=.95, legs_bare=True,
+                  extra_front='<path d="M-11.6 -88 q-1 18 1 40 h5 l-1 -40z" fill="#ff2e88"/><path d="M4 -87 q2 18 7 38 h-4 q-4 -18 -7 -38z" fill="#ff2e88"/><path d="M-2 -88 q3 6 6 0" stroke="#ffc93c" stroke-width="1.4" fill="none"/>'
+                              '<path d="M-10.6 -52 h21.2 l1 10 h-9 l-2 -3 l-2 3 h-10z" fill="#1a1033"/>')
+    ollie = f'<g>{ollie}<animateTransform attributeName="transform" type="rotate" values="-2.4 0 0;2.4 0 0;-2.4 0 0" dur="1.05s" begin="-.18s" repeatCount="indefinite"/></g>'
+    g1 = f'<g>{kai}</g><g transform="translate(44 0)">{ollie}</g>' + clasp.format(a='#b98a62', b='#7a4c33')
+    # Amara: sunflower-yellow sundress, afro with a flower, gold hoops, pink sandals
+    amara_hair = '<circle cx="-1" cy="-114" r="15" fill="#1a1210"/><circle cx="-10" cy="-106" r="9" fill="#1a1210"/><circle cx="-12" cy="-122" r="4.6" fill="#ff2e88"/><circle cx="-12" cy="-122" r="1.8" fill="#ffc93c"/>'
+    amara = _walk('#6b3f2a', '#ffc93c', '#6b3f2a', '#ff2e88', amara_hair, arm_front=-HOLD, phase=.4, legs_bare=True, sleeves='#ffc93c',
+                  face='<path d="M4.4 -101 q2.6 1.8 5.2 -.4" stroke="#b0123f" stroke-width="1.8" fill="none" stroke-linecap="round"/>',
+                  extra_front='<path d="M-11 -66 l-7 30 h36 l-7 -30z" fill="#ffc93c"/><path d="M-14 -46 h30" stroke="#e8ad1f" stroke-width="1.4"/><circle cx="-3" cy="-100" r="3" fill="none" stroke="#ffc93c" stroke-width="1.4"/>')
+    # Rue: long wavy lilac hair down her back, cropped tee, rainbow skater skirt, white trainers, hoop earring
+    rue_hair = ('<path d="M-11 -106 q-3 -18 12 -18 q14 0 14 12 q-6 -5 -13 -4 q-6 1 -9 6 q-3 14 -4 24 q-2 10 -6 14 q-6 -6 -4 -16 q2 -10 -1 -16z" fill="#b38cff"/>'
+                '<path d="M-12 -98 q-2 10 -1 18" stroke="#8a63e0" stroke-width="1.6" fill="none"/>')
+    rue = _walk('#e8b48f', '#c9a7ff', '#e8b48f', '#f6f1ea', rue_hair, sleeves='#c9a7ff', arm_back=HOLD, phase=.55, h=.97, legs_bare=True,
+                face='<path d="M4.4 -100.6 q2.6 1.8 5.2 -.4" stroke="#c2185b" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="-3" cy="-100" r="2.8" fill="none" stroke="#ffc93c" stroke-width="1.3"/>',
+                extra_front='<path d="M-10 -68 h20 l7 26 h-34z" fill="url(#wrb)"/><path d="M-10 -68 h20" stroke="#1a1033" stroke-width="1.6"/>')
+    g2 = f'<g>{amara}</g><g transform="translate(44 0)">{rue}</g>' + clasp.format(a='#a87856', b='#6b3f2a')
     # the drag queen: beehive, sequin gown with a slit, feather boa, gold handbag, heels, a sashay
     sequins = ''.join(f'<circle cx="{x}" cy="{y}" r="1.1" fill="#fff" opacity=".8"/>' for x, y in [(-6, -78), (4, -70), (-2, -60), (8, -48), (-8, -40), (2, -30), (-4, -18), (9, -12), (-10, -8), (6, -36)])
     queen = (f'<g transform="scale(1.14)"><g>'
@@ -459,8 +485,63 @@ def walkers():
              + f'<g><path d="M8 -86 l12 18 l4 -2" stroke="#c98f6d" stroke-width="5.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 -66 h12 l-2 12 h-8z" fill="#ffc93c"/><path d="M22 -66 q4 -7 8 0" stroke="#ffc93c" stroke-width="1.6" fill="none"/>'
              f'<animateTransform attributeName="transform" type="rotate" values="-4 8 -86;5 8 -86;-4 8 -86" dur="1.2s" repeatCount="indefinite"/></g>'
              f'<animateTransform attributeName="transform" type="rotate" values="-2.5 0 0;2.5 0 0;-2.5 0 0" dur="1.2s" repeatCount="indefinite"/></g></g>')
-    return [(90, g1), (90, g2), (60, queen)]
+    queen += ('<path d="M27 -70 q18 26 32 44" stroke="#ff2e88" stroke-width="1.4" fill="none"/>'
+              '<g transform="translate(52 0)">' + dog() + '</g>')
+    return [(90, g1), (90, g2), (110, queen), (40, cat()), (40, flamingo())]
 
 
-WALKER_DEFS = ('<linearGradient id="qgown" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b56bff"/><stop offset=".6" stop-color="#7b2cbf"/><stop offset="1" stop-color="#ff2e88"/></linearGradient>'
+def _legs4(color, xs, top, dur, phase=0):
+    """Four little trotting legs, diagonal pairs in step."""
+    out = ''
+    for i, x in enumerate(xs):
+        v = '22;-22;22' if i in (0, 3) else '-22;22;-22'
+        vals = ';'.join(f'{a} {x} {top}' for a in v.split(';'))
+        out += (f'<g><path d="M{x - 2} {top} h4 l-.4 {-top - 1} h-3.2z" fill="{color}"/><ellipse cx="{x + .6}" cy="-1" rx="2.6" ry="1.4" fill="{color}"/>'
+                f'<animateTransform attributeName="transform" type="rotate" values="{vals}" keyTimes="0;.5;1" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1" dur="{dur}" begin="-{phase}s" repeatCount="indefinite"/></g>')
+    return out
+
+
+def dog():
+    """A fluffy little white dog with a rainbow bow on its collar, trotting, tail wagging. Feet on y=0, faces right."""
+    tail = ('<g><path d="M-13 -20 q-9 -6 -5 -16 q4 6 9 9z" fill="#fbf6ff"/>'
+            '<animateTransform attributeName="transform" type="rotate" values="-14 -12 -20;14 -12 -20;-14 -12 -20" dur=".36s" repeatCount="indefinite"/></g>')
+    body = ('<ellipse cx="0" cy="-17" rx="15" ry="9" fill="#fbf6ff"/><path d="M-12 -24 q4 -5 9 -2 q5 -5 10 -1 q5 -4 9 1" stroke="#e7dcf2" stroke-width="1.4" fill="none"/>'
+            '<circle cx="14" cy="-27" r="8" fill="#fbf6ff"/><ellipse cx="21" cy="-25" rx="4.6" ry="3.4" fill="#fbf6ff"/><circle cx="25" cy="-26" r="1.7" fill="#1a1033"/>'
+            '<circle cx="16.6" cy="-29" r="1.3" fill="#1a1033"/><path d="M9 -33 q-2 -7 3 -9 q3 4 2 9z" fill="#e7dcf2"/><path d="M20 -21 q2 3 4 0" stroke="#ff6fa8" stroke-width="1.6" fill="none" stroke-linecap="round"/>'
+            '<path d="M7 -22 q5 3 10 -1" stroke="#ff2e88" stroke-width="2.4" fill="none"/>'
+            '<path d="M12 -20 l-6 -5 v9z M12 -20 l6 -5 v9z" fill="url(#wrb)" stroke="#1a1033" stroke-width=".6"/><circle cx="12" cy="-20" r="1.8" fill="#ffc93c"/>')
+    bob = '<animateTransform attributeName="transform" type="translate" values="0 0;0 -1.4;0 0" dur=".36s" repeatCount="indefinite"/>'
+    return f'<g>{tail}{_legs4("#efe6f7", (-9, -4, 6, 11), -12, ".36s")}<g>{body}{bob}</g></g>'
+
+
+def cat():
+    """A strutting grey cat with a rainbow Mohican, tail up. Feet on y=0, faces right."""
+    mohawk = ''.join(f'<path d="M{x} {y} l{-2.2} -7 l4.6 1.4z" fill="{c}"/>' for (x, y), c in zip([(14, -36), (10, -37), (6, -35), (2.6, -32), (-.4, -29), (-3, -26)], ['#ff2d55', '#ff9f1c', '#ffe45e', '#2ee59d', '#2fb8ff', '#b56bff']))
+    tail = ('<g><path d="M-14 -20 q-8 -6 -6 -16 q2 -8 7 -9" stroke="#8e8aa6" stroke-width="3.6" fill="none" stroke-linecap="round"/>'
+            '<animateTransform attributeName="transform" type="rotate" values="-6 -14 -20;8 -14 -20;-6 -14 -20" dur="1.6s" repeatCount="indefinite"/></g>')
+    body = ('<path d="M-15 -14 q0 -10 12 -11 h10 q8 0 9 9 q0 4 -4 4 h-23 q-4 0 -4 -2z" fill="#8e8aa6"/>'
+            '<path d="M-10 -22 l3 6 M-4 -24 l2 6 M2 -24 l1 6" stroke="#6f6a8a" stroke-width="1.6" stroke-linecap="round"/>'
+            '<circle cx="13" cy="-27" r="7.4" fill="#8e8aa6"/><path d="M8 -32 l-1 -8 l6 5z M15 -33 l3 -7 l2 7z" fill="#8e8aa6"/><path d="M15.8 -34.6 l1.6 -3.4 l1 3.6z" fill="#ff9fc9"/>'
+            + mohawk +
+            '<ellipse cx="16" cy="-28" rx="1.3" ry="1.8" fill="#ffe45e"/><path d="M15.6 -29 v2" stroke="#1a1033" stroke-width=".8"/><path d="M19.6 -25.4 l1.4 .6 l-1.2 .8z" fill="#ff9fc9"/>'
+            '<path d="M20 -24 l7 -1 M20 -23 l7 1" stroke="#e7dcf2" stroke-width=".6"/>')
+    return f'<g>{tail}{_legs4("#7d7896", (-11, -6, 6, 11), -12, ".6s")}<g>{body}<animateTransform attributeName="transform" type="translate" values="0 0;0 -.8;0 0" dur=".6s" repeatCount="indefinite"/></g></g>'
+
+
+def flamingo():
+    """A pink flamingo strutting the Prom, head bobbing. Feet on y=0, faces right."""
+    def leg(vals, ph):
+        v = ';'.join(f'{a} 0 -54' for a in vals)
+        return (f'<g><path d="M-1 -54 L1 -30 L-3 -2" stroke="#ff7fae" stroke-width="2.2" fill="none" stroke-linejoin="round"/><circle cx="1" cy="-30" r="1.8" fill="#ff7fae"/><path d="M-3 -2 h9" stroke="#ff7fae" stroke-width="2.4" stroke-linecap="round"/>'
+                f'<animateTransform attributeName="transform" type="rotate" values="{v}" keyTimes="0;.5;1" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1" dur=".9s" begin="-{ph}s" repeatCount="indefinite"/></g>')
+    neck = ('<g><path d="M12 -64 q10 -10 2 -22 q-7 -11 3 -20" stroke="#ff6fa8" stroke-width="5" fill="none" stroke-linecap="round"/><circle cx="18" cy="-108" r="6" fill="#ff6fa8"/>'
+            '<path d="M22 -111 q8 0 9 6 q-1 4 -4 5 q1 -4 -5 -5z" fill="#fff6ec"/><path d="M28 -103 q2 0 3 -2 q0 4 -4 5z" fill="#1a1033"/><circle cx="19" cy="-109.6" r="1.2" fill="#1a1033"/>'
+            '<animateTransform attributeName="transform" type="translate" values="0 0;3 1;0 0" dur=".9s" repeatCount="indefinite"/></g>')
+    body = ('<path d="M-22 -66 q4 -12 20 -12 q16 0 18 10 q0 10 -14 12 q-14 2 -24 -10z" fill="#ff8fbd"/><path d="M-20 -66 q10 -8 22 -4 q-6 8 -22 4z" fill="#ff5c9a"/>'
+            '<path d="M-22 -66 l-8 -4 l3 6z" fill="#ff5c9a"/>')
+    return (f'<g>{leg(("16", "-16", "16"), 0)}{leg(("-16", "16", "-16"), 0)}<g>{body}{neck}'
+            '<animateTransform attributeName="transform" type="translate" values="0 0;0 -1.6;0 0;0 -1.6;0 0" dur=".9s" repeatCount="indefinite"/></g></g>')
+
+
+WALKER_DEFS = ('<linearGradient id="wrb" x1="0" y1="0" x2="0" y2="1">' + ''.join(f'<stop offset="{i / 6:.3f}" stop-color="{c}"/><stop offset="{(i + 1) / 6:.3f}" stop-color="{c}"/>' for i, c in enumerate(['#ff2d55', '#ff9f1c', '#ffe45e', '#2ee59d', '#2fb8ff', '#b56bff'])) + '</linearGradient>' + '<linearGradient id="qgown" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b56bff"/><stop offset=".6" stop-color="#7b2cbf"/><stop offset="1" stop-color="#ff2e88"/></linearGradient>'
                '<linearGradient id="qwig" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff9ed8"/><stop offset="1" stop-color="#c77dff"/></linearGradient>')
