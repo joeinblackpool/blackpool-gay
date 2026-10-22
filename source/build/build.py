@@ -187,7 +187,7 @@ for e in up:
     if e.get('type') == 'dated' and e.get('startDate'):
         evld.append({'@type': 'Event', 'name': e['name'], 'startDate': e['startDate'] + (('T' + e['startTime']) if e.get('startTime') and re.match(r'^\d\d:\d\d$', e['startTime']) else ''), **({'endDate': e['endDate']} if e.get('endDate') else {}),
                      'eventStatus': 'https://schema.org/EventScheduled', 'eventAttendanceMode': 'https://schema.org/OfflineEventAttendanceMode', 'location': {'@type': 'Place', 'name': e.get('venueName') or 'Blackpool', 'address': {'@type': 'PostalAddress', 'streetAddress': e.get('venueAddress') or '', 'addressLocality': 'Blackpool', 'addressCountry': 'GB'}}, 'description': BLURB.get(e['slug'], e['name'])})
-add('/whats-on/', shell('/whats-on/', f"What's On: Gay Blackpool Events and Shows | {NAME}", 'Drag shows, cabaret, Pride and LGBTQ+ events in Blackpool, with dates, venues and the nearest places to stay.', "What's on in gay Blackpool", '', NIGHT.get('whats_on_intro', '') + '<div class="events">' + rows + '</div>', [("What's on", None)], evld[:40]))
+add('/whats-on/', shell('/whats-on/', f"What's On: Gay Blackpool Events | {NAME}", 'Drag shows, cabaret, Pride and LGBTQ+ events in Blackpool, with dates, venues and the nearest places to stay.', "What's on in gay Blackpool", '', NIGHT.get('whats_on_intro', '') + '<div class="events">' + rows + '</div>', [("What's on", None)], evld[:40]))
 
 # plan + core pages
 for s, c in TYPES.items():
