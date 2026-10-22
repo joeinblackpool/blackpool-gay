@@ -31,7 +31,8 @@
   ui.hud.innerHTML = '<label class="xp-sel"><span>Drive to</span><select aria-label="Drive to a venue"><option value="">Choose a place…</option></select></label>'
     + '<button type="button" class="xp-b" data-a="night" aria-pressed="false">Illuminations</button>'
     + '<button type="button" class="xp-b" data-a="full">Full screen</button>';
-  ui.card.hidden = true; ui.toast.hidden = true; ui.mini.width = ui.mini.height = 340;
+  ui.card.hidden = true; ui.toast.hidden = true; ui.toast.setAttribute('role', 'status');
+  if (!box.requestFullscreen && !box.webkitRequestFullscreen) ui.hud.querySelector('[data-a=full]').hidden = true; ui.mini.width = ui.mini.height = 340;
   ui.mini.setAttribute('aria-label', 'Mini map. Click to drive there.');
   if (!touch) ui.pad.hidden = true;
   Object.values(ui).forEach(n => box.appendChild(n));
@@ -50,11 +51,11 @@
   // quality tiers: 2 = bloom + shadows + sharp, 1 = shadows, 0 = light (software rendering / weak devices)
   const GPU = (() => { try { const gl = R.getContext(), d = gl.getExtension('WEBGL_debug_renderer_info'); return d ? gl.getParameter(d.UNMASKED_RENDERER_WEBGL) : ''; } catch (e) { return ''; } })();
   const SOFT = /swiftshader|basic render|llvmpipe|softpipe|software/i.test(GPU);
-  let tier = 2, usePost = false, warned = false;
+  let tier = 2, usePost = false, warned = false, good = 0;
 
   // ------------------------------------------------------------------ post-processing: HDR, MSAA, bloom, ACES, vignette, grain
   const post = (function () {
-    if (!R.capabilities.isWebGL2) { R.toneMapping = T.ACESFilmicToneMapping; return null; }
+    if (!R.capabilities.isWebGL2 || !(R.extensions.has('EXT_color_buffer_float') || R.extensions.has('EXT_color_buffer_half_float'))) { R.toneMapping = T.ACESFilmicToneMapping; return null; }
     R.toneMapping = T.NoToneMapping;
     const ht = { type: T.HalfFloatType, depthBuffer: false };
     const main = new T.WebGLRenderTarget(1, 1, { type: T.HalfFloatType, samples: 4 });
@@ -107,7 +108,7 @@
       + 'void main(){ vec3 p = normalize(vP); float h = p.y; vec3 c = h > 0.0 ? mix(mix(hor, mid, smoothstep(0.0, 0.2, h)), top, smoothstep(0.16, 0.75, h)) : hor;'
       + ' float s = max(dot(p, sunDir), 0.0); c += sunC * (pow(s, 900.0) * 6.0 + pow(s, 14.0) * 0.45 + pow(s, 3.0) * 0.08) * (1.0 - night * 0.85);'
       + ' vec2 g = floor(vec2(atan(p.z, p.x) * 220.0, h * 260.0)); float st = step(0.9965, h21(g)) * smoothstep(0.08, 0.4, h) * night; c += vec3(st) * 2.2;'
-      + ' gl_FragColor = vec4(c, 1.0); }'
+      + ' gl_FragColor = vec4(c, 1.0);\n#include <tonemapping_fragment>\n#include <colorspace_fragment>\n}'
   }));
   sky.renderOrder = -2; S.add(sky);
   const cloudTex = canvasTex(256, 128, (x, w, h) => { for (let i = 0; i < 22; i++) { const cx = 40 + Math.random() * 176, cy = 64 + (Math.random() - .5) * 40, r = 18 + Math.random() * 30, g = x.createRadialGradient(cx, cy, 0, cx, cy, r); g.addColorStop(0, 'rgba(255,255,255,.55)'); g.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = g; x.fillRect(0, 0, w, h); } });
@@ -210,7 +211,7 @@
         + ' vec3 N = normalize(vec3((wv(vW.xz + vec2(e, 0.0)) - w0) * -0.35, 1.0, (wv(vW.xz + vec2(0.0, e)) - w0) * -0.35));'
         + ' vec3 Rr = reflect(-V, N); float s = max(dot(Rr, sunDir), 0.0); float fr = pow(1.0 - max(dot(V, N), 0.0), 4.0);'
         + ' vec3 c = mix(c1, c2, clamp(fr * 1.1 + 0.05 * w0, 0.0, 1.0)) + vec3(1.0, 0.82, 0.55) * pow(s, 120.0) * 5.0 * (1.0 - night * 0.8) + c2 * pow(s, 10.0) * 0.3;'
-        + ' float d = length(cameraPosition - vW); c = mix(c, fogC, smoothstep(fogN, fogF, d)); gl_FragColor = vec4(c, 1.0); }'
+        + ' float d = length(cameraPosition - vW); c = mix(c, fogC, smoothstep(fogN, fogF, d)); gl_FragColor = vec4(c, 1.0);\n#include <tonemapping_fragment>\n#include <colorspace_fragment>\n}'
     }));
     sea.rotation.x = -Math.PI / 2; sea.position.y = -0.6; S.add(sea); W.sea = sea; W.seaRich = sea.material; W.seaLite = new T.MeshBasicMaterial({ color: '#4a3d8f' });
 
@@ -274,6 +275,7 @@
       const s = 4.5, pts = [[pin.x - s, pin.z - s], [pin.x + s, pin.z - s], [pin.x + s, pin.z + s], [pin.x - s, pin.z + s]];
       addCollider(pts); venueBuilding(pin, pts, 9);
     }
+    pruneGraph();
     if (towerXZ) buildTower(towerXZ[0], towerXZ[1]);
     buildIlluminations(named.get('Promenade') || []);
     landmarkLabels(Wd);
@@ -520,7 +522,20 @@
   function coastX(z) { const c = W.coast; let lo = 0, hi = c.length - 1; if (z <= c[0][1]) return c[0][0]; if (z >= c[hi][1]) return c[hi][0]; while (hi - lo > 1) { const m = (lo + hi) >> 1; if (c[m][1] < z) lo = m; else hi = m; } const a = c[lo], b = c[hi]; return lerp(a[0], b[0], (z - a[1]) / ((b[1] - a[1]) || 1)); }
 
   // --- routing on the real street graph, then a smooth autopilot
-  function nearestNode(x, z) { let best = null, bd = 1e18; for (const n of W.nodes.values()) { if (!n.e.length) continue; const d = (n.x - x) ** 2 + (n.z - z) ** 2; if (d < bd) { bd = d; best = n; } } return best; }
+  function clearance(x, z) {
+    const cx = Math.floor(x / 20), cz = Math.floor(z / 20); let best = 1e9;
+    for (let i = -1; i <= 1; i++) for (let j = -1; j <= 1; j++) { const cell = W.cells.get((cx + i) + ',' + (cz + j)); if (!cell) continue;
+      for (const s of cell) { const dx = s[2] - s[0], dz = s[3] - s[1], l2 = dx * dx + dz * dz || 1, t = clamp(((x - s[0]) * dx + (z - s[1]) * dz) / l2, 0, 1); best = Math.min(best, Math.hypot(x - s[0] - dx * t, z - s[1] - dz * t)); } }
+    return best;
+  }
+  // drop street-graph edges too tight for the car, then keep the largest connected network
+  function pruneGraph() {
+    for (const n of W.nodes.values()) n.e = n.e.filter(([m]) => { const l = Math.hypot(m.x - n.x, m.z - n.z), k = Math.max(1, Math.ceil(l / 2)); for (let i = 0; i <= k; i++) { const t = i / k; if (clearance(lerp(n.x, m.x, t), lerp(n.z, m.z, t)) < 2.2) return false; } return true; });
+    let id = 0, best = -1, bestN = 0;
+    for (const n of W.nodes.values()) { if (n.comp != null || !n.e.length) continue; let c = 0; const q = [n]; n.comp = id; while (q.length) { const a = q.pop(); c++; for (const [m] of a.e) if (m.comp == null) { m.comp = id; q.push(m); } } if (c > bestN) { bestN = c; best = id; } id++; }
+    W.main = best;
+  }
+  function nearestNode(x, z) { let best = null, bd = 1e18; for (const n of W.nodes.values()) { if (!n.e.length || n.comp !== W.main) continue; const d = (n.x - x) ** 2 + (n.z - z) ** 2; if (d < bd) { bd = d; best = n; } } return best; }
   function route(from, to) {
     const dist = new Map([[from, 0]]), prev = new Map(), heap = [[0, from]], done = new Set();
     const push = (d, n) => { heap.push([d, n]); let i = heap.length - 1; while (i) { const p = (i - 1) >> 1; if (heap[p][0] <= heap[i][0]) break; [heap[p], heap[i]] = [heap[i], heap[p]]; i = p; } };
@@ -536,12 +551,16 @@
   function driveTo(x, z, pin) {
     const a = nearestNode(st.x, st.z), b = nearestNode(x, z); if (!a || !b) return;
     const path = route(a, b); if (!path) { toast('No road route from here. Try driving a little closer.'); return; }
-    path.unshift([st.x, st.z]); path.push([x, z]);
-    st.auto = { path, i: 1, pin }; st.arrived = null; drawRoute = path;
+    path.unshift([st.x, st.z]); if (Math.hypot(x - b.x, z - b.z) <= 5) path.push([x, z]);
+    st.auto = { path, i: 1, pin, target: [x, z], tries: (st.auto && st.auto.pin === pin ? st.auto.tries : 0) }; st.arrived = null; drawRoute = path;
     if (pin) toast('Driving to ' + pin.n + '…');
   }
-  function autopilot() {
+  function autopilot(dt) {
     const A = st.auto, P = A.path;
+    // stuck against a wall? back off, then re-plan from where we are
+    if (A.rev > 0) { A.rev -= dt; if (A.rev <= 0) { if (++A.tries > 3) { st.auto = null; drawRoute = null; toast('Can\'t get any closer by road. Try another way in.'); return { f: 0, t: 0, brake: true }; } const tr = A.tries; driveTo(A.target[0], A.target[1], A.pin); if (st.auto) st.auto.tries = tr; } return { f: -1, t: A.revT || 0 }; }
+    A.slow = Math.abs(st.v) < 1 ? (A.slow || 0) + dt : 0;
+    if (A.slow > 1.6) { A.slow = 0; A.rev = .9; const nx = P[Math.min(A.i, P.length - 1)]; A.revT = Math.sign(Math.atan2(Math.sin(Math.atan2(nx[0] - st.x, nx[1] - st.z) - st.h), Math.cos(Math.atan2(nx[0] - st.x, nx[1] - st.z) - st.h))) * -1; return { f: -1, t: A.revT }; }
     while (A.i < P.length - 1 && Math.hypot(P[A.i][0] - st.x, P[A.i][1] - st.z) < 7) A.i++;
     let la = 10, k = A.i, px = st.x, pz = st.z, tx = P[k][0], tz = P[k][1], rem = Math.hypot(tx - px, tz - pz);
     while (rem < la && k < P.length - 1) { la -= rem; px = tx; pz = tz; k++; tx = P[k][0]; tz = P[k][1]; rem = Math.hypot(tx - px, tz - pz); }
@@ -556,11 +575,11 @@
   // ------------------------------------------------------------------ input
   const KEYMAP = { arrowup: 'f', w: 'f', arrowdown: 'b', s: 'b', arrowleft: 'l', a: 'l', arrowright: 'r', d: 'r', shift: 'boost', ' ': 'brake' };
   addEventListener('keydown', e => {
-    if (!started) return; const k = KEYMAP[e.key.toLowerCase()]; if (!k) return;
+    if (!started) return; const k = KEYMAP[(e.key || '').toLowerCase()]; if (!k) return;
     const a = document.activeElement;
-    if (a === R.domElement || (box.contains(a) && a.tagName !== 'SELECT')) { e.preventDefault(); keys[k] = 1; if (k !== 'boost') { st.auto = null; drawRoute = null; } }
+    if (a === R.domElement) { e.preventDefault(); keys[k] = 1; if (k !== 'boost') { st.auto = null; drawRoute = null; } }
   });
-  addEventListener('keyup', e => { const k = KEYMAP[e.key.toLowerCase()]; if (k) keys[k] = 0; });
+  addEventListener('keyup', e => { const k = KEYMAP[(e.key || '').toLowerCase()]; if (k) keys[k] = 0; });
   addEventListener('blur', () => { for (const k in keys) keys[k] = 0; });
   const padIn = ui.pad.querySelector('i');
   ui.pad.addEventListener('pointerdown', e => { if (!started) begin(); pad.on = true; ui.pad.setPointerCapture(e.pointerId); movePad(e); st.auto = null; drawRoute = null; e.preventDefault(); });
@@ -596,7 +615,7 @@
   ui.hud.addEventListener('click', e => {
     const b = e.target.closest('[data-a]'); if (!b) return;
     if (b.dataset.a === 'night') { mood.target = mood.target ? 0 : 1; b.setAttribute('aria-pressed', mood.target ? 'true' : 'false'); b.textContent = mood.target ? 'Sunset' : 'Illuminations'; }
-    if (b.dataset.a === 'full') { if (document.fullscreenElement) document.exitFullscreen(); else (box.requestFullscreen || box.webkitRequestFullscreen || (() => {})).call(box); }
+    if (b.dataset.a === 'full') { if (document.fullscreenElement || document.webkitFullscreenElement) (document.exitFullscreen || document.webkitExitFullscreen).call(document); else (box.requestFullscreen || box.webkitRequestFullscreen || (() => {})).call(box); }
   });
   let cardPin = null;
   function showCard(p, driving) {
@@ -607,7 +626,8 @@
     ui.card.querySelector('.xp-x').onclick = hideCard;
     const d = ui.card.querySelector('.xp-drive'); if (d) d.onclick = () => { goPin(p); d.remove(); };
   }
-  function hideCard() { ui.card.hidden = true; cardPin = null; }
+  let dismissed = null;
+  function hideCard() { dismissed = cardPin; ui.card.hidden = true; cardPin = null; }
   let toastT = 0; function toast(msg) { ui.toast.textContent = msg; ui.toast.hidden = false; ui.toast.classList.remove('in'); void ui.toast.offsetWidth; ui.toast.classList.add('in'); toastT = 3.2; }
   function arrive(pin) { toast('You have arrived at ' + pin.n); confetti(pin.cx ?? pin.x, (pin.h || 9) + 4, pin.cz ?? pin.z); showCard(pin, true); st.arrived = pin; }
 
@@ -648,7 +668,7 @@
     if (reduce) return; const n = 300, pos = new Float32Array(n * 3), col = new Float32Array(n * 3), vel = [];
     for (let i = 0; i < n; i++) { pos.set([x, y, z], i * 3); const c = BULB[i % 6]; col.set([c.r * 2, c.g * 2, c.b * 2], i * 3); const a = Math.random() * 7, s = 6 + Math.random() * 10; vel.push([Math.cos(a) * s * .5, 10 + Math.random() * 12, Math.sin(a) * s * .5]); }
     const g = new T.BufferGeometry(); g.setAttribute('position', new T.BufferAttribute(pos, 3)); g.setAttribute('color', new T.BufferAttribute(col, 3));
-    if (conf) S.remove(conf.p); conf = { p: new T.Points(g, new T.PointsMaterial({ size: .7, vertexColors: true, transparent: true })), vel, t: 0 }; S.add(conf.p);
+    if (conf) { S.remove(conf.p); conf.p.geometry.dispose(); conf.p.material.dispose(); } conf = { p: new T.Points(g, new T.PointsMaterial({ size: .7, vertexColors: true, transparent: true })), vel, t: 0 }; S.add(conf.p);
   }
 
   // labels never overlap: nearest first, each claims its screen rectangle
@@ -710,7 +730,7 @@
     let f = 0, t = 0, brake = false;
     if (started && intro >= 1) {
       f = (keys.f ? 1 : 0) - (keys.b ? 1 : 0) - pad.y; t = (keys.l ? 1 : 0) - (keys.r ? 1 : 0) - pad.x; brake = !!keys.brake;
-      if (st.auto && !f && !t) { const a = autopilot(); f = a.f; t = a.t; brake = !!a.brake; }
+      if (st.auto && !f && !t) { const a = autopilot(dt); f = a.f; t = a.t; brake = !!a.brake; }
     }
     const maxV = keys.boost ? 26 : 16, accel = f > 0 ? 9 : 14;
     if (brake) st.v *= Math.pow(.02, dt);
@@ -729,8 +749,9 @@
   function frame(now) {
     raf = 0; if (!visible || document.hidden) return;
     const dt = Math.min((now - lastT) / 1000, window.__xpDt || 1 / 20); lastT = now; const time = now / 1000;
-    frames++; fpsT += (now - (frame.prev || now)) / 1000; frame.prev = now;
-    if (fpsT > 3) { const fps = frames / fpsT; if (fps < 32 && tier > 0) setTier(tier - 1); else if (fps < 12 && tier === 0 && started && !warned) { warned = true; toast('Your browser is drawing 3D without a graphics card, so it may feel slow. The flat map is below.'); } frames = 0; fpsT = 0; }
+    const fdt = (now - (frame.prev || now)) / 1000; frame.prev = now;
+    if (started && intro >= 1 && fdt < .1) { frames++; fpsT += fdt; }
+    if (fpsT > 3) { const fps = frames / fpsT; good = fps > 55 ? good + 1 : 0; if (fps < 27 && tier > 0) setTier(tier - 1); else if (good >= 3 && tier < 2 && !SOFT) { good = 0; setTier(tier + 1); } else if (fps < 12 && tier === 0 && started && !warned) { warned = true; toast('Your browser is drawing 3D without a graphics card, so it may feel slow. The flat map is below.'); } frames = 0; fpsT = 0; }
     mood.t += (mood.target - mood.t) * Math.min(1, dt * 1.4); applyMood(mood.t);
 
     acc = Math.min(acc + dt, .25); while (acc >= STEP) { physics(STEP); acc -= STEP; }
@@ -779,9 +800,9 @@
     declutter();
     if (tower) { const p = tower.flag.geometry.attributes.position, base = tower.base; for (let i = 0; i < p.count; i++) { const x = base[i * 3]; p.setZ(i, reduce ? 0 : Math.sin(x * 1.4 - time * 6) * x * .12); } p.needsUpdate = true; }
     for (const g of gulls) { const a = time * g.s + g.o; g.m.position.set(g.cx + Math.cos(a) * g.r, g.h + Math.sin(time * .6 + g.o) * 3, g.cz + Math.sin(a) * g.r); g.m.rotation.y = -a + (g.s > 0 ? 0 : Math.PI); const f = reduce ? .2 : Math.sin(time * 7 + g.o * 3) * .5; const p = g.m.geometry.attributes.position; p.setY(1, .15 + f); p.setY(4, .15 + f); p.needsUpdate = true; }
-    if (conf) { conf.t += dt; const p = conf.p.geometry.attributes.position; for (let i = 0; i < conf.vel.length; i++) { const v = conf.vel[i]; v[1] -= 22 * dt; v[0] *= .99; v[2] *= .99; p.setXYZ(i, p.getX(i) + v[0] * dt, Math.max(.3, p.getY(i) + v[1] * dt), p.getZ(i) + v[2] * dt); } p.needsUpdate = true; conf.p.material.opacity = clamp(3 - conf.t, 0, 1); if (conf.t > 3) { S.remove(conf.p); conf = null; } }
+    if (conf) { conf.t += dt; const p = conf.p.geometry.attributes.position; for (let i = 0; i < conf.vel.length; i++) { const v = conf.vel[i]; v[1] -= 22 * dt; v[0] *= .99; v[2] *= .99; p.setXYZ(i, p.getX(i) + v[0] * dt, Math.max(.3, p.getY(i) + v[1] * dt), p.getZ(i) + v[2] * dt); } p.needsUpdate = true; conf.p.material.opacity = clamp(3 - conf.t, 0, 1); if (conf.t > 3) { S.remove(conf.p); conf.p.geometry.dispose(); conf.p.material.dispose(); conf = null; } }
 
-    if (started && !st.auto) { let near = null, nd = 22; for (const p of PINS) { const d = Math.hypot((p.cx ?? p.x) - st.x, (p.cz ?? p.z) - st.z); if (d < nd) { nd = d; near = p; } } if (near) showCard(near, true); else if (cardPin && Math.hypot((cardPin.cx ?? cardPin.x) - st.x, (cardPin.cz ?? cardPin.z) - st.z) > 60 && st.arrived !== cardPin) hideCard(); }
+    if (started && !st.auto) { let near = null, nd = 22; for (const p of PINS) { const d = Math.hypot((p.cx ?? p.x) - st.x, (p.cz ?? p.z) - st.z); if (d < nd) { nd = d; near = p; } } if (dismissed && Math.hypot((dismissed.cx ?? dismissed.x) - st.x, (dismissed.cz ?? dismissed.z) - st.z) > 30) dismissed = null; if (near && near !== dismissed && (!cardPin || cardPin === near || ui.card.hidden)) showCard(near, true); else if (cardPin && Math.hypot((cardPin.cx ?? cardPin.x) - st.x, (cardPin.cz ?? cardPin.z) - st.z) > 60 && st.arrived !== cardPin) hideCard(); }
     if (toastT > 0) { toastT -= dt; if (toastT <= 0) ui.toast.hidden = true; }
     ui.speed.firstChild.textContent = Math.round(Math.abs(st.v) * 2.237);
     if (started) drawMini();
