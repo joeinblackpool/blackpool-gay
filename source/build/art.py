@@ -308,7 +308,7 @@ def hero_scene():
                f'<svg viewBox="{cvx} {cvy} {cvw} {cvh}" aria-hidden="true" focusable="false"><defs><radialGradient id="hpool"><stop offset="0" stop-color="#fff2c8" stop-opacity=".32"/><stop offset="1" stop-color="#fff2c8" stop-opacity="0"/></radialGradient></defs><ellipse cx="417" cy="110" rx="174" ry="15" fill="url(#hpool)"/>{car("h")}</svg></div></div>')
     # Prom walkers: they stroll the same way the car is going, so they drift slowly back as it overtakes them
     # each group is its own small layer inside the moving strip, so a leg swing repaints a few hundred pixels, not the whole strip
-    groups = walkers(); spots = [200, 640, 1060, 1440, 1720]
+    groups = walkers(); spots = [90, 380, 690, 1010, 1390, 1690]
     def pbox(x, w):
         bx, by, bw, bh = x - 46, 755 - 186, w + 100, 196
         return (f'<div class="pg" style="left:{bx / 3840 * 100:.4f}%;top:{by / 9:.4f}%;width:{bw / 3840 * 100:.4f}%;height:{bh / 9:.4f}%">'
@@ -321,6 +321,7 @@ def hero_scene():
             + layer('ly-sky', 1600, sky)
             + f'<div class="ly ly-clouds par" data-d="14"><svg viewBox="0 0 1600 900" preserveAspectRatio="none" aria-hidden="true" focusable="false">{clouds}</svg></div>'
             + f'<div class="ly ly-far par" data-d="9" style="left:0;top:0;width:240%;height:100%"><div class="rl rl-far"><svg viewBox="0 0 3840 900" preserveAspectRatio="none" aria-hidden="true" focusable="false">{far_svg}</svg></div></div>'
+            + f'<div class="ov-plane"><div class="ov-plane-bob">{biplane()}</div></div>'
             + sky_strip.replace('class="ly ly-sky2"', 'class="ly ly-sky2 par" data-d="5"', 1)
             + layer('ly-road', 1600, road)
             + f'<div class="ly ly-dash" style="left:0;top:0;width:200%;height:100%"><div class="rl rl-dash"><svg viewBox="0 0 3200 900" preserveAspectRatio="none" aria-hidden="true" focusable="false">{dashes}</svg></div></div>'
@@ -487,7 +488,7 @@ def walkers():
              f'<animateTransform attributeName="transform" type="rotate" values="-2.5 0 0;2.5 0 0;-2.5 0 0" dur="1.2s" repeatCount="indefinite"/></g></g>')
     queen += ('<path d="M27 -70 q18 26 32 44" stroke="#ff2e88" stroke-width="1.4" fill="none"/>'
               '<g transform="translate(52 0)">' + dog() + '</g>')
-    return [(90, g1), (90, g2), (110, queen), (40, cat()), (40, flamingo())]
+    return [(90, g1), (90, g2), (110, queen), (200, posse()), (40, cat()), (40, flamingo())]
 
 
 def _legs4(color, xs, top, dur, phase=0):
@@ -541,6 +542,78 @@ def flamingo():
             '<path d="M-22 -66 l-8 -4 l3 6z" fill="#ff5c9a"/>')
     return (f'<g>{leg(("16", "-16", "16"), 0)}{leg(("-16", "16", "-16"), 0)}<g>{body}{neck}'
             '<animateTransform attributeName="transform" type="translate" values="0 0;0 -1.6;0 0;0 -1.6;0 0" dur=".9s" repeatCount="indefinite"/></g></g>')
+
+
+def _dancer(skin, shirt, sleeves, trousers, shoes, hair, _unused, tash, hat='', front='', delay=0.0):
+    """Front-facing dancer doing the four-letter arm routine: Y, M, C, A, then a rest. Feet on y=0."""
+    KT = '0;.07;.19;.25;.37;.43;.55;.61;.76;.86;1'
+    # (upper, forearm) angles per keyframe for the dancer's arm on the viewer's left; the right arm mirrors except C
+    L = [(14, 0), (150, 0), (150, 0), (120, 112), (120, 112), (158, 70), (158, 70), (178, 34), (178, 34), (14, 0), (14, 0)]
+    R = [(-14, 0), (-150, 0), (-150, 0), (-120, -112), (-120, -112), (66, -58), (66, -58), (-178, -34), (-178, -34), (-14, 0), (-14, 0)]
+    sp = ';'.join(['.4 0 .2 1'] * 10)
+    def arm(x, keys):
+        up = ';'.join(f'{u} {x} -86' for u, _ in keys); fo = ';'.join(f'{f} {x} -69' for _, f in keys)
+        return (f'<g><path d="M{x - 3.2} -88 h6.4 v19 h-6.4z" fill="{sleeves}"/>'
+                f'<g><path d="M{x - 2.8} -70 h5.6 v19 h-5.6z" fill="{skin}"/><circle cx="{x}" cy="-50" r="3.6" fill="{skin}"/>'
+                f'<animateTransform attributeName="transform" type="rotate" values="{fo}" keyTimes="{KT}" calcMode="spline" keySplines="{sp}" dur="3.4s" begin="-{delay}s" repeatCount="indefinite"/></g>'
+                f'<animateTransform attributeName="transform" type="rotate" values="{up}" keyTimes="{KT}" calcMode="spline" keySplines="{sp}" dur="3.4s" begin="-{delay}s" repeatCount="indefinite"/></g>')
+    body = (f'<path d="M-8 -50 h7 l-.6 45 h-7z M1 -50 h7 l.6 45 h-7z" fill="{trousers}"/><path d="M-10 -6 h9 v6 h-11z M1 -6 h9 l2 6 h-11z" fill="{shoes}"/>'
+            f'<path d="M-12 -88 q12 -6 24 0 l-1 40 h-22z" fill="{shirt}"/>{front}'
+            f'<rect x="-3.4" y="-97" width="6.8" height="9" rx="2.5" fill="{skin}"/><ellipse cx="0" cy="-107" rx="10" ry="11.6" fill="{skin}"/>{hair}'
+            f'<circle cx="-3.6" cy="-108" r="1.4" fill="#1b1420"/><circle cx="3.6" cy="-108" r="1.4" fill="#1b1420"/>'
+            f'<path d="M-6 -101 q3 -2.6 6 -.6 q3 -2 6 .6 q-2 2.4 -6 1 q-4 1.4 -6 -1z" fill="{tash}"/><path d="M-2.6 -97.6 q2.6 1.8 5.2 0" stroke="#7a2a2a" stroke-width="1.2" fill="none" stroke-linecap="round"/>{hat}')
+    bounce = (f'<animateTransform attributeName="transform" type="translate" values="0 0;0 -3;0 0;0 -3;0 0;0 -3;0 0;0 -3;0 0;0 0;0 0" keyTimes="{KT}" dur="3.4s" begin="-{delay}s" repeatCount="indefinite"/>')
+    return f'<g>{body}{arm(-14, L)}{arm(14, R)}{bounce}</g>'
+
+
+def posse():
+    """The Prom Posse: five original characters in classic disco-era costumes doing the four-letter arm dance.
+    Cop, cowboy, builder, leather biker and sailor. Returns one group, about 150 wide."""
+    short = lambda c: f'<path d="M-10 -110 q0 -10 10 -10 q10 0 10 10 q-4 -5 -10 -5 q-6 0 -10 5z" fill="{c}"/>'
+    cop = _dancer('#f0c39f', '#1f2f5c', '#1f2f5c', '#1f2f5c', '#111', short('#3a2618'),
+                  '', '#3a2618', hat='<path d="M-12 -117 q12 -10 24 0 v3 h-24z" fill="#1f2f5c"/><path d="M-11 -114 h22 l-2 3 h-18z" fill="#111"/><circle cx="0" cy="-118" r="2" fill="#ffc93c"/><path d="M-8 -110 h16 v3.6 h-16z" fill="#1a1033" opacity=".9"/>',
+                  front='<path d="M-7 -80 l2.4 -2 l2.4 2 l-2.4 4z" fill="#ffc93c"/><path d="M-11 -50 h22" stroke="#111" stroke-width="3"/>', delay=0)
+    cowboy = _dancer('#c98f6d', '#4a78c2', '#4a78c2', '#2d3f66', '#7a4a2a', short('#20140f'), '', '#20140f',
+                     hat='<path d="M-21 -116 q21 5 42 0 q-3 5 -21 6 q-18 -1 -21 -6z" fill="#c8964f"/><path d="M-10 -116 q0 -14 10 -14 q10 0 10 14z" fill="#c8964f"/><path d="M-10 -118 h20" stroke="#7a4a2a" stroke-width="2"/>',
+                     front='<path d="M-6 -88 l6 9 l6 -9z" fill="#ff2e88"/><path d="M-11 -50 h22" stroke="#7a4a2a" stroke-width="3"/><rect x="-3" y="-52" width="6" height="4" fill="#ffc93c"/>', delay=0)
+    builder = _dancer('#8a5a3c', '#ffffff', '#8a5a3c', '#3d5f99', '#8a5a2b', short('#120c08'), '', '#120c08',
+                      hat='<path d="M-11 -114 q0 -14 11 -14 q11 0 11 14z" fill="#ffd400"/><path d="M-13 -114 h26" stroke="#e0b800" stroke-width="2.4" stroke-linecap="round"/><path d="M0 -128 v14" stroke="#e0b800" stroke-width="2"/>',
+                      front='<path d="M-12 -87 h7 l1 38 h-7z M5 -87 h7 l-1 38 h-7z" fill="#ff9f1c"/><path d="M-12 -68 h24" stroke="#d9d9d9" stroke-width="2.4"/><path d="M-11 -50 h22" stroke="#5a3a1a" stroke-width="3"/>', delay=0)
+    biker = _dancer('#f2c9a5', '#111111', '#f2c9a5', '#1b1b1f', '#111', short('#5a3a24'), '', '#5a3a24',
+                    hat='<path d="M-11 -116 q11 -8 22 0 v3 h-22z" fill="#111"/><path d="M-11 -113 h22 l-2 3 h-18z" fill="#111"/><path d="M-4 -117 h8" stroke="#c0c0c0" stroke-width="1.6"/>',
+                    front='<path d="M-4 -88 l4 34 l4 -34z" fill="#f2c9a5"/><circle cx="-7" cy="-78" r="1.2" fill="#c0c0c0"/><circle cx="7" cy="-72" r="1.2" fill="#c0c0c0"/><path d="M-11 -50 h22" stroke="#c0c0c0" stroke-width="2.4"/>', delay=0)
+    sailor = _dancer('#e8b48f', '#ffffff', '#ffffff', '#ffffff', '#111', short('#d9a441'), '', '#b8862a',
+                     hat='<path d="M-10 -116 q0 -9 10 -9 q10 0 10 9z" fill="#fff"/><path d="M-12 -117 h24 v3 h-24z" fill="#fff" stroke="#d9d9e8" stroke-width=".8"/>',
+                     front='<path d="M-12 -88 h24 l-5 12 h-14z" fill="#1f2f5c"/><path d="M-4 -78 l4 6 l4 -6" stroke="#ff2e88" stroke-width="2.2" fill="none"/>', delay=0)
+    figs = [cop, cowboy, builder, biker, sailor]
+    return ''.join(f'<g transform="translate({i * 50} 0)">{f}</g>' for i, f in enumerate(figs))
+
+
+
+def biplane():
+    """A little biplane towing a waving rainbow banner. viewBox 0 0 320 80, flies to the right."""
+    cols = ['#ff2d55', '#ff9f1c', '#ffe45e', '#2ee59d', '#2fb8ff', '#b56bff']
+    def flag(a):
+        return (f'M6 {12 + a} C46 {12 - a} 86 {12 + a} 126 {12 - a * .6} L170 12 L170 52 L126 {52 - a * .6} C86 {52 + a} 46 {52 - a} 6 {52 + a} Z')
+    shapes = [flag(a) for a in (4, -4, 4)]
+    stripes = ''.join(f'<rect x="0" y="{12 + i * 40 / 6:.2f}" width="172" height="{40 / 6 + .4:.2f}" fill="{c}"/>' for i, c in enumerate(cols))
+    banner = (f'<clipPath id="bpclip"><path d="{shapes[0]}"><animate attributeName="d" values="{";".join(shapes)}" dur="1.1s" repeatCount="indefinite"/></path></clipPath>'
+              f'<g clip-path="url(#bpclip)">{stripes}</g>'
+              f'<path d="M6 12 V52" stroke="#fff6ec" stroke-width="2.4"/>')
+    rope = '<path d="M170 22 L214 40 M170 42 L214 40" stroke="#fff6ec" stroke-width="1" opacity=".8"/>'
+    plane = ('<g transform="translate(214 18)">'
+             '<path d="M2 22 l-6 -12 h8 l8 10z" fill="#ff2e88"/>'                                # tail fin
+             '<path d="M0 20 q30 -8 70 -4 q8 2 8 8 q0 6 -8 7 q-40 3 -70 -4z" fill="#fff6ec"/>'   # fuselage
+             '<path d="M10 24 h56" stroke="#ff2e88" stroke-width="2.4"/>'
+             '<rect x="22" y="2" width="44" height="5" rx="2.5" fill="#ff2e88"/><rect x="24" y="34" width="44" height="5" rx="2.5" fill="#ff2e88"/>'  # wings
+             '<path d="M30 7 L32 34 M58 7 L60 34" stroke="#2a1d4a" stroke-width="1.6"/>'
+             '<circle cx="44" cy="15" r="4.4" fill="#f1c7a3"/><path d="M39.6 13 q4.4 -6 9 -1.6" fill="#7a4a2a"/><path d="M40 14 h8" stroke="#2a1d4a" stroke-width="1.6"/>'  # pilot + goggles
+             '<path d="M40 19 q-10 0 -18 -4 q8 6 18 7z" fill="#ffc93c"><animate attributeName="d" values="M40 19 q-10 0 -18 -4 q8 6 18 7z;M40 19 q-10 4 -18 2 q8 2 18 3z;M40 19 q-10 0 -18 -4 q8 6 18 7z" dur=".5s" repeatCount="indefinite"/></path>'  # scarf
+             '<circle cx="78" cy="23" r="3" fill="#ffc93c"/>'
+             '<ellipse cx="80" cy="23" rx="1.6" ry="13" fill="#fff6ec" opacity=".55"><animate attributeName="ry" values="13;4;13" dur=".12s" repeatCount="indefinite"/></ellipse>'  # propeller blur
+             '<path d="M36 41 l-4 6 M60 41 l4 6" stroke="#2a1d4a" stroke-width="1.6"/><circle cx="31" cy="48" r="3.4" fill="#2a1d4a"/><circle cx="65" cy="48" r="3.4" fill="#2a1d4a"/>'
+             '</g>')
+    return f'<svg viewBox="0 0 320 80" aria-hidden="true" focusable="false">{banner}{rope}{plane}</svg>'
 
 
 WALKER_DEFS = ('<linearGradient id="wrb" x1="0" y1="0" x2="0" y2="1">' + ''.join(f'<stop offset="{i / 6:.3f}" stop-color="{c}"/><stop offset="{(i + 1) / 6:.3f}" stop-color="{c}"/>' for i, c in enumerate(['#ff2d55', '#ff9f1c', '#ffe45e', '#2ee59d', '#2fb8ff', '#b56bff'])) + '</linearGradient>' + '<linearGradient id="qgown" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b56bff"/><stop offset=".6" stop-color="#7b2cbf"/><stop offset="1" stop-color="#ff2e88"/></linearGradient>'

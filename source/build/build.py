@@ -80,7 +80,7 @@ CSS = open(os.path.join(B, 'site.css')).read()
 NAV = [('/stays/', 'Where to stay'), ('/nightlife/', 'Nightlife'), ('/open-tonight/', 'Open tonight'), ('/whats-on/', "What's on"), ('/pride/', 'Pride'), ('/forum/', 'Forum'), ('/explore/', 'Drive in 3D')]
 BEACON = os.environ.get('CF_BEACON', '')
 SECTION = {'stays': ('Where to stay', 'stays'), 'nightlife': ('Nightlife', 'nightlife'), 'open-tonight': ('Open tonight', 'nightlife'), 'whats-on': ("What's on", 'whats-on'),
-           'pride': ('Pride', 'whats-on'), 'plan': ('Plan your trip', ''), 'map': ('Map', ''), 'explore': ('Drive in 3D', ''), 'safety': ('Getting home safely', ''), 'about': ('About', ''), 'forum': ('Community', ''), '404': ('Lost?', 'stays')}
+           'pride': ('Pride', 'whats-on'), 'plan': ('Plan your trip', ''), 'map': ('Map', ''), 'explore': ('Drive in 3D', ''), 'safety': ('Getting home safely', ''), 'about': ('About', ''), 'forum': ('Community', ''), 'cast': ('The cast', ''), '404': ('Lost?', 'stays')}
 def phead(path, h1, intro, crumb_html):
     sec = path.strip('/').split('/')[0] if path.strip('/') else ''
     eb, sil = SECTION.get(sec, ('Blackpool.Gay', ''))
@@ -109,7 +109,7 @@ def shell(path, title, desc, h1, intro, body, crumbs=None, ld=None, noindex=Fals
                  f'<footer class="foot"><div class="wrap"><div class="marq" aria-hidden="true">' + ''.join(f'<span style="--i:{i}">{ch}</span>' for i, ch in enumerate('BLACKPOOL.GAY')) + '</div><div class="fgrid"><div><a class="logo" href="/">Blackpool<b>.gay</b></a><p>Independent stay-first guide to LGBTQ+ Blackpool. Facts checked, never paid placements.</p></div>'
                  f'<div><h2>Stay</h2><a href="/stays/">All stays</a><a href="/stays/men-only-hotels/">Men-only hotels</a><a href="/stays/adults-only-guest-houses/">Adults-only guest houses</a><a href="/stays/near-queen-street/">Near Queen Street</a><a href="/stays/pride-weekend-hotels/">Pride weekend</a><a href="/pride/lord-street/">Lord Street Pride</a></div>'
                  f'<div><h2>Go out</h2><a href="/nightlife/">Nightlife</a><a href="/open-tonight/">Open tonight</a><a href="/whats-on/">What\'s on</a><a href="/map/">Map</a><a href="/explore/">Drive in 3D</a><a href="/safety/">Getting home safely</a></div>'
-                 f'<div><h2>About</h2><a href="/about/">About &amp; corrections</a><a href="/forum/">Community forum</a><a href="https://rainbowquarter.co.uk/" rel="noopener">Venue history: Rainbow Quarter</a></div></div>'
+                 f'<div><h2>About</h2><a href="/about/">About &amp; corrections</a><a href="/forum/">Community forum</a><a href="/cast/">Meet the cast</a><a href="https://rainbowquarter.co.uk/" rel="noopener">Venue history: Rainbow Quarter</a></div></div>'
                  f'<p class="small">Last updated {UPDATED} · Opening hours and prices are as listed by venues; always check before you travel.</p></div></footer>'
                  + (('<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script><script src="/assets/map.js" defer></script>') if maps else '') + script + '<script src="/assets/site.js" defer></script>' +
                  (f'<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon=\'{{"token": "{BEACON}"}}\'></script>' if BEACON else '') + '</body></html>')
@@ -261,6 +261,33 @@ LORD_BODY = (NEXTPRIDE + gallery(LORD_PICS, 'Lord Street Pride photos') +
 add('/pride/lord-street/', shell('/pride/lord-street/', 'Lord Street Pride Street Party Blackpool 2027 | Blackpool.gay', 'The free Lord Street Pride street party in Blackpool\'s Rainbow Quarter: June 2027, dates TBA. Photos, what happened in 2026, and every bar and hotel on the street.',
     'Lord Street Pride street party', 'Free, loud and right outside the guest houses: the Rainbow Quarter\'s own Pride party.', LORD_BODY, [('Pride', '/pride/'), ('Lord Street', None)],
     [{'@type': 'Article', 'headline': 'Lord Street Pride street party', 'url': SITE + '/pride/lord-street/', 'image': [SITE + f'/img/pride/{k}.webp' for k, _ in LORD_PICS], 'dateModified': TODAY, 'author': {'@id': SITE + '/#org'}, 'publisher': {'@id': SITE + '/#org'}, 'inLanguage': 'en-GB'}]))
+# ---------------------------------------------------------------- Meet the cast (the illustrated characters from the home page scene)
+_W = art.walkers()
+def castpic(i, label):
+    w, g = _W[i]; top = (-152, -152, -186, -146, -52, -122)[i]; pad = (40, 40, 40, 30, 20, 30)[i]; x0, x1 = -pad, w + pad + (14 if i == 2 else 0)
+    return f'<svg viewBox="{x0} {top} {x1 - x0} {-top + 8}" role="img" aria-label="{E(label)}"><path d="M{x0} 2 H{x1}" stroke="#3a2a5c" stroke-width="4"/><g transform="scale(1.02)">{g}</g></svg>'
+CAST = [
+    (f'<svg viewBox="-14 -30 590 170" role="img" aria-label="Jay and Theo in their pink soft-top"><path d="M-14 128 H576" stroke="#3a2a5c" stroke-width="4"/>{art.car("cast", beam=False)}</svg>', 'Jay and Theo', 'Behind the wheel',
+     'Jay drives, Theo waves at everyone. They have done the Prom in the pink soft-top more times than either will admit, and they always book the room before the bar.'),
+    (castpic(0, 'Kai and Ollie walking hand in hand, Ollie fluttering a fan'), 'Kai and Ollie', 'Hand in hand on the Prom',
+     'Kai wears the rainbow and Ollie brings the fan. One hand on the hip, one hand in his boyfriend\'s, and never in a hurry.'),
+    (castpic(1, 'Amara and Rue walking hand in hand'), 'Amara and Rue', 'Sunshine and a rainbow skirt',
+     'Amara is in sunflower yellow, Rue in a rainbow skirt with her lilac hair down. First to the street party, last to leave.'),
+    (castpic(2, 'A drag queen in a purple sequin gown walking a small white dog'), 'Lady Illuminata and Biscuit', 'The Queen of the Prom',
+     'Six inches of beehive, a sequin gown and a gold handbag. Biscuit, in his rainbow bow, sets the pace.'),
+    (castpic(3, 'Five men dancing in sync, arms spelling out letters: a cop, a cowboy, a builder, a leather biker and a sailor'), 'The Prom Posse', 'Four letters, five moustaches',
+     'A cop, a cowboy, a builder, a biker and a sailor stop on the Prom and spell out the most famous four letters in disco. Everybody joins in.'),
+    (castpic(4, 'A grey cat with a rainbow mohican'), 'Ziggy', 'Cat about town',
+     'A grey tabby with a rainbow mohican and absolutely no interest in anyone\'s opinion.'),
+    (castpic(5, 'A pink flamingo strutting'), 'Flo', 'The flamingo',
+     'Nobody knows where Flo came from. Everybody agrees she should stay.'),
+]
+cast_body = ('<p>Everyone you see on the home page has a name. These are illustrations, drawn for Blackpool.gay: no real people, just the kind of crowd you meet on a good night in the Rainbow Quarter.</p>'
+             f'<svg class="pdefs" width="0" height="0" aria-hidden="true" focusable="false"><defs>{art.WALKER_DEFS}</defs></svg>'
+             '<div class="cast">' + ''.join(f'<article class="castcard"><div class="castpic">{pic}</div><h2>{E(n)}</h2><p class="k">{E(r)}</p><p>{E(b)}</p></article>' for pic, n, r, b in CAST) + '</div>'
+             '<p><a class="btn" href="/">See them on the Prom</a> <a class="btn alt" href="/explore/">Drive it in 3D</a></p>')
+add('/cast/', shell('/cast/', f'Meet the Cast: the Characters of Blackpool.gay | {NAME}', 'Meet the illustrated cast of Blackpool.gay: Jay and Theo in the pink soft-top, Kai and Ollie, Amara and Rue, Lady Illuminata and Biscuit, the Prom Posse, Ziggy, Flo and the banner plane.',
+    'Meet the cast', 'The characters strolling the Prom on our home page.', cast_body, [('Meet the cast', None)]))
 for key, path, crumb in (('safety', '/safety/', 'Safety'), ('about', '/about/', 'About')):
     c = CORE.get(key)
     if c: add(path, shell(path, c['title'], c['description'], c['h1'], c.get('intro', ''), c['body_html'], [(crumb, None)]))

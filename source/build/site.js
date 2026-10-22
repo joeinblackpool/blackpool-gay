@@ -55,6 +55,9 @@
     }, { passive: true });
   })();
 
+  // reduced motion: freeze SMIL characters everywhere (cast page, headers)
+  if (reduce) [].forEach.call(document.querySelectorAll('svg'), function (s) { try { s.pauseAnimations(); } catch (e) {} });
+
   var hero = document.querySelector('.hero'); if (!hero) return;
   var stage = hero.querySelector('.stage'), svgs = [].slice.call(hero.querySelectorAll('.stage svg'));
   // the stage always covers the hero at 16:9, anchored to the road

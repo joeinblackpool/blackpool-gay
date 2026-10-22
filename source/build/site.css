@@ -237,3 +237,19 @@ a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible,te
 
 /* pink triangle pointer (mouse only) */
 @media (hover:hover) and (pointer:fine){html{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cpath d='M3 3 L3 24 L20 16 Z' fill='rgba(26,16,51,.35)' transform='translate(1.4 1.6)'/%3E%3Cpath d='M3 3 L3 24 L20 16 Z' fill='%23FF2E88' stroke='%23fff' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E") 3 3,auto}a,button,summary,label,select,[role=button],.card{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cpath d='M3 3 L3 24 L20 16 Z' fill='rgba(26,16,51,.35)' transform='translate(1.4 1.6)'/%3E%3Cpath d='M3 3 L3 24 L20 16 Z' fill='%23FF2E88' stroke='%23FFC93C' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E") 3 3,pointer}input,textarea{cursor:text}}
+/* Meet the cast */
+.cast{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px;margin:24px 0 34px}
+.castcard{background:#1A1033;color:#FFF6EC;border-radius:20px;padding:0 22px 20px;overflow:hidden;box-shadow:0 18px 40px -22px rgba(26,16,51,.7);position:relative}
+.castcard::before{content:"";display:block;height:14px;margin:0 -22px;background:var(--festoon,linear-gradient(90deg,#ff2e88,#ffc93c,#0fb5ae))}
+.castpic{height:210px;display:flex;align-items:flex-end;justify-content:center;margin:0 -22px 12px;padding:14px 14px 0;background:radial-gradient(120% 90% at 50% 100%,#5b2a86 0,#2a1450 60%,#1A1033 100%)}
+.castpic svg{height:100%;width:100%;max-width:100%}
+.castcard h2{color:#FFF6EC;margin:6px 0 2px;font-size:1.35rem}.castcard h2::before{display:none}
+.castcard .k{color:#FFC93C;font-weight:700;font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;margin:0 0 8px}
+.castcard p{color:#e9ddf7}
+@media (prefers-reduced-motion:no-preference) and (hover:hover){.castcard{transition:transform .35s cubic-bezier(.2,.8,.2,1)}.castcard:hover{transform:translateY(-6px) rotate(-.4deg)}}
+/* biplane towing a rainbow banner across the sky */
+.stage .ov-plane{position:absolute;left:0;top:6%;width:21%;aspect-ratio:4/1;will-change:transform;animation:fly 38s linear 3s infinite both}
+.stage .ov-plane-bob{width:100%;height:100%;animation:planeBob 3.2s ease-in-out infinite}
+@keyframes fly{from{transform:translateX(-105%)}to{transform:translateX(480%)}}
+@keyframes planeBob{50%{transform:translateY(14%) rotate(-1.2deg)}}
+@media (max-width:700px){.stage .ov-plane{width:26%;top:4%}}
