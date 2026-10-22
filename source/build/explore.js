@@ -57,11 +57,55 @@
   }
 
   // ---- the car
-  const car = new T.Group();
-  const body = new T.Mesh(new T.BoxGeometry(3, 1.2, 5), new T.MeshStandardMaterial({ color: '#ffed00', roughness: .4 })); body.position.y = 1.1; body.castShadow = true; car.add(body);
-  const cab = new T.Mesh(new T.BoxGeometry(2.6, 1, 2.4), new T.MeshStandardMaterial({ color: '#750787' })); cab.position.set(0, 2.2, -.3); cab.castShadow = true; car.add(cab);
-  const wg = new T.CylinderGeometry(.6, .6, .5, 14), wm = new T.MeshStandardMaterial({ color: '#111' }), wheels = [];
-  [[-1.5, 1.6], [1.5, 1.6], [-1.5, -1.6], [1.5, -1.6]].forEach(([x, z]) => { const w = new T.Mesh(wg, wm); w.rotation.z = Math.PI / 2; w.position.set(x, .6, z); car.add(w); wheels.push(w); });
+  // pink boxy soft-top 4x4 (unbadged) with two original Blackpool characters: Ruby (drag queen, driving) and Barney (bear, waving)
+  const M = (c, o) => new T.MeshStandardMaterial(Object.assign({ color: c, roughness: .55 }, o || {}));
+  const add = (par, geo, mat, x, y, z, sh = true) => { const m = new T.Mesh(geo, mat); m.position.set(x, y, z); m.castShadow = sh; par.add(m); return m; };
+  const Bx = (w, h, d) => new T.BoxGeometry(w, h, d);
+  const car = new T.Group(), body = new T.Group(); car.add(body);
+  const pink = M('#ff3fa4', { roughness: .35 }), black = M('#1a1a1a'), white = M('#f4f1ec'), chrome = M('#c9c9d1', { metalness: .6, roughness: .3 });
+  add(body, Bx(3.2, 1.3, 5.2), pink, 0, 1.35, 0);              // tub
+  add(body, Bx(3.0, .5, 1.6), pink, 0, 2.15, 1.75);            // bonnet
+  add(body, Bx(2.6, .7, .12), black, 0, 1.6, 2.62);             // grille
+  [-1, 1].forEach(s => { add(body, new T.CylinderGeometry(.28, .28, .1, 16).rotateX(Math.PI / 2), M('#fff6c2', { emissive: '#fff2a0', emissiveIntensity: .8 }), s * .95, 1.65, 2.7); }); // round lamps
+  add(body, Bx(3.4, .35, .4), chrome, 0, .85, 2.7);             // bumper
+  add(body, Bx(3.4, .35, .4), chrome, 0, .85, -2.7);
+  [-1, 1].forEach(s => { add(body, Bx(.35, .5, 1.6), black, s * 1.72, 1.15, 1.7); add(body, Bx(.35, .5, 1.6), black, s * 1.72, 1.15, -1.7); }); // wheel arches
+  add(body, Bx(2.9, 1.2, .08), M('#bfe6ff', { transparent: true, opacity: .45 }), 0, 2.9, .85, false); // windscreen
+  add(body, Bx(3.0, .12, .12), black, 0, 3.5, .85);
+  // folded soft top behind the seats
+  add(body, Bx(3.0, .55, .9), M('#2b1d3d'), 0, 2.2, -2.3);
+  [-1.45, 1.45].forEach(x => { add(body, Bx(.1, 1.4, .1), black, x, 2.7, -1.6); });
+  add(body, Bx(3.0, .1, .1), black, 0, 3.4, -1.6);
+  // spare wheel on the back door
+  add(body, new T.CylinderGeometry(.7, .7, .45, 18).rotateX(Math.PI / 2), black, 0, 1.6, -2.85);
+  add(body, new T.CylinderGeometry(.45, .45, .5, 6).rotateX(Math.PI / 2), pink, 0, 1.6, -2.88);
+  // seats
+  [-.7, .7].forEach(x => { add(body, Bx(1.1, .3, 1.1), white, x, 2.05, -.3); add(body, Bx(1.1, 1.1, .25), white, x, 2.6, -.85); });
+  // steering wheel (driver on the right, UK style)
+  add(body, new T.TorusGeometry(.32, .06, 8, 18), black, -.7, 2.75, .45).rotation.x = -.6;
+  const skin1 = M('#8d5a3b'), skin2 = M('#f0c4a0');
+  // Ruby: purple beehive, sequinned teal gown, gold hoops
+  const ruby = new T.Group(); ruby.position.set(-.7, 2.2, -.3); body.add(ruby);
+  add(ruby, Bx(.8, 1.0, .6), M('#19b3a6', { metalness: .5, roughness: .25 }), 0, .55, 0);
+  add(ruby, new T.SphereGeometry(.38, 16, 12), skin1, 0, 1.4, 0);
+  add(ruby, new T.CylinderGeometry(.35, .42, 1.0, 16), M('#8a2be2'), 0, 2.0, -.05);
+  add(ruby, new T.SphereGeometry(.36, 16, 12), M('#8a2be2'), 0, 2.5, -.05);
+  [-1, 1].forEach(s => add(ruby, new T.TorusGeometry(.1, .03, 6, 12), M('#ffd23f', { metalness: .8, roughness: .2 }), s * .38, 1.3, 0));
+  add(ruby, Bx(.22, .07, .05), M('#e0004d'), 0, 1.28, .37);
+  // Barney: big ginger beard, white sailor cap, rainbow vest, waving arm
+  const barney = new T.Group(); barney.position.set(.7, 2.2, -.3); body.add(barney);
+  add(barney, Bx(1.0, 1.05, .7), M('#3a5bd9'), 0, .55, 0);
+  FLAG_STRIPES(barney);
+  add(barney, new T.SphereGeometry(.42, 16, 12), skin2, 0, 1.45, 0);
+  add(barney, new T.SphereGeometry(.34, 14, 10, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2), M('#c0581f'), 0, 1.38, .1);
+  add(barney, new T.CylinderGeometry(.38, .4, .22, 16), white, 0, 1.86, 0);
+  add(barney, new T.CylinderGeometry(.42, .42, .06, 16), M('#10204a'), 0, 1.76, 0);
+  const arm = new T.Group(); arm.position.set(.55, 1.0, 0); barney.add(arm);
+  add(arm, Bx(.22, .9, .22), skin2, 0, .45, 0); add(arm, new T.SphereGeometry(.15, 10, 8), skin2, 0, .95, 0);
+  function FLAG_STRIPES(g) { FLAG.forEach((c, i) => add(g, Bx(1.02, .09, .72), new T.MeshBasicMaterial({ color: c }), 0, .85 - i * .1, 0, false)); }
+  car.userData.wave = arm;
+  const wg = new T.CylinderGeometry(.68, .68, .55, 16), wm = M('#141414'), hub = M('#e9e9ef', { metalness: .4 }), wheels = [];
+  [[-1.6, 1.7], [1.6, 1.7], [-1.6, -1.7], [1.6, -1.7]].forEach(([x, z]) => { const w = new T.Group(); w.position.set(x, .68, z); const t = new T.Mesh(wg, wm); t.rotation.z = Math.PI / 2; t.castShadow = true; w.add(t); const h = new T.Mesh(new T.CylinderGeometry(.36, .36, .57, 10), hub); h.rotation.z = Math.PI / 2; w.add(h); car.add(w); wheels.push(w); });
   const start = pts.find(p => p.k === 'bar') || pts[0]; car.position.set(start.x + 10, 0, start.z + 10); S.add(car);
 
   // ---- controls: keys, on-screen pad, tap-to-drive
@@ -108,7 +152,8 @@
     car.position.x = Math.max(minX + 2, Math.min(minX + 420, car.position.x)); car.position.z = Math.max(-260, Math.min(260, car.position.z));
     for (const it of items) { const dx = car.position.x - it.p.x, dz = car.position.z - it.p.z, d = Math.hypot(dx, dz); if (d < 4.5) { car.position.x = it.p.x + dx / d * 4.5; car.position.z = it.p.z + dz / d * 4.5; speed *= .3; } }
     car.rotation.y = heading; body.rotation.z = -t * Math.min(1, Math.abs(speed) / 30) * .08;
-    wheels.forEach(w => { w.rotation.x += speed * dt / .6; });
+    wheels.forEach(w => { w.rotation.x += speed * dt / .68; });
+    if (!reduce) car.userData.wave.rotation.z = -.4 + Math.sin(now / 180) * .45;
     // nearest venue
     let near = null, nd = 1e9; for (const it of items) { const d = Math.hypot(car.position.x - it.p.x, car.position.z - it.p.z); if (d < nd) { nd = d; near = it; } }
     if (nd < 14) { show(near.p); hint.hidden = true; } else if (shown && nd > 20 && !(target && target.u)) { card.hidden = true; shown = null; }
