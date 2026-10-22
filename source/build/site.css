@@ -294,3 +294,10 @@ a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible,te
 @keyframes pkWave{50%{transform:rotate(-22deg)}}
 @media (max-width:700px){.pk-win{width:50px;height:56px}}
 @media (prefers-reduced-motion:reduce){.pk-win{display:none}}
+/* home: Pride strip */
+.pridestrip{display:grid;gap:4px;margin:8px 0 34px;padding:22px 26px;border-radius:20px;color:#fff6ec;text-decoration:none;background:linear-gradient(110deg,#1A1033 0 55%,#3a1a6e);box-shadow:0 0 0 2px #FFC93C inset,0 18px 40px -22px rgba(255,46,136,.7);position:relative;overflow:hidden}
+.pridestrip::after{content:"";position:absolute;inset:auto 0 0 0;height:6px;background:linear-gradient(90deg,#e40303,#ff8c00,#ffed00,#008026,#004dff,#750787)}
+.pridestrip .ps-k{color:#FFC93C;font:700 .78rem/1 Inter,system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase}
+.pridestrip strong{font:800 clamp(1.4rem,3.4vw,2.1rem)/1.1 'Bricolage Grotesque',system-ui,sans-serif}
+.pridestrip .ps-go{color:#e9ddf7}
+.pridestrip:hover strong{text-decoration:underline;text-decoration-color:#ff2e88;text-underline-offset:5px}
