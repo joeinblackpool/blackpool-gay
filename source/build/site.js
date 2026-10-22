@@ -58,6 +58,45 @@
   // reduced motion: freeze SMIL characters everywhere (cast page, headers)
   if (reduce) [].forEach.call(document.querySelectorAll('svg'), function (s) { try { s.pauseAnimations(); } catch (e) {} });
 
+
+  // the cast peeps over headings, photos and pictures as you scroll; shy of the pointer, playful on hover
+  var PEEKS = /*PEEKS*/{};
+  (function () {
+    if (reduce || !PEEKS.who) return;
+    var main = document.querySelector('main'); if (!main || document.querySelector('.hero')) return;
+    var hosts = [].slice.call(main.querySelectorAll('h2, .pgal, .vface, .postcard, .cards')).filter(function (h, i) { return !(h.tagName === 'H2' && h.closest('.castcard, .symgrid, .card')); });
+    if (hosts.length < 2) return;
+    var names = Object.keys(PEEKS.who), seed = 0, path = location.pathname;
+    for (var i = 0; i < path.length; i++) seed = (seed * 31 + path.charCodeAt(i)) >>> 0;
+    var want = Math.min(matchMedia('(max-width: 700px)').matches ? 2 : 3, Math.ceil(hosts.length / 3)), step = hosts.length / want, wins = [];
+    document.body.insertAdjacentHTML('beforeend', PEEKS.defs);
+    for (var k = 0; k < want; k++) {
+      var host = hosts[Math.floor((k + (seed % 97) / 97) * step) % hosts.length], who = names[(seed + k * 3) % names.length];
+      var win = document.createElement('span'); win.className = 'pk-win'; win.innerHTML = PEEKS.who[who];
+      var x = 10 + ((seed >> (k * 3)) % 60);
+      if (host.tagName === 'H2') {
+        // behind the words themselves: the character rises from behind the last letters of the heading
+        host.classList.add('pk-h'); var r = document.createRange(); r.selectNodeContents(host); var tw = r.getBoundingClientRect().width, hw = host.getBoundingClientRect().width;
+        win.style.left = Math.max(0, Math.min(hw - 86, tw - 56)) + 'px'; host.appendChild(win);
+      } else {
+        var hold = document.createElement('span'); hold.className = 'pk-hold'; win.style.left = x + '%'; hold.appendChild(win); host.parentNode.insertBefore(hold, host);
+      }
+      wins.push(win);
+    }
+    // no scroll-driven animation support: rise when the host comes into view instead
+    if (!(window.CSS && CSS.supports('animation-timeline: view()')) && window.IntersectionObserver) {
+      var io = new IntersectionObserver(function (es) { es.forEach(function (e) { e.target.classList.toggle('up', e.isIntersecting); }); }, { rootMargin: '-15% 0px -20% 0px' });
+      wins.forEach(function (w) { w.classList.add('pk-io'); io.observe(w); });
+    }
+    // shy: duck when the pointer comes close, peek back a moment later
+    if (matchMedia('(hover: hover)').matches) {
+      var px = -1e4, py = -1e4, ticking = false;
+      document.addEventListener('pointermove', function (e) { px = e.clientX; py = e.clientY; if (!ticking) { ticking = true; requestAnimationFrame(function () { ticking = false;
+        wins.forEach(function (w) { var b = w.getBoundingClientRect(), d = Math.hypot(px - (b.left + b.width / 2), py - (b.top + b.height * .6));
+          if (d < 64 && !w.classList.contains('duck')) { w.classList.add('duck'); clearTimeout(w._t); w._t = setTimeout(function () { w.classList.remove('duck'); }, 1400); } }); }); } }, { passive: true });
+    }
+  })();
+
   var hero = document.querySelector('.hero'); if (!hero) return;
   var stage = hero.querySelector('.stage'), svgs = [].slice.call(hero.querySelectorAll('.stage svg'));
   // the stage always covers the hero at 16:9, anchored to the road

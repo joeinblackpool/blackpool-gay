@@ -738,3 +738,52 @@ def facade(slug, name, kind):
                f'<path d="M110 {G} V{G - 170} q0 -14 14 -14 h14" stroke="#2a1d4a" stroke-width="6" fill="none"/><circle cx="140" cy="{G - 180}" r="9" fill="#ffd88a"/><circle cx="140" cy="{G - 180}" r="28" fill="#ffd88a" opacity=".16"/>')
     out.append('</svg>')
     return ''.join(out)
+
+
+# ---------------------------------------------------------------- peekers: the cast peeping over the top edge of headings, photos and pictures
+def peeks():
+    """Small SVGs (viewBox 0 0 80 90, the host's top edge is y=90) of characters peeping up from behind things.
+    Each has a .act group that does something on hover. Returns {name: svg}."""
+    def svg(inner, label):
+        return f'<svg viewBox="0 0 80 90" aria-hidden="true" focusable="false" data-who="{label}">{inner}</svg>'
+    hands = lambda c, y=86: f'<ellipse cx="22" cy="{y}" rx="7.5" ry="5" fill="{c}"/><ellipse cx="58" cy="{y}" rx="7.5" ry="5" fill="{c}"/>' + ''.join(f'<path d="M{x} {y - 3} v6" stroke="rgba(0,0,0,.18)" stroke-width="1"/>' for x in (19, 22, 25, 55, 58, 61))
+    eyes = lambda y, x1=33, x2=47, c='#1b1420': (f'<g class="blink"><ellipse cx="{x1}" cy="{y}" rx="3" ry="3.6" fill="{c}"/><ellipse cx="{x2}" cy="{y}" rx="3" ry="3.6" fill="{c}"/>'
+                                                 f'<circle cx="{x1 + 1}" cy="{y - 1.2}" r="1" fill="#fff"/><circle cx="{x2 + 1}" cy="{y - 1.2}" r="1" fill="#fff"/></g>')
+    P = {}
+    # Biscuit: fluffy topknot, floppy ears, rainbow bow just showing
+    fluff = ''.join(f'<circle cx="{x}" cy="{y}" r="{r}" fill="#fbf6ff"/>' for x, y, r in ((30, 30, 10), (40, 25, 11), (51, 30, 10), (35, 34, 8), (46, 34, 8)))
+    P['biscuit'] = svg('<g class="act"><path d="M16 50 q-6 18 6 26 q6 -12 4 -26z M64 50 q6 18 -6 26 q-6 -12 -4 -26z" fill="#ece2f6"/><circle cx="40" cy="56" r="22" fill="#fbf6ff"/>' + fluff
+                       + eyes(52) + '<ellipse cx="40" cy="64" rx="8" ry="6" fill="#fbf6ff"/><ellipse cx="40" cy="61" rx="4" ry="3" fill="#1a1033"/><path d="M36 68 q4 4 8 0" stroke="#ff6fa8" stroke-width="2" fill="none" stroke-linecap="round"/></g>'
+                       + '<path d="M40 82 l-11 -7 v14z M40 82 l11 -7 v14z" fill="url(#pkrb)" stroke="#1a1033" stroke-width=".8"/><circle cx="40" cy="82" r="3" fill="#ffc93c"/>' + hands('#fbf6ff', 88).replace('fill="#fbf6ff"', 'fill="#fbf6ff" stroke="#cbbfe0" stroke-width="1.2"'), 'Biscuit')
+    # Ziggy: grey tabby with a rainbow mohican
+    mo = ''.join(f'<path d="M{x} {y} l-3 -12 l7 2z" fill="{c}"/>' for (x, y), c in zip([(30, 34), (35, 30), (40, 28), (45, 30), (50, 34)], ['#ff2d55', '#ff9f1c', '#ffe45e', '#2ee59d', '#2fb8ff']))
+    P['ziggy'] = svg('<g class="act"><path d="M20 40 l2 -18 l14 12z M60 40 l-2 -18 l-14 12z" fill="#8e8aa6"/><path d="M24 36 l1 -9 l7 6z M56 36 l-1 -9 l-7 6z" fill="#ff9fc9"/><ellipse cx="40" cy="56" rx="23" ry="21" fill="#8e8aa6"/>' + mo
+                     + '<path d="M28 44 l4 3 M52 44 l-4 3 M40 38 v5" stroke="#6f6a8a" stroke-width="2" stroke-linecap="round"/>'
+                     + '<g class="blink"><ellipse cx="32" cy="55" rx="4" ry="4.6" fill="#ffe45e"/><ellipse cx="48" cy="55" rx="4" ry="4.6" fill="#ffe45e"/><path d="M32 51 v8 M48 51 v8" stroke="#1a1033" stroke-width="1.8"/></g>'
+                     + '<path d="M38 63 h4 l-2 2.4z" fill="#ff9fc9"/><path d="M40 65.4 q-3 3 -6 1 M40 65.4 q3 3 6 1" stroke="#4a4560" stroke-width="1.2" fill="none"/><path d="M20 64 l-12 -2 M20 67 l-12 2 M60 64 l12 -2 M60 67 l12 2" stroke="#e7dcf2" stroke-width=".9"/></g>' + hands('#8e8aa6', 88), 'Ziggy')
+    # Flo: neck rising with a bend, head turning to look at you
+    P['flo'] = svg('<g class="act"><path d="M34 92 q-6 -24 6 -40 q10 -14 2 -26" stroke="#ff6fa8" stroke-width="9" fill="none" stroke-linecap="round"/><circle cx="44" cy="22" r="11" fill="#ff6fa8"/>'
+                   '<path d="M52 18 q14 0 15 10 q-1 7 -7 8 q2 -7 -8 -9z" fill="#ffd1e3" stroke="#e0679a" stroke-width="1"/><path d="M61 30 q4 0 6 -3 q0 6 -7 8z" fill="#1a1033"/>'
+                   '<g class="blink"><circle cx="46" cy="19" r="2.6" fill="#1a1033"/><circle cx="47" cy="18" r=".8" fill="#fff"/></g><path d="M41 15 q4 -3 8 -1" stroke="#1a1033" stroke-width="1.2" fill="none"/></g>', 'Flo')
+    # Lady Illuminata: the beehive arrives first, then the lashes
+    P['queen'] = svg('<g class="act"><path d="M22 52 C14 36 18 12 34 4 C48 -2 62 6 62 22 C66 30 64 42 58 50 Z" fill="url(#pkwig)"/><path d="M26 20 q10 -10 24 -4 M24 32 q14 -8 30 -2" stroke="#ffe0f5" stroke-width="2" fill="none" opacity=".7"/>'
+                     '<path d="M22 44 Q40 40 60 44" stroke="#ffc93c" stroke-width="3" fill="none"/><ellipse cx="40" cy="64" rx="19" ry="20" fill="#c98f6d"/><path d="M22 54 q8 -10 36 -6 q-10 -6 -22 -4 q-10 2 -14 10z" fill="#e7a2f0"/>'
+                     '<g class="blink"><path d="M28 60 q5 -5 10 0 M42 60 q5 -5 10 0" stroke="#1b1420" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M28 60 l-2 -3 M31 57.6 l-1 -3 M35 57.6 l.4 -3 M52 60 l2 -3 M49 57.6 l1 -3 M45 57.6 l-.4 -3" stroke="#1b1420" stroke-width="1.4" stroke-linecap="round"/></g>'
+                     '<path d="M30 54 q4 -3 9 -1 M41 53 q5 -2 9 1" stroke="#7a3fb0" stroke-width="1.6" fill="none"/><circle cx="22" cy="70" r="3.4" fill="#ffc93c"/><circle cx="58" cy="70" r="3.4" fill="#ffc93c"/></g>' + hands('#c98f6d', 88)
+                     + '<ellipse cx="22" cy="88" rx="8" ry="5.4" fill="#ff2e88" opacity=".9"/><ellipse cx="58" cy="88" rx="8" ry="5.4" fill="#ff2e88" opacity=".9"/>', 'Lady Illuminata')
+    # Kai: quiff, beard, gold earring, one hand up to wave
+    P['kai'] = svg('<g class="act"><ellipse cx="40" cy="58" rx="19" ry="22" fill="#8a5a3c"/><path d="M21 52 q-2 -24 18 -26 q16 -1 21 12 q-8 -6 -18 -4 l-3 -5 q-6 8 -18 23z" fill="#20140f"/><path d="M38 26 q8 -10 18 -4" stroke="#20140f" stroke-width="5" fill="none" stroke-linecap="round"/>'
+                   + eyes(56) + '<path d="M22 64 q2 18 18 18 q16 0 18 -18 q-8 8 -18 8 q-10 0 -18 -8z" fill="#20140f"/><path d="M34 70 q6 5 12 0" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="21" cy="62" r="2.4" fill="#ffc93c"/></g>'
+                   + '<ellipse cx="22" cy="88" rx="7.5" ry="5" fill="#8a5a3c"/><g class="wavehand"><path d="M64 90 l4 -26" stroke="#8a5a3c" stroke-width="8" stroke-linecap="round"/><circle cx="69" cy="60" r="7" fill="#8a5a3c"/></g>', 'Kai')
+    # Officer Dale from the Prom Posse: cap, shades, moustache
+    P['cop'] = svg('<g class="act"><ellipse cx="40" cy="60" rx="19" ry="21" fill="#f0c39f"/><path d="M18 42 q22 -20 44 0 v5 h-44z" fill="#1f2f5c"/><path d="M20 46 h40 l-4 6 h-32z" fill="#111"/><circle cx="40" cy="38" r="3.4" fill="#ffc93c"/>'
+                   '<g class="blink"><rect x="25" y="53" width="13" height="7" rx="3" fill="#1a1033"/><rect x="42" y="53" width="13" height="7" rx="3" fill="#1a1033"/><path d="M38 56 h4" stroke="#1a1033" stroke-width="2"/><path d="M27 55 l4 -1" stroke="#fff" stroke-width="1" opacity=".6"/></g>'
+                   '<path d="M28 68 q6 -4 12 -1 q6 -3 12 1 q-4 4 -12 2 q-8 2 -12 -2z" fill="#3a2618"/><path d="M35 74 q5 3 10 0" stroke="#7a2a2a" stroke-width="1.6" fill="none" stroke-linecap="round"/></g>' + hands('#f0c39f', 88), 'Officer Dale')
+    # Amara: afro with violets and a big smile
+    vio = ''.join(f'<g transform="translate({x} {y})">' + ''.join(f'<circle cx="{dx}" cy="{dy}" r="2.6" fill="#7b4bd1"/>' for dx, dy in ((0, -3), (2.9, -1), (1.8, 2.4), (-1.8, 2.4), (-2.9, -1))) + '<circle r="1.5" fill="#ffe45e"/></g>' for x, y in ((24, 30), (33, 22), (58, 28)))
+    P['amara'] = svg('<g class="act"><circle cx="40" cy="44" r="27" fill="#1a1210"/><circle cx="20" cy="54" r="12" fill="#1a1210"/><circle cx="60" cy="54" r="12" fill="#1a1210"/>' + vio
+                     + '<ellipse cx="40" cy="62" rx="17" ry="19" fill="#6b3f2a"/>' + eyes(58) + '<path d="M32 69 q8 7 16 0" stroke="#b0123f" stroke-width="2.6" fill="none" stroke-linecap="round"/><circle cx="23" cy="66" r="3" fill="none" stroke="#ffc93c" stroke-width="1.6"/><circle cx="57" cy="66" r="3" fill="none" stroke="#ffc93c" stroke-width="1.6"/></g>' + hands('#6b3f2a', 88), 'Amara')
+    defs = ('<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><linearGradient id="pkrb" x1="0" y1="0" x2="0" y2="1">'
+            + ''.join(f'<stop offset="{i / 6:.3f}" stop-color="{c}"/><stop offset="{(i + 1) / 6:.3f}" stop-color="{c}"/>' for i, c in enumerate(['#ff2d55', '#ff9f1c', '#ffe45e', '#2ee59d', '#2fb8ff', '#b56bff']))
+            + '</linearGradient><linearGradient id="pkwig" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff9ed8"/><stop offset="1" stop-color="#c77dff"/></linearGradient></defs></svg>')
+    return {'defs': defs, 'who': P}

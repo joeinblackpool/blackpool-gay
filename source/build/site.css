@@ -270,3 +270,27 @@ a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible,te
 .stage .ly-posse svg{display:block;width:100%;height:100%;overflow:visible}
 .hero .ly-posse{animation:fadeUp .8s ease 1.3s both}
 @media(max-width:760px){.stage .ly-posse{left:calc(53% - 50vw + 4px);bottom:.4%;width:min(14%,31vw)}}
+/* peekers: the cast peeping out from behind headings, photos and pictures */
+.pk-hold{display:block;position:relative;height:0;z-index:1}
+.pk-hold .pk-win{bottom:0}
+.pk-h{position:relative;isolation:isolate}
+.pk-h .pk-win{bottom:28%;z-index:-1}
+.pk-win{position:absolute;width:80px;height:90px;overflow:hidden;pointer-events:none;view-timeline:--pk block}
+.pk-win svg{display:block;width:100%;height:100%;transform:translateY(104%);translate:0 0;transition:translate .5s cubic-bezier(.3,1.6,.5,1)}
+@supports (animation-timeline: view()){
+  .pk-win svg{animation:pkRise linear both;animation-timeline:--pk;animation-range:cover 0% cover 100%}
+  @keyframes pkRise{0%,12%{transform:translateY(104%)}30%,66%{transform:translateY(4%)}84%,100%{transform:translateY(104%)}}
+}
+.pk-win.pk-io svg{animation:none;transition:transform .7s cubic-bezier(.3,1.5,.5,1),translate .5s cubic-bezier(.3,1.6,.5,1)}
+.pk-win.pk-io.up svg{transform:translateY(4%)}
+.pk-win.duck svg{translate:0 110%;transition:translate .16s ease-in}
+.pk-win .blink{transform-box:fill-box;transform-origin:center;animation:pkBlink 4.6s infinite}
+@keyframes pkBlink{0%,93%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+.pk-win .act{transform-box:fill-box;transform-origin:50% 100%}
+.pk-win .wavehand{transform-box:fill-box;transform-origin:30% 100%}
+.pk-hold:has(+ :hover) .act,.pk-h:hover .act{animation:pkWiggle .7s ease-in-out 2}
+.pk-hold:has(+ :hover) .wavehand,.pk-h:hover .wavehand{animation:pkWave .5s ease-in-out 4}
+@keyframes pkWiggle{25%{transform:rotate(-7deg)}75%{transform:rotate(7deg)}}
+@keyframes pkWave{50%{transform:rotate(-22deg)}}
+@media (max-width:700px){.pk-win{width:50px;height:56px}}
+@media (prefers-reduced-motion:reduce){.pk-win{display:none}}
