@@ -228,7 +228,7 @@ home_body = ('<h2>Stays nearest the Rainbow Quarter</h2><div class="cards">' + '
              + promo() + mapblock(ALLPINS, zoom=16, h=420) + hc.get('body_html', ''))
 HERO = (f'<section class="hero" aria-labelledby="h1">{art.hero_svg()}<div class="hin"><p class="kick rise">Gay hotels &amp; weekend breaks in Blackpool</p>'
         f'<h1 id="h1" class="rise">Blackpool<span>.Gay</span></h1><p class="lede rise">{E(hc.get("intro", ""))}</p>'
-        '<div class="ctas rise"><a class="btn" href="/stays/">Find your stay</a><a class="btn glass" href="/explore/">Drive it in 3D</a><a class="btn glass" href="/open-tonight/">Open tonight</a></div></div></section>')
+        '<div class="ctas rise"><a class="btn" href="/stays/">Find your stay</a><a class="btn glass" href="/explore/">Drive it in 3D</a></div></div></section>')
 add('/', shell('/', hc.get('title', f'Gay Hotels in Blackpool & Weekend Breaks | {NAME}'), hc.get('description', 'Gay, men-only and adults-only hotels in Blackpool, with maps and walking times to Queen Street bars, what\'s on and what\'s open tonight.'), hc.get('h1', 'Blackpool.Gay'), hc.get('intro', ''), home_body, None, maps=True, hero=HERO))
 NOTFOUND = shell('/404/', f'Page not found | {NAME}', 'This page does not exist.', 'That page has checked out', 'Jay and Theo took a wrong turn too. Try one of these instead.', f'<div class="lost">{art.lost_svg()}</div><ul><li><a href="/stays/">Where to stay</a></li><li><a href="/nightlife/">Nightlife</a></li><li><a href="/open-tonight/">Open tonight</a></li><li><a href="/map/">Map</a></li><li><a href="/explore/">Drive in 3D</a></li></ul>', noindex=True)
 

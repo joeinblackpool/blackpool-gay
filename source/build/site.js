@@ -16,7 +16,7 @@
   var hero = document.querySelector('.hero');
   if (hero && !reduce) {
     var layers = [].slice.call(hero.querySelectorAll('.par')), px = 0, py = 0, sy = 0, raf = 0;
-    var paint = function () { raf = 0; layers.forEach(function (l) { var d = +l.getAttribute('data-d') || 0; l.style.transform = 'translate(' + (px * d).toFixed(1) + 'px,' + (py * d * .6 + sy * d * .02).toFixed(1) + 'px)'; }); };
+    var paint = function () { raf = 0; layers.forEach(function (l) { var d = +l.getAttribute('data-d') || 0; l.style.transform = 'translate(' + (px * d).toFixed(1) + 'px,' + (py * d * .4 - (l.hasAttribute('data-s') ? sy * d * .015 : 0)).toFixed(1) + 'px)'; }); };
     var ask = function () { if (!raf) raf = requestAnimationFrame(paint); };
     hero.addEventListener('pointermove', function (e) { var r = hero.getBoundingClientRect(); px = (e.clientX - r.left) / r.width - .5; py = (e.clientY - r.top) / r.height - .5; ask(); }, { passive: true });
     addEventListener('scroll', function () { sy = Math.min(scrollY, 900); ask(); }, { passive: true });

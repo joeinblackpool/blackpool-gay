@@ -94,14 +94,14 @@ ul.cols{columns:2 300px;column-gap:40px;padding-left:20px}ul.cols li{break-insid
 a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--blue);outline-offset:3px;border-radius:8px}
 .skip{position:absolute;left:-9999px;top:8px;z-index:2000;background:var(--ink);color:#fff;padding:10px 16px;border-radius:999px}.skip:focus{left:12px;color:#fff}
 /* home hero */
-.hero{position:relative;color:#fff;overflow:hidden;isolation:isolate;min-height:max(820px,min(96svh,960px));display:flex;align-items:flex-start;background:#1b1150}
+.hero{position:relative;color:#fff;overflow:hidden;isolation:isolate;min-height:clamp(600px,calc(100svh - 68px),900px);display:flex;align-items:flex-start;background:#1b1150}
 .hero svg.scene{position:absolute;inset:0;width:100%;height:100%;z-index:-1}
 .hero .hin{position:relative;max-width:1120px;width:100%;margin:0 auto;padding:clamp(40px,7vh,96px) 22px 40px}
 .hero .kick{display:inline-flex;align-items:center;gap:10px;font-size:13px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);margin:0}
 .hero .kick::before{content:"";width:9px;height:9px;border-radius:50%;background:#ffd23f;box-shadow:0 0 12px #ffd23f}
 .hero h1{font-size:clamp(30px,6.2vw,78px);line-height:.95;letter-spacing:-.055em;margin:22px 0 18px;font-weight:900;background:linear-gradient(180deg,#fff 30%,#ffd6e8 70%,#ffb38a 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 10px 30px rgba(40,0,60,.35))}
 .hero h1 span{background:linear-gradient(90deg,#ff7a59,#ff3d9a,#c56bff);-webkit-background-clip:text;background-clip:text;color:transparent}
-.hero .lede{color:rgba(255,255,255,.88);font-size:clamp(18px,1.7vw,22px);max-width:54ch;text-shadow:0 2px 20px rgba(40,0,60,.4)}
+.hero .lede{color:rgba(255,255,255,.84);font-size:clamp(17px,1.5vw,20px);max-width:40ch;text-shadow:0 2px 20px rgba(40,0,60,.4)}
 .hero .ctas{display:flex;flex-wrap:wrap;gap:4px;margin-top:22px}
 .hero .ctas .btn{padding:15px 24px;font-size:16.5px}
 .hero .rise{animation:rise 1s var(--ease) both}.hero .rise:nth-child(2){animation-delay:.08s}.hero .rise:nth-child(3){animation-delay:.16s}.hero .rise:nth-child(4){animation-delay:.24s}
@@ -134,3 +134,4 @@ a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible,te
 .foot .logo{font-size:26px;opacity:1}
 .scene .spinslow{animation:spin 48s linear infinite}
 .scene .heartbeat{animation:heart 1.6s ease-in-out infinite}@keyframes heart{0%,100%{transform:scale(1)}15%{transform:scale(1.14)}30%{transform:scale(.98)}45%{transform:scale(1.08)}}
+@media(max-width:760px){.hero svg.scene{inset:auto;bottom:0;top:0;left:50%;height:100%;width:1100px;max-width:none;transform:translateX(-51%)}.hero .hin{padding-bottom:230px}}

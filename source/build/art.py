@@ -46,108 +46,126 @@ def car(p='c', beam=True):
             + wheel(60) + wheel(200) + '</g>')
 
 
-def skyline(p='s', ground=738, fill='#24113f', glow='#ffa36b', lights=True, seed=11):
-    """Blackpool skyline in one silhouette layer, 1600 units wide, standing on y=ground.
-    Landmarks (left to right): Central Pier big wheel, seafront arcades, church spires, Winter Gardens dome,
-    Tower Buildings with corner turrets and the Tower, the Big One rollercoaster. Returns (defs, body)."""
+def skyline(p='s', ground=742, fill='#24113f', glow='#ffa36b', lights=True, seed=11):
+    """Blackpool skyline as one coherent silhouette (left to right, after the classic seafront view):
+    pier with pavilions and a tall mast, the big wheel, seafront pinnacles and blocks, Tower Buildings with
+    onion-domed turrets under the Tower, a tall block and a round-topped drum, the church tower with pinnacles,
+    and the Pleasure Beach rollercoaster with its tall pole. 1600 units wide, standing on y=ground."""
     rnd = random.Random(seed)
     G = ground
-    S, W = [], []                                          # silhouette shapes, lit windows
+    S, W = [], []
+
+    def windows(x, w, top, rows_gap=18, cols_gap=12, chance=.36):
+        if not lights: return
+        for wy in range(int(top) + 12, G - 12, rows_gap):
+            for wx in range(int(x) + 6, int(x + w) - 7, cols_gap):
+                if rnd.random() < chance:
+                    W.append(f'<rect class="{"twinkle" if rnd.random() < .16 else ""}" x="{wx}" y="{wy}" width="4.5" height="7" rx="1" fill="{rnd.choice(["#ffd88a", "#ffc36b", "#ffb3da", "#fff1c9"])}"/>')
+
     def block(x, w, h, win=True):
-        S.append(f'<rect x="{x}" y="{G - h}" width="{w}" height="{h + 2}"/>')
-        if win and lights:
-            for wy in range(G - h + 12, G - 14, 19):
-                for wx in range(x + 6, x + w - 8, 13):
-                    if rnd.random() < .34: W.append(f'<rect class="{"twinkle" if rnd.random() < .18 else ""}" x="{wx}" y="{wy}" width="5" height="8" rx="1" fill="{rnd.choice(["#ffd88a", "#ffc36b", "#ffb3da", "#fff1c9"])}"/>')
-    # seafront blocks, left
-    x = -170
-    for w, h in [(48, 70), (60, 50), (44, 88), (70, 54), (46, 78), (60, 44), (52, 92), (38, 60), (64, 70)]:
-        block(x, w, h); x += w + 2
-    S.append('<path d="M60 684 q20 -26 40 0z M150 660 q14 -18 28 0z"/>')       # little arcade domes
-    # Central Pier big wheel (rotates)
-    cx, cy, r = 300, G - 132, 104
-    S.append(f'<path d="M{cx - 70} {G} L{cx} {cy} L{cx + 70} {G}" fill="none" stroke="{fill}" stroke-width="9" stroke-linejoin="round"/>')
-    wheel = [f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="none" stroke="{fill}" stroke-width="5"/>', f'<circle cx="{cx}" cy="{cy}" r="{r - 9}" fill="none" stroke="{fill}" stroke-width="1.6"/>']
-    for i in range(18):
-        a = i * math.pi / 9
-        wheel.append(f'<path d="M{cx} {cy} L{cx + r * math.cos(a):.1f} {cy + r * math.sin(a):.1f}" stroke="{fill}" stroke-width="1.6"/>')
-        wheel.append(f'<rect x="{cx + (r + 6) * math.cos(a) - 6:.1f}" y="{cy + (r + 6) * math.sin(a) - 5:.1f}" width="12" height="10" rx="3" fill="{fill}"/>')
-        if lights: wheel.append(f'<circle class="bulb" cx="{cx + r * math.cos(a + .17):.1f}" cy="{cy + r * math.sin(a + .17):.1f}" r="2.4" fill="{BULBS[i % 6]}"/>')
-    wheel.append(f'<circle cx="{cx}" cy="{cy}" r="11" fill="{fill}"/>')
-    x = 420
-    for w, h in [(54, 66), (40, 50), (62, 84), (44, 58)]:
-        block(x, w, h); x += w + 2
-    # church spires
-    for sx, sh in [(640, 168), (690, 132)]:
-        S.append(f'<rect x="{sx - 14}" y="{G - sh + 60}" width="28" height="{sh - 58}"/><path d="M{sx - 16} {G - sh + 62} L{sx} {G - sh} L{sx + 16} {G - sh + 62}Z"/><path d="M{sx} {G - sh} v-14" stroke="{fill}" stroke-width="2"/>')
-    block(612, 110, 52)
-    # Winter Gardens dome
-    block(730, 120, 74); S.append(f'<path d="M754 {G - 74} a36 36 0 0 1 72 0z"/><rect x="783" y="{G - 122}" width="14" height="14"/><path d="M781 {G - 122} l9 -12 l9 12z"/>')
-    if lights: W.append(f'<path d="M760 {G - 76} a30 30 0 0 1 60 0" fill="none" stroke="#ffd88a" stroke-width="2" stroke-dasharray="3 5" class="twinkle"/>')
-    block(852, 26, 60)
-    # Tower Buildings with turrets
-    bx0, bx1, bt = 880, 1180, G - 112
-    S.append(f'<rect x="{bx0}" y="{bt}" width="{bx1 - bx0}" height="{G - bt + 2}"/>')
-    S.append(''.join(f'<rect x="{x0}" y="{bt - 8}" width="10" height="9"/>' for x0 in range(bx0 + 4, bx1 - 8, 18)))  # parapet
-    for tx in (bx0 + 12, bx0 + 64, bx1 - 64, bx1 - 12):
-        S.append(f'<rect x="{tx - 12}" y="{bt - 40}" width="24" height="42"/><path d="M{tx - 14} {bt - 38} Q{tx - 12} {bt - 66} {tx} {bt - 84} Q{tx + 12} {bt - 66} {tx + 14} {bt - 38}Z"/><path d="M{tx} {bt - 84} v-12" stroke="{fill}" stroke-width="2"/>')
+        S.append(f'<rect x="{x}" y="{G - h}" width="{w}" height="{h + 30}"/>')
+        if win: windows(x, w, G - h)
+
+    def onion(cx, base, r=9, h=26):
+        S.append(f'<path d="M{cx - r} {base} C{cx - r * 1.5} {base - h * .45} {cx - 2} {base - h * .7} {cx} {base - h} C{cx + 2} {base - h * .7} {cx + r * 1.5} {base - h * .45} {cx + r} {base}Z"/>'
+                 f'<path d="M{cx} {base - h} v-9" stroke="{fill}" stroke-width="1.6"/>')
+
+    # 1 pier with pavilions, reaching out to the left
+    deck = G - 22
+    S.append(f'<rect x="-60" y="{deck}" width="380" height="7"/>' + ''.join(f'<rect x="{x}" y="{deck}" width="3.5" height="24"/>' for x in range(-56, 320, 15)))
+    S.append(f'<rect x="-30" y="{deck - 34}" width="78" height="36"/><path d="M-36 {deck - 34} h90 l-12 -10 h-66z"/>')
+    S.append(f'<rect x="96" y="{deck - 24}" width="96" height="26"/><path d="M104 {deck - 24} q40 -22 80 0z"/>')
+    windows(-30, 78, deck - 34, 12, 10, .5); windows(96, 96, deck - 24, 12, 10, .5)
+    # tall mast with a cabin (seafront observation mast)
+    S.append(f'<rect x="232" y="{G - 168}" width="10" height="168"/><rect x="224" y="{G - 186}" width="26" height="20" rx="3"/><rect x="236" y="{G - 200}" width="2.5" height="14"/>')
+    # 2 the big wheel, standing on the pier
+    cx, cy, r = 352, G - 112, 96
+    S.append(f'<path d="M{cx - 58} {deck} L{cx} {cy} L{cx + 58} {deck}" fill="none" stroke="{fill}" stroke-width="8" stroke-linejoin="round"/>')
+    wheel = [f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="none" stroke="{fill}" stroke-width="4.5"/>', f'<circle cx="{cx}" cy="{cy}" r="{r - 10}" fill="none" stroke="{fill}" stroke-width="1.4"/>']
+    for i in range(20):
+        a = i * math.pi / 10
+        wheel.append(f'<path d="M{cx} {cy} L{cx + r * math.cos(a):.1f} {cy + r * math.sin(a):.1f}" stroke="{fill}" stroke-width="1.4"/>')
+        wheel.append(f'<rect x="{cx + (r + 5) * math.cos(a) - 5:.1f}" y="{cy + (r + 5) * math.sin(a) - 4:.1f}" width="10" height="9" rx="2.5" fill="{fill}"/>')
+        if lights: wheel.append(f'<circle class="bulb" cx="{cx + r * math.cos(a + .16):.1f}" cy="{cy + r * math.sin(a + .16):.1f}" r="2.2" fill="{BULBS[i % 6]}"/>')
+    wheel.append(f'<circle cx="{cx}" cy="{cy}" r="10" fill="{fill}"/>')
+    # 3 seafront pinnacles and blocks
+    block(452, 40, 46)
+    for px, ph in [(470, 92), (500, 74), (528, 104)]:
+        S.append(f'<rect x="{px - 5}" y="{G - ph + 18}" width="10" height="{ph}"/><path d="M{px - 7} {G - ph + 20} L{px} {G - ph} L{px + 7} {G - ph + 20}Z"/>')
+    block(540, 58, 58); block(600, 44, 82); block(646, 66, 50)
+    block(714, 108, 72); S.append(f'<path d="M738 {G - 72} a30 30 0 0 1 60 0z"/><rect x="762" y="{G - 112}" width="12" height="12"/><path d="M760 {G - 112} l8 -11 l8 11z"/>')   # Winter Gardens dome
+    if lights: W.append(f'<path d="M744 {G - 74} a24 24 0 0 1 48 0" fill="none" stroke="#ffd88a" stroke-width="2" stroke-dasharray="3 5" class="twinkle"/>')
+    block(824, 22, 64)
+    # 4 Tower Buildings: wide, ornate, onion-domed turrets, raised centre
+    bx0, bx1, bt = 850, 1172, G - 118
+    S.append(f'<rect x="{bx0}" y="{bt}" width="{bx1 - bx0}" height="{G - bt + 30}"/><rect x="{bx0 + 96}" y="{bt - 14}" width="{bx1 - bx0 - 192}" height="16"/>')
+    S.append(''.join(f'<rect x="{x0}" y="{bt - 7}" width="8" height="8"/>' for x0 in range(bx0 + 4, bx1 - 6, 15)))
+    for tx, th in [(bx0 + 12, 36), (bx0 + 70, 26), (bx1 - 70, 26), (bx1 - 12, 36)]:
+        S.append(f'<rect x="{tx - 11}" y="{bt - th}" width="22" height="{th + 2}"/>'); onion(tx, bt - th, 12, 30)
     if lights:
-        for row in (bt + 22, bt + 58):
-            for wx in range(bx0 + 14, bx1 - 14, 16):
-                W.append(f'<path class="{"twinkle" if rnd.random() < .2 else ""}" d="M{wx} {row + 16} v-10 a4 4 0 0 1 8 0 v10z" fill="{rnd.choice(["#ffd88a", "#ffc36b", "#fff1c9"])}"/>')
-    # the Tower: curved iron legs, X-bracing, balcony deck, crown, crow's nest, mast, flag
-    tc, tb_, tt = (bx0 + bx1) / 2, bt, G - 540
-    half = lambda y: 15 + 47 * ((y - tt) / (tb_ - tt)) ** 1.8
-    T = []
+        for row in (bt + 24, bt + 62):
+            for wx in range(bx0 + 14, bx1 - 14, 15):
+                W.append(f'<path class="{"twinkle" if rnd.random() < .2 else ""}" d="M{wx} {row + 15} v-9 a3.6 3.6 0 0 1 7.2 0 v9z" fill="{rnd.choice(["#ffd88a", "#ffc36b", "#fff1c9"])}"/>')
+    # 5 the Tower (after the original elevation): pinched legs, balcony box, upper cage, two-tier crown, mast and flag
+    tc, tb_, tt = (bx0 + bx1) / 2, bt - 14, G - 488
+    half = lambda y: 13 + 55 * ((y - tt) / (tb_ - tt)) ** 1.75
+    pl = lambda pts: ' '.join(f'{x:.1f},{y:.1f}' for x, y in pts)
     legL = [(tc - half(y), y) for y in range(int(tt), int(tb_) + 1, 6)]
     legR = [(tc + half(y), y) for y in range(int(tt), int(tb_) + 1, 6)]
-    pl = lambda pts: ' '.join(f'{x:.1f},{y:.1f}' for x, y in pts)
-    T.append(f'<polyline points="{pl(legL)}" fill="none" stroke="{fill}" stroke-width="5.5"/><polyline points="{pl(legR)}" fill="none" stroke="{fill}" stroke-width="5.5"/>')
-    ys = [tt + (tb_ - tt) * (i / 16) ** 1.2 for i in range(17)]
+    T = [f'<polyline points="{pl(legL)}" fill="none" stroke="{fill}" stroke-width="5"/><polyline points="{pl(legR)}" fill="none" stroke="{fill}" stroke-width="5"/>']
+    ys = [tt + (tb_ - tt) * (i / 15) ** 1.25 for i in range(16)]
     for y0, y1 in zip(ys, ys[1:]):
-        T.append(f'<path d="M{tc - half(y0):.1f} {y0:.1f} L{tc + half(y1):.1f} {y1:.1f} M{tc + half(y0):.1f} {y0:.1f} L{tc - half(y1):.1f} {y1:.1f} M{tc - half(y1):.1f} {y1:.1f} H{tc + half(y1):.1f}" stroke="{fill}" stroke-width="1.6"/>')
-    T.append(f'<path d="M{tc - half(tb_ - 30):.1f} {tb_} Q{tc} {tb_ - 64} {tc + half(tb_ - 30):.1f} {tb_}" fill="none" stroke="{fill}" stroke-width="4"/>')
+        T.append(f'<path d="M{tc - half(y0):.1f} {y0:.1f} L{tc + half(y1):.1f} {y1:.1f} M{tc + half(y0):.1f} {y0:.1f} L{tc - half(y1):.1f} {y1:.1f} M{tc - half(y1):.1f} {y1:.1f} H{tc + half(y1):.1f}" stroke="{fill}" stroke-width="1.5"/>')
+    T.append(f'<path d="M{tc - half(tb_ - 34):.1f} {tb_} Q{tc} {tb_ - 62} {tc + half(tb_ - 34):.1f} {tb_}" fill="none" stroke="{fill}" stroke-width="4"/>')
     d = tt
-    T.append(f'<rect x="{tc - 30}" y="{d - 14}" width="60" height="16" rx="2"/><rect x="{tc - 34}" y="{d - 18}" width="68" height="6" rx="2"/>'
-             f'<rect x="{tc - 21}" y="{d - 48}" width="42" height="32"/><rect x="{tc - 25}" y="{d - 52}" width="50" height="6" rx="2"/>'
-             f'<path d="M{tc - 21} {d - 52} L{tc} {d - 90} L{tc + 21} {d - 52}Z"/><rect x="{tc - 7}" y="{d - 108}" width="14" height="20"/><path d="M{tc - 9} {d - 108} L{tc} {d - 121} L{tc + 9} {d - 108}Z"/>'
-             f'<path d="M{tc} {d - 121} V{d - 168}" stroke="{fill}" stroke-width="3"/>')
+    T.append(f'<rect x="{tc - 26}" y="{d - 12}" width="52" height="14" rx="2"/><rect x="{tc - 30}" y="{d - 16}" width="60" height="5" rx="2"/>'          # balcony box
+             f'<rect x="{tc - 17}" y="{d - 52}" width="34" height="40"/><rect x="{tc - 21}" y="{d - 56}" width="42" height="5" rx="2"/>'                 # upper cage
+             f'<path d="M{tc - 19} {d - 56} L{tc - 12} {d - 74} L{tc + 12} {d - 74} L{tc + 19} {d - 56}Z"/><rect x="{tc - 13}" y="{d - 78}" width="26" height="5" rx="2"/>'   # crown tier 1
+             f'<path d="M{tc - 11} {d - 78} L{tc - 5} {d - 96} L{tc + 5} {d - 96} L{tc + 11} {d - 78}Z"/><path d="M{tc - 6} {d - 96} q6 -14 12 0z"/>'   # crown tier 2 + lantern
+             f'<path d="M{tc} {d - 108} V{d - 150}" stroke="{fill}" stroke-width="2.6"/>')
+    if not lights:
+        T.append(''.join(f'<rect x="{tc - 13 + i * 7}" y="{d - 46}" width="3" height="28" fill="#f6eefb" opacity=".7"/>' for i in range(4)))
     led = ''
     if lights:
-        leds = (f'<polyline points="{pl(legL)}"/><polyline points="{pl(legR)}"/><path d="M{tc - 34} {d - 12} H{tc + 34} M{tc - 25} {d - 50} H{tc + 25} M{tc - 21} {d - 18} V{d - 48} M{tc + 21} {d - 18} V{d - 48}"/>')
-        heart = f'M{tc} {tb_ - 36} C{tc - 30} {tb_ - 56} {tc - 20} {tb_ - 80} {tc} {tb_ - 66} C{tc + 20} {tb_ - 80} {tc + 30} {tb_ - 56} {tc} {tb_ - 36}Z'
-        led = (f'<g fill="none" stroke="url(#{p}led)" stroke-linecap="round"><g stroke-width="9" opacity=".45" filter="url(#{p}soft)">{leds}</g><g stroke-width="2.6">{leds}</g></g>'
-               f'<g fill="none" stroke-linecap="round"><path d="M{tc - 21} {d - 52} L{tc} {d - 90} L{tc + 21} {d - 52}" stroke="#5dff9b" stroke-width="8" opacity=".35" filter="url(#{p}soft)"/><path d="M{tc - 21} {d - 52} L{tc} {d - 90} L{tc + 21} {d - 52}" stroke="#5dff9b" stroke-width="2.6"/><path d="M{tc - 7} {d - 106} h14 M{tc} {d - 121} V{d - 166}" stroke="#ffe45e" stroke-width="2.4"/></g>'
-               + ''.join(f'<rect x="{tc - 17 + i * 7}" y="{d - 42}" width="4" height="16" rx="1" fill="#{c}"/>' for i, c in enumerate(['7df9ff', 'ffe45e', 'ff8bd1', '7df9ff', 'ffe45e']))
-               + f'<g class="heartbeat" style="transform-origin:{tc}px {tb_ - 56}px"><path d="{heart}" fill="none" stroke="#ff5fd2" stroke-width="7" opacity=".45" filter="url(#{p}soft)"/><path d="{heart}" fill="#7a1fa8" stroke="#ff8be0" stroke-width="2.4"/></g>')
-    flag = f'<g class="flagw">' + ''.join(f'<rect x="{tc + 1}" y="{d - 168 + i * 4}" width="32" height="4" fill="{c}"/>' for i, c in enumerate(RAINBOW)) + '</g>'
+        leds = (f'<polyline points="{pl(legL)}"/><polyline points="{pl(legR)}"/><path d="M{tc - 30} {d - 10} H{tc + 30} M{tc - 21} {d - 54} H{tc + 21} M{tc - 17} {d - 14} V{d - 52} M{tc + 17} {d - 14} V{d - 52}"/>')
+        crown = f'M{tc - 19} {d - 56} L{tc - 12} {d - 74} L{tc + 12} {d - 74} L{tc + 19} {d - 56} M{tc - 11} {d - 78} L{tc - 5} {d - 96} L{tc + 5} {d - 96} L{tc + 11} {d - 78}'
+        heart = f'M{tc} {tb_ - 28} C{tc - 28} {tb_ - 48} {tc - 19} {tb_ - 70} {tc} {tb_ - 57} C{tc + 19} {tb_ - 70} {tc + 28} {tb_ - 48} {tc} {tb_ - 28}Z'
+        led = (f'<g fill="none" stroke="url(#{p}led)" stroke-linecap="round" stroke-linejoin="round"><g stroke-width="9" opacity=".45" filter="url(#{p}soft)">{leds}</g><g stroke-width="2.4">{leds}</g></g>'
+               f'<g fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="{crown}" stroke="#5dff9b" stroke-width="8" opacity=".35" filter="url(#{p}soft)"/><path d="{crown}" stroke="#5dff9b" stroke-width="2.2"/><path d="M{tc - 6} {d - 97} q6 -13 12 0 M{tc} {d - 108} V{d - 148}" stroke="#ffe45e" stroke-width="2.2"/></g>'
+               + ''.join(f'<rect x="{tc - 13 + i * 7}" y="{d - 46}" width="3.5" height="28" rx="1" fill="#{c}"/>' for i, c in enumerate(['7df9ff', 'ffe45e', 'ff8bd1', '7df9ff']))
+               + f'<g class="heartbeat" style="transform-origin:{tc}px {tb_ - 48}px"><path d="{heart}" fill="none" stroke="#ff5fd2" stroke-width="7" opacity=".45" filter="url(#{p}soft)"/><path d="{heart}" fill="#7a1fa8" stroke="#ff8be0" stroke-width="2.2"/></g>')
+    flag = f'<g class="flagw">' + ''.join(f'<rect x="{tc + 1.3}" y="{d - 150 + i * 3.6}" width="28" height="3.6" fill="{c}"/>' for i, c in enumerate(RAINBOW)) + '</g>'
     S.append(''.join(T))
-    # blocks right of the Tower
-    x = 1184
-    for w, h in [(44, 86), (58, 62), (40, 100)]:
-        block(x, w, h); x += w + 2
-    # the Big One rollercoaster
-    keys = [(1300, G - 18), (1392, G - 330), (1446, G - 24), (1500, G - 190), (1548, G - 40), (1590, G - 140), (1660, G - 60)]
+    # 6 tall block and the round-topped drum
+    block(1180, 46, 150, True); block(1230, 30, 96)
+    S.append(f'<rect x="1264" y="{G - 108}" width="38" height="138"/><path d="M1264 {G - 108} a19 12 0 0 1 38 0z"/>'); windows(1264, 38, G - 104, 16, 11, .4)
+    block(1306, 52, 54); S.append(f'<path d="M1312 {G - 54} q20 -22 40 0z"/>')
+    # 7 church tower with four pinnacles and its nave
+    block(1362, 92, 66, False)
+    S.append(f'<rect x="1378" y="{G - 176}" width="40" height="176"/><rect x="1374" y="{G - 180}" width="48" height="6"/>'
+             + ''.join(f'<path d="M{x - 4} {G - 180} L{x} {G - 206} L{x + 4} {G - 180}Z"/>' for x in (1378, 1391, 1405, 1418))
+             + f'<path d="M1386 {G - 120} v-22 a12 12 0 0 1 24 0 v22z" fill="{glow if lights else fill}" opacity="{.55 if lights else 1}"/>')
+    # 8 Pleasure Beach rollercoaster with its tall pole
+    S.append(f'<rect x="1462" y="{G - 232}" width="9" height="232"/><rect x="1456" y="{G - 244}" width="21" height="14" rx="3"/>')
+    keys = [(1440, G - 14), (1500, G - 212), (1540, G - 30), (1580, G - 150), (1612, G - 40), (1650, G - 110), (1700, G - 50)]
     def ty(x):
         for (x0, y0), (x1, y1) in zip(keys, keys[1:]):
             if x0 <= x <= x1:
                 t = (x - x0) / (x1 - x0)
-                if y1 < y0: t = t ** .9
                 return y0 + (y1 - y0) * (1 - math.cos(t * math.pi)) / 2
         return keys[-1][1]
-    xs = list(range(1300, 1661, 4))
+    xs = list(range(1440, 1701, 3))
     track = 'M' + ' L'.join(f'{x} {ty(x):.1f}' for x in xs)
-    C = [f'<path d="{track}" fill="none" stroke="{fill}" stroke-width="6" stroke-linejoin="round"/>',
-         f'<path d="{track}" transform="translate(0 7)" fill="none" stroke="{fill}" stroke-width="2.4"/>']
-    sup = list(range(1304, 1660, 13))
+    C = [f'<path d="{track}" fill="none" stroke="{fill}" stroke-width="5.5" stroke-linejoin="round"/>', f'<path d="{track}" transform="translate(0 7)" fill="none" stroke="{fill}" stroke-width="2.2"/>']
+    sup = list(range(1446, 1700, 11))
     for i, x in enumerate(sup):
-        C.append(f'<path d="M{x} {ty(x) + 6:.1f} V{G}" stroke="{fill}" stroke-width="2"/>')
-        if i: C.append(f'<path d="M{sup[i - 1]} {ty(sup[i - 1]) + 10:.1f} L{x} {G} M{sup[i - 1]} {G} L{x} {ty(x) + 10:.1f}" stroke="{fill}" stroke-width=".9" opacity=".8"/>')
+        C.append(f'<path d="M{x} {ty(x) + 6:.1f} V{G}" stroke="{fill}" stroke-width="1.8"/>')
+        if i: C.append(f'<path d="M{sup[i - 1]} {ty(sup[i - 1]) + 9:.1f} L{x} {G} M{sup[i - 1]} {G} L{x} {ty(x) + 9:.1f}" stroke="{fill}" stroke-width=".8"/>')
+    S.append(''.join(C))
     train = ''
     if lights:
-        train = (f'<g><rect x="-22" y="-9" width="44" height="9" rx="3" fill="#ff3d9a"/><rect x="-20" y="-14" width="8" height="5" rx="2" fill="#ffd88a"/><rect x="-6" y="-14" width="8" height="5" rx="2" fill="#ffd88a"/><rect x="8" y="-14" width="8" height="5" rx="2" fill="#ffd88a"/>'
-                 f'<animateMotion dur="11s" repeatCount="indefinite" rotate="auto" path="{track}"/></g>')
-    S.append(''.join(C))
+        train = (f'<g><rect x="-20" y="-8" width="40" height="8" rx="3" fill="#ff3d9a"/>' + ''.join(f'<rect x="{-18 + i * 12}" y="-12" width="7" height="4" rx="2" fill="#ffd88a"/>' for i in range(4))
+                 + f'<animateMotion dur="10s" repeatCount="indefinite" rotate="auto" path="{track}"/></g>')
     sil = f'<g fill="{fill}" filter="url(#{p}g)">' + ''.join(S) + '</g>'
     defs = (f'<filter id="{p}g" x="-4%" y="-12%" width="108%" height="124%"><feGaussianBlur in="SourceAlpha" stdDeviation="4.5" result="b"/>'
             f'<feFlood flood-color="{glow}" flood-opacity=".85"/><feComposite in2="b" operator="in" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>'
@@ -159,7 +177,8 @@ def skyline(p='s', ground=738, fill='#24113f', glow='#ffa36b', lights=True, seed
     return defs, body
 
 
-def lamps_row(y_top, step, n, sag, bulb_r, post_w, ground, k0=0):
+def lamps_row(y_top, step, n, sag, bulb_r, post_w, ground, k0=0, pal=None):
+    pal = pal or BULBS
     out = []
     for k in range(n):
         x = k * step
@@ -167,7 +186,7 @@ def lamps_row(y_top, step, n, sag, bulb_r, post_w, ground, k0=0):
                    f'<path d="M{x - 9} {y_top + 6} h18" stroke="#1a0e30" stroke-width="3" stroke-linecap="round"/><circle cx="{x}" cy="{y_top}" r="{post_w * 1.4:.1f}" fill="#fff4d0"/><circle cx="{x}" cy="{y_top}" r="{post_w * 3.6:.1f}" fill="#fff4d0" opacity=".16"/>')
         out.append(f'<path d="M{x} {y_top + 10} Q{x + step / 2} {y_top + 10 + sag * 2} {x + step} {y_top + 10}" fill="none" stroke="#1a0e30" stroke-width="1.4"/>')
         pts = [(x + t * step, y_top + 10 + math.sin(t * math.pi) * sag) for t in [i / 12 for i in range(1, 12)]]
-        out.extend(f'<circle class="bulb" cx="{px:.1f}" cy="{py:.1f}" r="{bulb_r}" fill="{BULBS[(i + k + k0) % 6]}"/>' for i, (px, py) in enumerate(pts))
+        out.extend(f'<circle class="bulb" cx="{px:.1f}" cy="{py:.1f}" r="{bulb_r}" fill="{pal[(i + k + k0) % len(pal)]}"/>' for i, (px, py) in enumerate(pts))
     return ''.join(out)
 
 
@@ -175,22 +194,37 @@ def hero_svg():
     rnd = random.Random(7)
     stars = ''.join(f'<circle class="twinkle" cx="{rnd.randint(0, 1600)}" cy="{rnd.randint(0, 300)}" r="{rnd.choice([1, 1.2, 1.5, 2])}" fill="#fff" opacity="{rnd.choice([.5, .7, .9])}"/>' for _ in range(70))
     sdefs, sbody = skyline('hs', ground=742)
-    dashes = ''.join(f'<rect x="{x}" y="800" width="42" height="5" rx="2.5" fill="#f6e9ff" opacity=".7"/>' for x in range(0, 1760, 80))
+    # far roofline for atmospheric depth
+    far, x = [], -20
+    while x < 1640:
+        w = rnd.randint(30, 80); h = rnd.randint(30, 120); far.append(f'<rect x="{x}" y="{742 - h}" width="{w}" height="{h + 10}"/>')
+        if rnd.random() < .25: far.append(f'<rect x="{x + w // 2 - 3}" y="{742 - h - rnd.randint(14, 40)}" width="6" height="40"/>')
+        x += w
+    warm = ['#ffd88a', '#ff9fc9', '#fff1c9', '#ffb36b']
+    dashes = ''.join(f'<rect x="{x}" y="806" width="42" height="5" rx="2.5" fill="#f6e9ff" opacity=".7"/>' for x in range(0, 1760, 80))
     return ('<svg class="scene" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false">'
             '<defs><linearGradient id="hsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#120a36"/><stop offset=".34" stop-color="#3d1d78"/><stop offset=".6" stop-color="#b03a8e"/><stop offset=".76" stop-color="#ff7a74"/><stop offset=".84" stop-color="#ffb784"/></linearGradient>'
             '<radialGradient id="hglow" cx=".5" cy="1" r=".7"><stop offset="0" stop-color="#ffd7a0" stop-opacity=".85"/><stop offset=".5" stop-color="#ff8f7a" stop-opacity=".35"/><stop offset="1" stop-color="#ff8f7a" stop-opacity="0"/></radialGradient>'
+            '<linearGradient id="hhaze" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff8f7a" stop-opacity="0"/><stop offset="1" stop-color="#ff8f7a" stop-opacity=".32"/></linearGradient>'
+            '<radialGradient id="hpool"><stop offset="0" stop-color="#fff2c8" stop-opacity=".32"/><stop offset="1" stop-color="#fff2c8" stop-opacity="0"/></radialGradient>'
             '<linearGradient id="hroad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b1749"/><stop offset="1" stop-color="#140a26"/></linearGradient>'
-            '<filter id="hblur" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="14"/></filter>' + sdefs + '</defs>'
+            '<filter id="hblur" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="14"/></filter>'
+            '<filter id="hbig" x="-80%" y="-30%" width="260%" height="160%"><feGaussianBlur stdDeviation="30"/></filter>' + sdefs + '</defs>'
             '<rect width="1600" height="900" fill="url(#hsky)"/>' + f'<g>{stars}</g>'
-            '<g class="par" data-d="6"><ellipse cx="520" cy="230" rx="260" ry="34" fill="#ff9ec4" opacity=".26" filter="url(#hblur)"/><ellipse cx="1340" cy="170" rx="300" ry="40" fill="#c78bff" opacity=".24" filter="url(#hblur)"/><ellipse cx="260" cy="430" rx="220" ry="26" fill="#ffc0a0" opacity=".34" filter="url(#hblur)"/></g>'
+            '<g class="par" data-d="6" data-s="1"><ellipse cx="520" cy="230" rx="260" ry="34" fill="#ff9ec4" opacity=".26" filter="url(#hblur)"/><ellipse cx="1340" cy="170" rx="300" ry="40" fill="#c78bff" opacity=".24" filter="url(#hblur)"/><ellipse cx="260" cy="430" rx="220" ry="26" fill="#ffc0a0" opacity=".34" filter="url(#hblur)"/></g>'
             '<ellipse cx="900" cy="760" rx="1000" ry="330" fill="url(#hglow)"/>'
-            f'<g class="par" data-d="12"><g transform="translate(105 0)">{sbody}</g></g>'
+            '<ellipse cx="1011" cy="430" rx="120" ry="340" fill="#ff6fd0" opacity=".2" filter="url(#hbig)"/>'
+            f'<g class="par" data-d="4" fill="#7a3a8e" opacity=".5">{"".join(far)}</g>'
+            f'<g class="par" data-d="10">{sbody}</g>'
+            '<rect y="660" width="1600" height="84" fill="url(#hhaze)"/>'
             '<rect y="740" width="1600" height="16" fill="#341d5c"/><rect y="752" width="1600" height="4" fill="#ff9fc9" opacity=".35"/>'
             '<rect y="756" width="1600" height="150" fill="url(#hroad)"/>'
             '<path d="M0 846 H1600 M0 858 H1600" stroke="#5b4380" stroke-width="2.4" opacity=".75"/>'
+            '<ellipse cx="1110" cy="800" rx="230" ry="20" fill="url(#hpool)"/>'
             f'<g class="dash">{dashes}</g>'
-            f'<g class="lamps">{lamps_row(606, 240, 9, 34, 4.4, 6, 752)}</g>'
-            f'<g transform="translate(610 682) scale(1.12)">{car("h")}</g>'
+            f'<g class="lamps">{lamps_row(624, 240, 10, 30, 4.4, 6, 752, pal=warm)}</g>'
+            f'<g transform="translate(560 655) scale(1.32)">{car("h")}</g>'
+            '<path d="M0 884 Q800 912 1600 884 V902 H0Z" fill="#fff8f3"/>'
             '</svg>')
 
 
