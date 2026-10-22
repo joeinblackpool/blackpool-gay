@@ -1,0 +1,545 @@
+70|-125|b|The New Mount Pleasant
+390|-40|b|New Road Inn
+291|563|b|Rhythm & Brew Room
+276|-557|b|The Corner House
+96|304|s|Talbot Road Pharmacy
+314|623|s|Everest Pharmacy
+-102|592|s|Santander
+-199|832|b|The Albert and The Lion
+81|157|b|Level 4
+-198|-275|t|Pleasant Street
+-204|-275|t|Pleasant Street
+-208|-567|t|Wilton Parade
+-204|-549|t|Wilton Parade
+-238|564|t|North Pier
+-210|350|t|North Pier
+-129|811|s|Coronation Rock Shop
+-131|806|s|Waterstones
+-159|830|s|Poundland
+-153|822|s|Sports Direct
+-40|801|s|Yours Clothing
+-60|765|s|Three.
+-25|760|s|JD Sports
+-17|784|s|Next
+-115|831|f|Greggs
+-20|806|s|Clarks
+-1|789|s|River Island
+15|789|s|New Look
+-71|743|s|Game
+-115|705|f|Starbucks
+-79|718|s|Duty Free
+-86|739|s|O2
+-42|745|s|Superdrug
+-83|711|s|Eurochange
+-86|729|s|Disney store
+-81|748|s|EE
+-113|628|s|Pound Store
+-143|629|s|H.Samuel
+-198|732|f|Harry Ramsden's
+-128|626|f|Pizza Hut
+-146|539|s|Jennings Bet
+-210|521|f|The Beach
+184|432|f|Boonnak
+244|723|g|Arlingtons
+29|116|b|Cuban Bar
+-246|549|t|North Pier (Heritage Stop)
+28|671|s|Charabanc
+173|406|s|Vivian Westwools
+-172|665|s|Bowtique
+-69|748|s|Build-A-Bear Workshop
+18|399|s|Abingdon BBQ
+25|419|s|Extacy
+-139|760|s|HMV
+-133|779|s|Primark
+28|424|s|Ryman
+-128|835|s|Shoe Zone
+-127|845|s|Wig Wam
+-119|531|s|A & B Christie
+-138|599|f|Cafe 24
+-89|533|b|The Tache
+132|458|b|Liar's Bar
+137|333|s|Iceland
+248|235|f|Subway
+126|320|s|The Salad Bowl
+53|574|f|The Sea
+31|431|s|Barnardo's
+282|629|s|Pharmisense
+511|215|s|Whitworth Chemists Ltd
+157|527|s|Nathan & Co
+116|293|b|Stillies Showbar
+63|-476|s|Morrisons Daily
+-90|696|f|Caffè Nero
+-150|13|f|Promenade Cafe
+-146|544|f|Best Bite
+-210|539|f|Roberts Oyster Bar
+-257|634|f|Beach House
+60|571|f|Subway
+12|321|f|Ocean Palace
+8|322|f|Al Amir
+-74|396|f|Shalimar Gardens
+-70|393|f|Burgerdome
+-185|-626|g|Rutland Hotel
+-182|-608|g|Strand Hotel
+-180|-583|g|New President Hotel
+-163|-395|g|The Bromley
+-160|-364|g|Bedford Hotel
+-159|-350|g|Palm Court Hotel
+-159|-344|g|Howard Hotel
+-158|-335|g|Canasta Hotel
+-165|60|g|The Starlux Hotel
+-171|-140|g|Rockcliffe Hotel
+-173|-134|g|St James Hotel
+-164|-169|g|Tiffany's
+-160|-217|g|Claremont Hotel
+-98|290|b|Slug & Lettuce
+-143|588|s|Market Street Stores
+-168|590|f|The Frying Squad
+-171|581|f|Subway
+208|521|s|Topping Street News
+148|557|f|Amaro
+214|297|f|Mr Basrai's
+316|693|g|Summerville Guest House
+295|703|g|Boltonia Hotel
+276|714|g|The Southview hotel
+251|727|g|The Avon Hotel
+222|743|g|The Trafalgar
+226|738|g|The Gallery
+216|748|g|The Allendale
+211|750|g|The Arabella
+201|756|g|Lumada
+195|760|g|Sandy Beach Hotel
+188|765|g|La Tour
+179|769|g|The Hollies
+163|777|g|The Georgian Hotel
+153|780|g|Bradleys Hotel
+139|790|g|Royal Alexandra Hotel
+124|798|g|The Sutcliffe Hotel
+112|810|s|News Stand
+114|800|g|The New Oxford Hotel
+104|805|g|The Carlton
+82|822|f|Andy's Cafe
+205|704|g|Beeton Villas
+234|705|g|Manor Grove
+230|700|g|Clarron House
+228|690|g|Rose Bank Villa
+233|660|g|OYO Gresham Hotel
+195|862|g|The Helmshore
+202|859|g|The Victoria
+207|856|g|Butterfly Hotel
+212|853|g|The Blackpool Central Hotel
+217|850|g|The Bramlea
+223|848|g|Charnley Gold
+228|844|g|Trafford Hotel
+237|840|g|The Kings Cross Hotel
+244|836|g|Alviston Hotel
+252|831|g|Regency Hotel
+257|828|g|The Pearl Hotel
+262|826|g|The Darfield Hotel
+267|823|g|Clifton Hotel
+293|843|g|The Miramar
+280|814|g|The Lawton Hotel
+297|805|g|Kingsway Hotel
+320|829|g|The Osprey
+324|826|g|Clevedon Hotel
+328|823|g|Delamere Hotel
+334|820|g|Franklyn House
+339|816|g|The Springfield
+344|814|g|The Baxter
+128|831|g|Royal Ruskin Hotel
+150|819|g|The Roselea Hotel
+154|816|g|Florence
+170|808|g|Fern Villa Hotel
+175|805|g|Gleneagles Hotel
+186|800|g|The New Sunset Hotel
+203|791|g|The Oak Lea Hotel
+215|784|g|The Albany
+222|779|g|The Belvedere
+231|775|g|The Montclaire
+237|771|g|The Stafford
+249|765|g|Feathers Hotel
+254|762|g|Sweet Afton
+259|760|g|Fairview Hotel
+265|755|g|Tregenna Hotel
+270|753|g|Albert Hotel
+244|731|s|Dial a Beer
+99|852|f|Munchy's Cafe
+469|860|g|The Hornby Villa
+475|857|g|The Arlen Hotel
+175|873|g|Sunnybank Holiday Flats
+18|471|f|Cafe 25
+-29|462|f|Mandarin
+-59|457|f|La Fontana
+224|248|b|Raleside Brewhouse
+222|128|f|Pumpkin
+51|328|f|The Carvery
+-88|-611|f|The Cuckoo's Nest
+-91|-599|g|The Wilton Hotel
+-98|-647|g|Elm House
+-138|-644|g|Coastal Breaks
+-142|-644|g|The Benson Hotel
+-151|-643|g|The Derby Hotel
+86|-295|f|Tuck In Cafe
+46|-267|f|Mr Chips
+36|-244|f|Woo Sang
+-111|-174|f|Buddys
+-91|-469|f|Mega Bytes
+-143|-584|g|The Newholme Hotel
+-114|-584|g|The Strand Lodge
+-99|-582|g|The Brooklyn Hotel
+-12|-55|g|Driftwood
+-14|-53|g|The Inn
+-19|-52|g|Lyndene
+-23|-49|g|Valdene Hotel
+-32|-77|g|Habberley House
+-37|-75|g|Edenfield
+-6|-113|g|Glenheath
+-9|-119|g|The Dragonfly
+-9|-124|g|White Heather
+-15|-145|g|The Marnoch Hotel
+-23|-147|g|Gabrielles
+-27|-155|g|The Riversvale
+-32|-165|g|The Astor Hotel
+-36|-171|g|Scarlets
+-53|-139|g|New Bond Hotel
+-58|-149|g|Ash Lea Hotel
+-59|-155|g|Westfield Hotel
+-61|-160|g|The Wilcot Hotel
+-62|-164|g|De-loveley
+-59|-215|g|Devonshire Lodge
+-56|-210|g|Holme Lea
+-84|-202|g|Falklands Hotel
+-73|-163|g|Mr Sandman's
+-26|-262|g|Holly House
+-30|-234|g|The Cavendish
+-55|-260|g|The Sussex Hotel
+-79|-259|g|Holmsdale Hotel
+-89|-259|g|Grampian House
+-87|95|g|Hotel Eleven
+-83|93|g|Holiday Hotel
+-75|89|g|The Jesmond
+-70|87|g|The Pembroke
+-60|81|g|Seaclose Hotel
+-54|78|g|The Beachmount
+-46|74|g|The Bradbury
+-32|64|s|Nila's News and Booze
+-69|51|g|Bing Lea Hotel
+-79|57|g|The Brecks
+-83|59|g|Banks Street Guest House
+-89|64|g|Pier View
+-98|67|g|The Lexham Hotel
+-104|103|g|The Cove Hotel
+-110|105|g|Margaret's
+-116|110|g|Sunset Guest House
+-119|78|g|The Hatton Hotel
+-126|81|g|Hotel Babylon
+-97|-44|g|Chaps Hotel
+-88|-18|g|Seaview
+-84|-21|g|Phoenix Guest House
+-73|-18|f|Wexford Diner
+-78|-25|s|Abis Convience Store
+-88|-49|s|Best One
+71|111|g|Walbirn Hotel
+115|117|g|Streety
+121|114|g|The Willow Tree Hotel
+70|99|g|Alexandra Hotel
+60|84|g|Ryley Court
+58|80|g|Enfield
+56|75|g|Guyz Hotel
+54|70|g|The Garnett
+47|57|g|The Hotel Blackpool
+44|49|g|Apollo
+94|85|g|Nevada Hotel
+90|80|g|Fernlea Hotel
+88|74|g|The Seacroft
+83|60|g|Hotel Royale
+77|47|g|Brene Hotel
+74|41|g|Rubens
+69|32|g|Mardi Gras
+62|24|g|Legends
+132|76|g|Mar-Ray Guest House
+145|66|f|Of The Rails
+54|-8|g|Moores Hotel
+92|1|g|Banks Lodge
+75|11|g|The Willowfield
+64|16|g|Sandylands
+-6|19|g|Hotel Vienna
+17|39|g|The Graydon Hotel
+34|33|g|The Lark Inn
+18|-65|g|The Lenbrook
+40|-23|g|Trades Hotel
+-26|76|f|Sams Chippy
+-3|122|g|Trentwood Hotel
+6|139|f|Finesse Chippy
+9|142|f|Fourty To Naughties Cafe
+-38|167|g|Somerville
+-33|164|g|Regent
+-27|161|g|The Grenadier Hotel
+-23|159|g|The Garfield Hotel
+-16|156|g|Rest & Welcome
+-10|152|g|Northern Lights
+-3|149|g|Hotel La-Rue
+1|146|g|Hollingsworth House
+-64|132|g|Bridges
+57|325|f|Munch Time
+-160|343|f|Feast About
+-161|351|f|The Strand
+-71|794|s|Millie's Cookies
+-69|801|f|Costa
+595|459|f|Dees Bites
+587|460|f|Dolce Italia
+568|464|f|Pollys Kitchen
+523|475|s|Grosvenor Convenience Store
+223|528|f|Phillys
+435|536|f|Tea and Vintage Tea Rooms
+423|538|b|Regent Cinema
+430|613|g|Royale Hotel
+-40|-23|f|Montys Cafe
+-39|-106|g|The Prince Albert Hotel
+-62|-67|g|The Thorncliffe
+-65|-73|s|EU.Ropa
+-67|-78|g|Oasis
+-72|-91|g|Golden Thistle Hotel
+-89|-123|g|Sirocco Blues
+-92|-128|g|Belvedere Hotel
+-94|-134|g|Jays Mayfair Hotel
+72|203|f|The Catch
+134|162|g|Christines Hotel
+136|165|b|R-Bar
+129|152|g|McHalls
+123|142|g|Blackpool Seaside Hotel
+111|120|g|Granby Lodge Hotel
+537|358|f|Gluttons Sandwich Bar
+472|171|f|George Street Chippy
+371|84|f|Bake 'n' Butty
+107|343|f|Hogans
+93|349|f|Deansgate Kitchen
+80|358|s|Asia's Finest Food Shop
+49|374|f|Auntie B's
+43|377|f|Pickwick Cafe
+155|365|f|Yorkshire Fisheries
+191|404|f|The Rite Bite
+171|400|f|San Marcos
+248|468|f|Kwizeen
+-84|320|f|Eatabout
+124|558|f|Quilligans
+-172|342|f|Kebab King
+559|-176|f|Snak Attack
+165|526|s|Northwest Pawnbrokers
+-162|-581|g|One Rutland Gate
+-43|116|s|Dickson Road Self-storage
+158|118|g|Pride Lodge
+149|495|f|Kates Kafe
+149|488|f|Piazza Italia
+154|506|f|Number 5
+292|462|s|Ackers Optician
+-124|576|s|B&M Bargains
+148|482|f|Caesars of Cedar Square
+154|519|f|Stefanis Pizzeria
+-63|306|f|31 Queen Street
+-173|633|f|Creams Cafe
+256|687|g|Glenroyd Guest House
+258|692|g|Glenroyd Flatlets
+422|674|s|Albert Road Launderette
+107|875|s|Newsagents
+-65|84|g|Hotel Rouge
+-21|26|s|Ladbrokes
+-95|236|f|Nunzios
+271|752|b|Albert's Ale Micropub
+496|-134|s|QuickSave Motorist Centres
+546|-205|s|Guys & Dolls
+525|-199|s|Savoy Timber
+-183|341|f|Dusk
+58|-288|s|R & H News
+-46|-63|s|Hugos Barbers
+-107|429|b|Three Piers
+-196|880|f|Wild West Diner
+158|380|b|Bootleg Social
+232|260|s|Blackpool Post Office
+-79|640|s|Holland & Barrett
+-81|633|s|Card Factory
+501|619|g|Marston House
+12|-97|g|The Manhattan
+6|-94|g|The Lonsdale
+-20|670|s|Trinity Hospice Secondhand
+177|529|s|Mobile World Laptops
+18|344|s|Homeless Action
+183|435|s|The Samaritans of Blackpool, Fylde and Wyre Branch
+-147|642|s|Betfred
+67|320|s|William Hill
+-81|459|s|Nationwide
+52|-204|b|Lexham Suite
+78|-268|f|Mama Lu Lu's Cook Out
+103|-202|s|Daily Savers
+55|370|s|Darbyshires
+321|163|s|Argos
+58|504|s|Card Factory
+60|510|s|McRoberts Butchers
+126|448|f|Upside Down Coffee
+102|392|f|Common
+280|847|s|Granthams
+248|865|s|Washbrite
+265|855|s|Art Discount
+-256|399|f|Home of the Wrap
+-260|462|s|Something Sweet
+-257|407|b|NP Bar & Lounge
+-54|773|f|Burger King
+32|874|f|Namastey India
+3|722|b|The Arc Cinema
+-214|482|f|Turtle Bay
+-175|542|b|Hush
+25|107|s|Jaguar Skin Tattoo
+160|196|t|North Station
+165|204|t|North Station
+-131|409|t|Talbot Square
+-92|821|s|CeX
+-119|625|s|I Love Bargains
+-174|729|f|The Greedy Pig
+30|554|s|Ladbrokes
+-106|291|b|Elevate Bar & Club
+-206|693|f|Cafe Coast
+-32|504|f|Cafe Meow
+15|583|f|Umami World Kitchen
+-34|136|s|Dickson Road Self-storage
+-15|430|f|Bailey's Cheese & Charcuterie
+165|215|f|Greggs
+186|203|f|Masala Bites
+180|216|f|Platform 9
+178|207|f|Pizza Migo
+-83|693|s|Go Outdoors Express
+-181|463|s|Starbucks
+39|379|f|Tai Pan Noodle Bar
+-205|628|f|Wendy's
+147|476|f|Kome Shokude
+147|479|f|Lancashire Jackets
+-107|880|s|Heron Foods
+-92|852|s|TK Maxx
+-86|620|f|Nando's
+-99|624|f|J&R Traditional Fish and Chips
+-195|591|f|Papa's
+-190|563|b|Coyote Ugly
+71|272|b|Ma Kelly's
+-195|498|b|Yates
+-210|510|b|Shenanigans
+-138|387|b|Trilogy
+-99|491|s|NatWest
+-182|514|b|The Layton Rakes
+-181|539|b|Brannigans
+-197|476|g|Forshaws Hotel
+107|176|b|Flying Handbag
+55|244|s|Bargain Beer
+-176|374|b|Popworld
+-23|628|s|Marks & Spencer
+-55|656|s|F.Hinds
+35|592|s|Toyland
+-143|668|s|Essentials
+67|512|s|Virgin Money
+-145|183|g|Art B&B
+-181|403|b|Counting House
+-178|388|f|Easy East
+-143|172|g|North Beach
+-161|280|b|Bees Knees
+-163|295|s|Scotties Got It...
+325|186|s|Sainsbury's
+-98|150|s|Factory Outlet Sofa Superstore
+-126|-39|g|Libertys Hotel
+-131|61|g|Laurence House
+-170|-55|g|North Shore Hotel
+-145|-105|g|The Woodley Hotel
+-153|-302|g|Carlton Hotel
+-101|-68|g|The Vidella Hotel
+-176|-114|g|Parisenne Hotel
+414|-181|b|Mecca Bingo
+23|285|s|Home Bargains
+-36|338|b|Station
+-124|379|b|Little Black Pug
+-17|310|b|Galleon Bar
+-158|307|f|Flames
+-172|305|b|Soul Suite
+-50|40|b|The Duke
+-152|-95|g|World Hotel
+-153|391|f|The Godfather
+48|286|s|Heron Foods
+-179|394|f|Wok Inn
+-97|415|g|Premier Inn
+-69|181|s|Thorougoods
+-82|165|g|Pelham Lodge
+242|563|s|Cash Converters
+-94|622|s|Bag It!
+510|-195|s|Shell
+314|-2|s|Sainsbury's
+57|281|b|Garlands
+63|252|f|King Kebab
+41|255|g|Veyron Apartments
+-86|528|b|Rose & Crown
+-82|539|f|The Bank Bar & Bistro
+-79|550|s|Lloyds Bank
+-63|546|b|Dirty Blondes
+1|533|s|TSB
+36|531|f|West Coast Rock Cafe
+35|541|s|Warren James
+38|551|f|Vintro Lounge
+-78|565|b|Scruffy Murphys
+-63|579|s|British Heart Foundation
+-60|572|s|The Works
+-18|563|s|Blackpool Market
+-10|561|f|Greggs
+14|557|f|Hive
+-80|492|s|Barclays
+-52|493|f|The Coffee Pot
+-45|493|f|JK's Cafe and Grill
+-39|495|s|Yorkshire Building Society
+-12|598|s|Beaverbrooks
+-150|680|s|i CANDi
+-125|681|s|Ann Summers
+-150|686|f|Yoochat
+169|466|b|Champs
+198|455|s|Options Mortgage Centre
+211|491|b|The Townsman
+199|460|s|Alan's Albums & Retro
+185|194|g|Holiday Inn
+189|564|s|Furniture Lounge
+267|582|b|Frenchman's Cove
+36|874|g|Calypso Hotel
+50|867|g|Walford Hotel
+59|863|g|Elmora Hotel
+63|860|g|Aspire Hotel
+53|760|f|Lowery Cafe
+74|750|g|Backpackers Blackpool
+83|754|g|The Garden Suites
+91|747|g|Adelaide House Hotel
+103|742|g|The Melville
+112|736|g|Boomerang
+120|732|g|The Orbiston
+133|725|g|New Osterley
+159|711|g|Arncliffe Hotel
+178|701|g|Credlands
+186|689|g|Adelaide Lodge
+198|684|g|The White House
+-132|727|s|Boots
+-31|774|s|Houndshill Shopping Centre
+-55|423|b|Hogarths
+-47|423|s|Amplifon
+-42|425|f|Sapori
+-36|422|f|Yahgo
+-25|426|f|East4West
+-20|422|s|Wonderland
+12|349|b|The Victoria
+6|354|s|PDSA
+-196|541|b|The Mitre
+36|118|g|Tropics Beach Hotel
+29|99|g|Hotel 33
+27|94|g|Peerless
+24|88|g|Valentine
+21|83|g|Newbury
+16|77|g|The Hayward
+15|70|g|The Trentham Hotel
+13|66|g|Windsor House
+250|562|s|Chuch Street Convience
+-43|392|f|Hauze
+123|365|b|The Washington
+150|425|s|The Mortgage Shop
+157|442|f|Ploy Thai Cafe
+161|449|b|Churchills
+15|174|s|Money Traders
+-203|232|g|Britannia Grand Metropole Hotel
+-132|-508|g|The Imperial Hotel
