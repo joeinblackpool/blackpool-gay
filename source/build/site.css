@@ -82,7 +82,7 @@ ul.cols{columns:2 300px;column-gap:40px;padding-left:20px}ul.cols li{break-insid
 .promo3d{position:relative;display:grid;grid-template-columns:1.1fr 1fr;align-items:center;gap:10px;margin:40px 0;border-radius:28px;overflow:hidden;background:linear-gradient(160deg,#1b1150 0%,#4a1f7a 45%,#c2408f 85%,#ff9a6b 100%);color:#fff;text-decoration:none;box-shadow:var(--shadow-lg);isolation:isolate;transition:transform .5s var(--ease),box-shadow .5s var(--ease)}
 .promo3d:hover{transform:translateY(-4px);color:#fff;box-shadow:0 40px 70px -26px rgba(76,20,110,.6)}
 .promo3d .pt{padding:30px 34px}.promo3d .pk{font-size:12px;font-weight:850;letter-spacing:.18em;text-transform:uppercase;opacity:.85}.promo3d strong{display:block;font-size:clamp(24px,3vw,34px);line-height:1.05;letter-spacing:-.035em;margin:8px 0 10px}.promo3d .pg{display:inline-flex;margin-top:14px;background:#fff;color:#2a0b2e;font-weight:800;border-radius:999px;padding:10px 18px}
-.promo3d svg{width:100%;height:auto;display:block;align-self:end}
+.promo3d svg,.promo3d .promoimg{width:100%;height:auto;display:block;align-self:end}
 /* footer */
 .foot{position:relative;background:var(--ink);color:#cfc6e2;margin-top:70px;padding:56px 0 26px;overflow:hidden;isolation:isolate}
 .foot::before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(50vw 30vw at 85% 0,rgba(255,61,154,.22),transparent 70%),radial-gradient(40vw 30vw at 0 100%,rgba(123,44,191,.3),transparent 70%)}
@@ -99,7 +99,7 @@ a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible,te
 .hero .hin{position:relative;max-width:1120px;width:100%;margin:0 auto;padding:clamp(40px,7vh,96px) 22px 40px}
 .hero .kick{display:inline-flex;align-items:center;gap:10px;font-size:13px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);margin:0}
 .hero .kick::before{content:"";width:9px;height:9px;border-radius:50%;background:#ffd23f;box-shadow:0 0 12px #ffd23f}
-.hero h1{font-size:clamp(44px,12.4vw,156px);line-height:.88;letter-spacing:-.065em;margin:22px 0 18px;font-weight:900;background:linear-gradient(180deg,#fff 30%,#ffd6e8 70%,#ffb38a 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 10px 30px rgba(40,0,60,.35))}
+.hero h1{font-size:clamp(30px,6.2vw,78px);line-height:.95;letter-spacing:-.055em;margin:22px 0 18px;font-weight:900;background:linear-gradient(180deg,#fff 30%,#ffd6e8 70%,#ffb38a 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 10px 30px rgba(40,0,60,.35))}
 .hero h1 span{background:linear-gradient(90deg,#ff7a59,#ff3d9a,#c56bff);-webkit-background-clip:text;background-clip:text;color:transparent}
 .hero .lede{color:rgba(255,255,255,.88);font-size:clamp(18px,1.7vw,22px);max-width:54ch;text-shadow:0 2px 20px rgba(40,0,60,.4)}
 .hero .ctas{display:flex;flex-wrap:wrap;gap:4px;margin-top:22px}
@@ -132,3 +132,5 @@ a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible,te
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
 .hero.paused .scene *{animation-play-state:paused!important}
 .foot .logo{font-size:26px;opacity:1}
+.scene .spinslow{animation:spin 48s linear infinite}
+.scene .heartbeat{animation:heart 1.6s ease-in-out infinite}@keyframes heart{0%,100%{transform:scale(1)}15%{transform:scale(1.14)}30%{transform:scale(.98)}45%{transform:scale(1.08)}}

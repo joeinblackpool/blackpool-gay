@@ -365,8 +365,11 @@
     const flagG = new T.PlaneGeometry(4.6, 2.8, 12, 1); flagG.translate(2.3, 0, 0);
     const flag = new T.Mesh(flagG, new T.MeshBasicMaterial({ map: flagTex, side: T.DoubleSide })); flag.position.set(0, 149.2, 0); g.add(flag);
     tower = { g, flag, x, z, lights: [], base: flagG.attributes.position.array.slice() };
-    for (let i = 0; i < 4; i++) for (let j = 0; j < 22; j++) { const y = 2 + j * 5, h = half(y) + .5, a = C4[i]; tower.lights.push([x + a[0] * h, 24 + y, z + a[1] * h]); }
-    for (let i = 0; i < 4; i++) { const a = C4[i]; tower.lights.push([x + a[0] * 4.6, 24 + 112, z + a[1] * 4.6]); }
+    // LED strips: dense points up each corner leg (colours flow upward), rings round the deck and crown
+    for (let i = 0; i < 4; i++) for (let y = 1; y < 112; y += .9) { const h = half(y) + .45, a = C4[i]; tower.lights.push([x + a[0] * h, 24 + y, z + a[1] * h, y]); }
+    for (const [yy, r] of [[112.2, 4.5], [119.2, 4.5], [127, 2.5]]) for (let k = 0; k < 40; k++) { const t = k / 40 * Math.PI * 2; tower.lights.push([x + Math.cos(t) * r * 1.2, 24 + yy, z + Math.sin(t) * r * 1.2, yy]); }
+    const heart = new T.Sprite(new T.SpriteMaterial({ map: canvasTex(128, 128, (c) => { c.shadowColor = '#ff4fd8'; c.shadowBlur = 18; c.lineWidth = 9; c.strokeStyle = '#ffb3ec'; c.fillStyle = '#7a1fa8'; c.beginPath(); c.moveTo(64, 104); c.bezierCurveTo(8, 70, 22, 22, 64, 46); c.bezierCurveTo(106, 22, 120, 70, 64, 104); c.closePath(); c.fill(); c.stroke(); }), transparent: true, depthWrite: false, color: new T.Color(2.2, 2.2, 2.2) }));
+    heart.scale.set(13, 13, 1); heart.position.set(x, 24 + 15, z); S.add(heart); tower.heart = heart;
   }
 
   // --- North Pier on its legs
@@ -406,10 +409,12 @@
     posts.forEach(([x, z], i) => { M.makeTranslation(x, 8, z); crowns.setMatrixAt(i, M); }); S.add(crowns);
     const all = pts.concat(tower ? tower.lights : []);
     bulbs = new T.InstancedMesh(new T.SphereGeometry(.2, 6, 4), new T.MeshBasicMaterial(), all.length);
-    all.forEach(([x, y, z], i) => { M.makeTranslation(x, y, z); bulbs.setMatrixAt(i, M); bulbs.setColorAt(i, new T.Color('#fff')); });
+    all.forEach(([x, y, z, ty], i) => { if (ty) M.makeScale(1.7, 1.7, 1.7).setPosition(x, y, z); else M.makeTranslation(x, y, z); bulbs.setMatrixAt(i, M); bulbs.setColorAt(i, new T.Color('#fff')); });
+    bulbs.userData.prom = pts.length; bulbs.userData.ty = all.map(p => p[3] || 0);
     S.add(bulbs);
-    const hg = new T.BufferGeometry(); hg.setAttribute('position', new T.Float32BufferAttribute(all.flat(), 3)); hg.setAttribute('color', new T.Float32BufferAttribute(new Float32Array(all.length * 3), 3));
+    const hg = new T.BufferGeometry(); hg.setAttribute('color', new T.Float32BufferAttribute(new Float32Array(all.length * 3), 3));
     const glow = canvasTex(64, 64, (x, w, h) => { const g = x.createRadialGradient(32, 32, 0, 32, 32, 32); g.addColorStop(0, 'rgba(255,255,255,1)'); g.addColorStop(.2, 'rgba(255,255,255,.45)'); g.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = g; x.fillRect(0, 0, w, h); });
+    hg.setAttribute('position', new T.Float32BufferAttribute(all.flatMap(p => [p[0], p[1], p[2]]), 3));
     halos = new T.Points(hg, new T.PointsMaterial({ size: 2.6, map: glow, vertexColors: true, transparent: true, depthWrite: false, blending: T.AdditiveBlending, fog: false }));
     S.add(halos); bulbs.userData.n = all.length;
   }
@@ -783,11 +788,15 @@
     seaU.t.value = time;
     if (bulbs) {
       const glow = lerp(MOODS.sunset.bulbs, MOODS.night.bulbs, mood.t), n = bulbs.userData.n, hc = halos.geometry.attributes.color, chase = Math.floor(time * 5);
+      const prom = bulbs.userData.prom, ty = bulbs.userData.ty, ledK = lerp(1.6, 3.6, mood.t);
       for (let i = 0; i < n; i++) {
-        const c = BULB[((reduce ? i : i + chase) >> 1) % BULB.length], tw = reduce ? 1 : .8 + .2 * Math.sin(time * 4 + i * 1.7), k = glow * tw;
-        cA.setRGB(c.r * k + .15, c.g * k + .15, c.b * k + .15); bulbs.setColorAt(i, cA);
+        let k, c;
+        if (i < prom) { c = BULB[((reduce ? i : i + chase) >> 1) % BULB.length]; k = glow * (reduce ? 1 : .8 + .2 * Math.sin(time * 4 + i * 1.7)); }
+        else { c = cB.setHSL(((ty[i] / 70 - (reduce ? 0 : time * .22)) % 1 + 1) % 1, 1, .55); k = ty[i] > 111 ? ledK * .9 : ledK; if (ty[i] > 126) c = cB.set('#ffe45e'); else if (ty[i] > 118) c = cB.set('#5dff9b'); }
+        cA.setRGB(c.r * k + .1, c.g * k + .1, c.b * k + .1); bulbs.setColorAt(i, cA);
         hc.setXYZ(i, c.r * k * .3, c.g * k * .3, c.b * k * .3);
       }
+      if (tower && tower.heart) { const b = reduce ? 1 : 1 + Math.max(0, Math.sin(time * 4)) * .12; tower.heart.scale.set(13 * b, 13 * b, 1); }
       bulbs.instanceColor.needsUpdate = true; hc.needsUpdate = true;
     }
     for (const bc of beacons) {
