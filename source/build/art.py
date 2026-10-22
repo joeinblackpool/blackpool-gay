@@ -335,7 +335,7 @@ def hero_scene():
                f'<svg viewBox="{cvx} {cvy} {cvw} {cvh}" aria-hidden="true" focusable="false"><defs><radialGradient id="hpool"><stop offset="0" stop-color="#fff2c8" stop-opacity=".32"/><stop offset="1" stop-color="#fff2c8" stop-opacity="0"/></radialGradient></defs><ellipse cx="417" cy="110" rx="174" ry="15" fill="url(#hpool)"/>{car("h")}</svg></div></div>')
     # Prom walkers: they stroll the same way the car is going, so they drift slowly back as it overtakes them
     # each group is its own small layer inside the moving strip, so a leg swing repaints a few hundred pixels, not the whole strip
-    allg = walkers(); groups = allg[:3] + [(70, bear())]; spots = [120, 640, 1240, 930]   # the Posse dances up front instead
+    allg = walkers(); groups = allg[:3] + [(70, bear()), (60, glam())]; spots = [120, 640, 1240, 930, 1560]   # the Posse dances up front instead
     def pbox(x, w):
         bx, by, bw, bh = x - 46, 755 - 204, w + 100, 214
         return (f'<div class="pg" style="left:{bx / 3840 * 100:.4f}%;top:{by / 9:.4f}%;width:{bw / 3840 * 100:.4f}%;height:{bh / 9:.4f}%">'
@@ -552,6 +552,22 @@ def bear():
     fig = (leg('#2b3550', .525) + arm('#141419', .525) + f'<g>{body}{head}<animateTransform attributeName="transform" type="translate" values="0 0;0 -2.2;0 0;0 -2.2;0 0" dur="1.05s" repeatCount="indefinite"/></g>'
            + leg('#34406a', 0) + arm('#1b1b22', 0))
     return f'<g transform="scale(.92)">{fig}</g>'
+
+
+def glam():
+    """Our own glam-rock showman (original): gold sequin jumpsuit, purple cape, rainbow feather boa, heart-shaped shades,
+    a silver quiff with a pink streak and silver boots. Walks to the right like the other strollers."""
+    sequins = ''.join(f'<circle cx="{x}" cy="{y}" r="1.1" fill="#fff" opacity=".85"/>' for x, y in [(-6, -80), (3, -74), (-3, -64), (7, -58), (-8, -54), (1, -84), (8, -70)])
+    boa = ''.join(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="3.6" fill="{RAINBOW[i % 6]}"/>' for i, (x, y) in enumerate(
+        [(-10, -90), (-6, -92), (-1, -93), (4, -92), (9, -90), (11, -84), (9, -77), (8, -70), (9, -63), (11, -56)]))
+    hair = ('<path d="M-11 -110 q-4 -16 6 -22 q10 -7 22 -2 q6 3 4 9 q-7 -5 -14 -3 q-6 2 -9 8 q-4 2 -9 10z" fill="#e8e8f2"/>'
+            '<path d="M-2 -129 q8 -5 17 -1" stroke="#ff6fd0" stroke-width="2.4" fill="none" stroke-linecap="round"/>')
+    shades = ('<path d="M3 -110.5 q1.6 -2.4 3.6 -.6 q2 -1.8 3.6 .6 q-.4 2.6 -3.6 5 q-3.2 -2.4 -3.6 -5z" fill="#ff2e88" stroke="#ffc93c" stroke-width=".9"/>'
+              '<path d="M-1 -108 h4" stroke="#ffc93c" stroke-width="1"/><circle cx="5" cy="-109" r=".8" fill="#fff"/>')
+    cape = ('<g><path d="M-10 -88 q-12 22 -16 52 q8 4 14 0 q2 -26 6 -50z" fill="#7b2ff7"/><path d="M-10 -88 q-12 22 -16 52" stroke="#c9a7ff" stroke-width="1.2" fill="none"/>'
+            '<animateTransform attributeName="transform" type="skewX" values="0;-6;0" dur="1.05s" repeatCount="indefinite"/></g>')
+    g = _walk('#f1c7a3', '#ffc93c', '#ffc93c', '#d8d8e0', hair, face=shades, extra_front=sequins + boa, extra_back=cape, sleeves='#ffc93c', phase=.3)
+    return g
 
 
 def _legs4(color, xs, top, dur, phase=0, amp=22):
