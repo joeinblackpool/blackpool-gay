@@ -162,7 +162,7 @@ a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible,te
 /* home hero */
 .hero{position:relative;color:#fff;overflow:hidden;isolation:isolate;min-height:clamp(600px,calc(100svh - 68px),900px);display:flex;align-items:flex-start;background:#1b1150}
 .hero .hin{position:relative;isolation:isolate;max-width:1120px;width:100%;margin:0 auto;padding:clamp(40px,7vh,96px) 22px 40px}
-.hero .kick{display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);margin:0}
+.hero .kick{display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);margin:0}
 .hero .kick::before{content:"";width:9px;height:9px;border-radius:50%;background:#ffc93c;box-shadow:0 0 12px #ffc93c}
 .hero h1{font-family:var(--display);font-size:clamp(30px,6.2vw,78px);line-height:.95;letter-spacing:-.035em;margin:22px 0 18px;font-weight:800;background:linear-gradient(180deg,#fff 30%,#ffd6e8 70%,#ffb38a 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 10px 30px rgba(40,0,60,.35))}
 .hero h1 span{background:linear-gradient(90deg,#ffc93c,#ff2e88 60%,#ff6fd0);-webkit-background-clip:text;background-clip:text;color:transparent}
@@ -217,7 +217,7 @@ a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible,te
 .hero .rise{animation:rise .6s var(--ease) both}.hero .rise:nth-child(1){animation-delay:.35s}.hero .rise:nth-child(2){animation-delay:.42s}.hero .rise:nth-child(3){animation-delay:.49s}.hero .rise:nth-child(4){animation-delay:.56s}
 @keyframes rise{from{opacity:0;transform:translateY(18px)}}
 .hero.paused .stage,.hero.paused .stage *{animation-play-state:paused!important}
-.hero-ctl{position:absolute;right:16px;bottom:calc(2.6% + 14px);z-index:2;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.motion-btn,.sound-btn{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.28);background:rgba(20,10,40,.45);color:#fff;border-radius:999px;padding:7px 13px;font:700 12.5px/1 var(--font);cursor:pointer;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.hero-ctl{position:absolute;right:16px;bottom:calc(2.6% + 14px);z-index:2;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.motion-btn,.sound-btn{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.28);background:rgba(20,10,40,.78);color:#fff;border-radius:999px;padding:9px 15px;font:700 12.5px/1 var(--font);cursor:pointer;min-height:36px}
 .motion-btn:hover,.sound-btn:hover{background:rgba(20,10,40,.7)}.sound-btn::before{content:"♪";font-size:13px}.sound-btn[aria-pressed=true]{background:#ff2e88;border-color:#ff2e88}.sound-btn[aria-pressed=true]::before{content:"■";font-size:9px}.hero.playing .stage{cursor:pointer}.motion-btn::before{content:"❚❚";font-size:10px;letter-spacing:-1px}.motion-btn[aria-pressed=true]::before{content:"▶"}
 /* Pride: photo wall + next-date sign */
 .nextpride{display:inline-flex;align-items:center;gap:14px;flex-wrap:wrap;margin:6px 0 26px;padding:12px 20px 12px 16px;border-radius:14px;background:var(--ink,#1A1033);color:#FFF6EC;box-shadow:0 0 0 2px #FFC93C inset,0 10px 30px -12px rgba(255,46,136,.6)}
@@ -304,12 +304,12 @@ a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible,te
 @keyframes spk{0%,100%{transform:scale(.15);opacity:0}48%{transform:scale(.6);opacity:.9}62%{transform:scale(.4);opacity:.5}}
 .stage .glint{position:absolute;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:radial-gradient(circle,#fff 0,rgba(255,236,170,.9) 25%,rgba(255,200,120,0) 70%);animation:glint 2.6s ease-in-out infinite;will-change:transform,opacity}
 @keyframes glint{0%,100%{transform:scale(.4);opacity:.2}50%{transform:scale(1.25);opacity:1}}
-.stage .ov-moon{position:absolute;left:66%;top:5%;width:10%;aspect-ratio:1}
+.stage .ov-moon{position:absolute;left:66%;top:17%;width:11%;aspect-ratio:1}
 .stage .moon-rock{width:100%;height:100%;transform-origin:50% 70%;animation:moonRock 7s ease-in-out infinite;will-change:transform}
 .stage .moon-rock svg{display:block;width:100%;height:100%;overflow:visible}
 @keyframes moonRock{0%,100%{transform:rotate(-6deg) translateY(0)}50%{transform:rotate(6deg) translateY(-4%)}}
 .stage .mblink{transform-box:fill-box;transform-origin:center;animation:pkBlink 5.5s infinite}
-@media(max-width:760px){.stage .ov-moon{left:60%;top:.5%;width:6%}}
+@media(max-width:760px){.stage .ov-moon{left:60%;top:12%;width:7%}}
 /* animals cross left to right: Ziggy sprints past the car, Flo flies over the Prom */
 .stage .ov-run{position:absolute;left:0;top:77.6%;width:3.6%;aspect-ratio:60/55;animation:catRun 17s linear 2s infinite both;will-change:transform}
 .stage .ov-run svg{display:block;width:100%;height:100%;overflow:visible}
@@ -321,3 +321,8 @@ a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible,te
 @keyframes flyBob{50%{transform:translateY(-35%) rotate(-3deg)}}
 
 .hero .hin::before{content:"";position:absolute;inset:-8% -12% 10% -12%;z-index:-1;pointer-events:none;background:radial-gradient(60% 55% at 28% 38%,rgba(27,17,80,.55),rgba(27,17,80,0) 72%)}
+
+/* lite tier: software rendering (e.g. Microsoft Basic Render Driver) or a slow first second. The street keeps moving; the extras rest. */
+.hero.lite .star,.hero.lite .spk,.hero.lite .glint,.hero.lite .ov-fly,.hero.lite .ov-sparkles,.hero.lite .ov-run{display:none}
+.hero.lite .moon-rock,.hero.lite .ov-plane-bob,.hero.lite .ov-train,.hero.lite .scene .carbob{animation:none}
+.hero.lite .ly-clouds{display:none}

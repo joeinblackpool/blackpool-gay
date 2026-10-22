@@ -206,7 +206,7 @@ def skyline(p='s', ground=742, fill='#24113f', glow='#ffa36b', lights=True, seed
             f'<feFlood flood-color="{glow}" flood-opacity=".85"/><feComposite in2="b" operator="in" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>'
             f'<filter id="{p}soft" x="-50%" y="-10%" width="200%" height="120%"><feGaussianBlur stdDeviation="3.5"/></filter>'
             f'<linearGradient id="{p}led" gradientUnits="userSpaceOnUse" x1="0" y1="{tt}" x2="0" y2="{tt + 220}" spreadMethod="repeat">' + ''.join(f'<stop offset="{i / 6:.3f}" stop-color="{c}"/>' for i, c in enumerate(['#ff2d55', '#ff9f1c', '#ffe45e', '#2ee59d', '#2fb8ff', '#b56bff', '#ff2d55']))
-            + (f'<animateTransform attributeName="gradientTransform" type="translate" from="0 0" to="0 -220" dur="5s" repeatCount="indefinite"/>' if lights else '') + '</linearGradient>')
+            + (f'<animateTransform attributeName="gradientTransform" type="translate" values="{";".join(f"0 {-220 * i / 12:.1f}" for i in range(12))}" calcMode="discrete" dur="5s" repeatCount="indefinite"/>' if lights else '') + '</linearGradient>')
     if split:
         return {'defs': defs, 'static': sil + ''.join(W), 'plain': f'<g fill="{fill}">' + ''.join(S) + '</g>' + ''.join(W), 'shape': ''.join(S), 'wheel': (cx, cy, r, ''.join(wheel)), 'tower': (tc, tt, tb_, led + flag),
                 'train': train, 'coaster': (1430, G - 260, 1880, G)}
@@ -282,7 +282,7 @@ def hero_scene():
         return (f'<div class="ly {cls}" style="left:{pct(x)};top:{pct(y, 900)};width:{pct(w)};height:{pct(h, 900)}"{extra}>'
                 f'<svg viewBox="{vb_x} {y} {w} {h}" preserveAspectRatio="none" aria-hidden="true" focusable="false">{inner}</svg></div>')
     # sky (static)
-    stars = ''.join(f'<circle class="star" style="animation-duration:{rnd.choice([2.3, 3.1, 4.7, 5.9])}s;animation-delay:-{rnd.random() * 6:.2f}s" cx="{rnd.randint(0, 1600)}" cy="{rnd.randint(0, 300)}" r="{rnd.choice([1, 1.2, 1.5, 2])}" fill="#fff" opacity="{rnd.choice([.5, .7, .9])}"/>' for _ in range(46))
+    stars = ''.join(f'<g class="star" style="animation-duration:{d}s;animation-delay:-{i * 1.3:.1f}s">' + ''.join(f'<circle cx="{rnd.randint(0, 1600)}" cy="{rnd.randint(0, 300)}" r="{rnd.choice([1, 1.2, 1.5, 2])}" fill="#fff" opacity="{rnd.choice([.5, .7, .9])}"/>' for _ in range(16)) + '</g>' for i, d in enumerate((3.1, 4.7, 5.9)))
     sky = ('<defs><linearGradient id="hsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#120a36"/><stop offset=".34" stop-color="#3d1d78"/><stop offset=".6" stop-color="#b03a8e"/><stop offset=".76" stop-color="#ff7a74"/><stop offset=".84" stop-color="#ffb784"/></linearGradient>'
            '<radialGradient id="hglow" cx=".5" cy="1" r=".7"><stop offset="0" stop-color="#ffd7a0" stop-opacity=".85"/><stop offset=".5" stop-color="#ff8f7a" stop-opacity=".35"/><stop offset="1" stop-color="#ff8f7a" stop-opacity="0"/></radialGradient></defs>'
            '<rect width="1600" height="900" fill="url(#hsky)"/>' + stars + '<ellipse cx="900" cy="760" rx="1000" ry="330" fill="url(#hglow)"/>')
@@ -353,11 +353,11 @@ def hero_scene():
             + f'<div class="ov-plane"><div class="ov-plane-bob">{biplane()}</div></div><div class="ov-moon par" data-d="3"><div class="moon-rock">{moon_svg()}</div></div>'
             + sky_strip.replace('class="ly ly-sky2"', 'class="ly ly-sky2 par" data-d="5"', 1)
             + layer('ly-road', 1600, road)
-            + f'<div class="ly ly-dash" style="left:0;top:0;width:200%;height:100%"><div class="rl rl-dash"><svg viewBox="0 0 3200 900" preserveAspectRatio="none" aria-hidden="true" focusable="false">{dashes}</svg></div></div>'
-            + f'<div class="ly ly-lamps" style="left:0;top:0;width:160%;height:100%"><div class="rl rl-lamps"><svg viewBox="0 0 2560 900" preserveAspectRatio="none" aria-hidden="true" focusable="false">{lamps}</svg>{bulb_glints()}</div></div>'
-            + f'<div class="ly ly-cross" style="left:0;top:0;width:{2 * POSSE_TILE / 16:.4f}%;height:100%"><div class="rl rl-posse"><svg viewBox="0 0 {2 * POSSE_TILE} 900" preserveAspectRatio="none" aria-hidden="true" focusable="false">' + ''.join(rainbow_crossing(CROSS_X + t * POSSE_TILE) for t in (0, 1)) + '</svg></div></div>'
+            + f'<div class="ly ly-dash" style="left:0;top:{798 / 9:.4f}%;width:200%;height:{18 / 9:.4f}%"><div class="rl rl-dash"><svg viewBox="0 798 3200 18" preserveAspectRatio="none" aria-hidden="true" focusable="false">{dashes}</svg></div></div>'
+            + f'<div class="ly ly-lamps" style="left:0;top:{590 / 9:.4f}%;width:160%;height:{170 / 9:.4f}%"><div class="rl rl-lamps"><svg viewBox="0 590 2560 170" preserveAspectRatio="none" aria-hidden="true" focusable="false">{lamps}</svg>{bulb_glints(H=170, Y0=590)}</div></div>'
+            + f'<div class="ly ly-cross" style="left:0;top:{680 / 9:.4f}%;width:{2 * POSSE_TILE / 16:.4f}%;height:{220 / 9:.4f}%"><div class="rl rl-posse"><svg viewBox="0 680 {2 * POSSE_TILE} 220" preserveAspectRatio="none" aria-hidden="true" focusable="false">' + ''.join(rainbow_crossing(CROSS_X + t * POSSE_TILE) for t in (0, 1)) + '</svg></div></div>'
             + people_div + f'<div class="ov-run"><svg viewBox="-30 -50 60 55" aria-hidden="true" focusable="false"><g transform="scale(1.1)">{cat(run=True)}</g></svg></div>' + car_div
-            + f'<div class="ly ly-posse" style="left:0;top:0;width:{2 * POSSE_TILE / 16:.4f}%;height:100%"><div class="rl rl-posse"><svg viewBox="0 0 {2 * POSSE_TILE} 900" preserveAspectRatio="none" aria-hidden="true" focusable="false">'
+            + f'<div class="ly ly-posse" style="left:0;top:{690 / 9:.4f}%;width:{2 * POSSE_TILE / 16:.4f}%;height:{210 / 9:.4f}%"><div class="rl rl-posse"><svg viewBox="0 690 {2 * POSSE_TILE} 210" preserveAspectRatio="none" aria-hidden="true" focusable="false">'
               + ''.join(f'<g transform="translate({1650 + t * POSSE_TILE} 866) scale(1.15)">{allg[3][1]}</g>' + belisha(CROSS_X + t * POSSE_TILE - 14, 892, 1.15) for t in (0, 1)) + '</svg></div></div>'
             + kerb + '</div>')
 
@@ -606,7 +606,7 @@ def _anim(kind, pose, extra=''):
 # arm poses per letter (upper, forearm) for the dancer's arm on the viewer's left; right arm mirrors except C
 LETTER = {'Y': ((150, 0), (-150, 0)), 'M': ((120, 112), (-120, -112)), 'C': ((158, 70), (66, -58)), 'A': ((178, 34), (-178, -34)), 'clap': ((60, 70), (-60, -70))}
 def _phase(k):
-    return 'in' if k < 8 else 'dance'
+    return 'in' if k < 8 else 'dance' if k < 24 else 'out'
 def _letter(k):
     j = (k - 8) % 8
     return 'YMCA'[j // 2]
@@ -669,7 +669,8 @@ def posse(walk=True):
     figs = [cop, cowboy, builder, biker, sailor]
     def travel(k):
         if k < 8: return f'{221 * (k + 1) / 8:.1f} 0'                               # walk along the pavement at walking pace (65 units/s over the ground)
-        return f'{221 + (6 if k % 4 == 1 else -6 if k % 4 == 3 else 0)} 0'            # then dance on the spot, side-stepping between letters
+        if k < 24: return f'{221 + (6 if k % 4 == 1 else -6 if k % 4 == 3 else 0)} 0'   # then dance on the spot, side-stepping between letters
+        return f'{221 - 560 * (k - 23) / 8:.1f} 0'                                   # and stroll off to the left before the routine repeats
     v, kt, _ = _timeline(travel, ease=.98)
     move = f'<animateTransform attributeName="transform" type="translate" values="{v}" keyTimes="{kt}" calcMode="linear" dur="{POSSE_DUR}s" repeatCount="indefinite"/>'
     return '<g>' + ''.join(f'<g transform="translate({i * 50} 0)">{f}</g>' for i, f in enumerate(figs)) + (move if walk else '') + '</g>' 
@@ -703,18 +704,16 @@ def biplane():
 
 
 def moon_svg():
-    """A smiling full moon in a cowboy hat with a rainbow band. viewBox 0 0 200 200."""
+    """Joe's man in the moon (his picture, /img/moon-face.webp) wearing a cowboy hat with a rainbow band. viewBox 0 0 200 200."""
     rb = RAINBOW
     band = ''.join(f'<path d="M44 {92 + i * 3.2} Q100 {104 + i * 3.2} 156 {92 + i * 3.2}" stroke="{c}" stroke-width="3.4" fill="none"/>' for i, c in enumerate(rb))
-    return ('<svg viewBox="0 0 200 200" aria-hidden="true" focusable="false"><defs><radialGradient id="mglow"><stop offset=".5" stop-color="#fff3c8" stop-opacity=".55"/><stop offset="1" stop-color="#fff3c8" stop-opacity="0"/></radialGradient>'
-            '<radialGradient id="mface" cx=".4" cy=".35"><stop offset="0" stop-color="#fffbe9"/><stop offset="1" stop-color="#f3dfa6"/></radialGradient></defs>'
-            '<circle cx="100" cy="122" r="96" fill="url(#mglow)"/><circle cx="100" cy="124" r="56" fill="url(#mface)"/>'
-            '<circle cx="78" cy="146" r="8" fill="#e8cf8c" opacity=".7"/><circle cx="126" cy="156" r="5" fill="#e8cf8c" opacity=".7"/><circle cx="130" cy="112" r="4" fill="#e8cf8c" opacity=".6"/>'
-            '<g class="mblink"><path d="M78 124 q6 -7 12 0 M110 124 q6 -7 12 0" stroke="#7a5a2a" stroke-width="3.2" fill="none" stroke-linecap="round"/></g>'
-            '<path d="M84 140 q16 14 32 0" stroke="#7a5a2a" stroke-width="3.2" fill="none" stroke-linecap="round"/><ellipse cx="74" cy="138" rx="7" ry="4" fill="#ff9fb8" opacity=".55"/><ellipse cx="126" cy="138" rx="7" ry="4" fill="#ff9fb8" opacity=".55"/>'
+    return ('<svg viewBox="0 0 200 200" aria-hidden="true" focusable="false"><defs><radialGradient id="mglow"><stop offset=".5" stop-color="#fff3c8" stop-opacity=".5"/><stop offset="1" stop-color="#fff3c8" stop-opacity="0"/></radialGradient></defs>'
+            '<circle cx="100" cy="126" r="96" fill="url(#mglow)"/>'
+            '<image href="/img/moon-face.webp?v=1" x="40" y="66" width="120" height="120"/>'
+            '<g transform="translate(100 98) scale(.96) translate(-100 -112)">'
             '<path d="M14 98 Q30 78 52 92 Q100 112 148 92 Q170 78 186 98 Q168 110 146 104 Q100 120 54 104 Q32 110 14 98z" fill="#c98a4b"/>'
             '<path d="M52 94 Q54 40 82 46 Q100 58 118 46 Q146 40 148 94 Q100 112 52 94z" fill="#d99a58"/><path d="M82 46 Q100 60 118 46 Q108 70 100 72 Q92 70 82 46z" fill="#b97a3c"/>'
-            + band + '<path d="M60 64 Q70 54 80 58" stroke="#f0bb7c" stroke-width="3" fill="none" stroke-linecap="round" opacity=".7"/></svg>')
+            + band + '<path d="M60 64 Q70 54 80 58" stroke="#f0bb7c" stroke-width="3" fill="none" stroke-linecap="round" opacity=".7"/></g></svg>')
 
 
 def sky_sparkles(n=12, seed=11):
@@ -722,7 +721,7 @@ def sky_sparkles(n=12, seed=11):
     return ''.join(f'<i class="spk" style="left:{rnd.uniform(1, 98):.2f}%;top:{rnd.uniform(1, 30):.2f}%;--s:{rnd.choice([7, 9, 11, 14])}px;animation-duration:{rnd.uniform(5, 8.5):.2f}s;animation-delay:-{rnd.uniform(0, 8):.2f}s"></i>' for _ in range(n))
 
 
-def bulb_glints(y_top=624, step=240, n=11, sag=30, every=4, W=2560, H=900):
+def bulb_glints(y_top=624, step=240, n=11, sag=30, every=7, W=2560, H=900, Y0=0):
     """Glints that sparkle on top of festoon bulbs (positions match lamps_row), placed in % of the lamps strip."""
     out = []
     for k in range(n):
@@ -731,7 +730,7 @@ def bulb_glints(y_top=624, step=240, n=11, sag=30, every=4, W=2560, H=900):
             if (i + k) % every: continue
             t = i / 12; px, py = x + t * step, y_top + 10 + math.sin(t * math.pi) * sag
             if px > W: continue
-            out.append(f'<i class="glint" style="left:{px / W * 100:.3f}%;top:{py / H * 100:.3f}%;animation-delay:-{((k * 7 + i * 3) % 13) / 4:.2f}s"></i>')
+            out.append(f'<i class="glint" style="left:{px / W * 100:.3f}%;top:{(py - Y0) / H * 100:.3f}%;animation-delay:-{((k * 7 + i * 3) % 13) / 4:.2f}s"></i>')
     return ''.join(out)
 
 
