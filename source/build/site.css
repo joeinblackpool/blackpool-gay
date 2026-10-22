@@ -193,7 +193,7 @@ a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible,te
 .stage .ly{position:absolute;inset:0}.stage svg{display:block;width:100%;height:100%;overflow:visible}
 .stage .rl{position:relative;width:100%;height:100%;will-change:transform}
 .stage .rl-sky{animation:rlHalf 48s linear infinite}.stage .rl-far{animation:rlHalf 110s linear infinite}
-.stage .rl-dash{animation:rlDash .65s linear infinite}.stage .rl-people{animation:rlHalf 60s linear infinite}.stage .rl-lamps{animation:rlLamps 10.4s linear infinite}
+.stage .rl-dash{animation:rlDash .65s linear infinite}.stage .rl-people{animation:rlHalf 71s linear infinite}.stage .rl-posse{animation:rlHalf 13.6s linear infinite}.stage .rl-lamps{animation:rlLamps 10.4s linear infinite}
 @keyframes rlHalf{to{transform:translateX(-50%)}}@keyframes rlDash{to{transform:translateX(-2.5%)}}@keyframes rlLamps{to{transform:translateX(-37.5%)}}
 .stage .ov{position:absolute}.stage .ov-wheel{animation:turn 48s linear infinite;will-change:transform}@keyframes turn{to{transform:rotate(360deg)}}
 .stage .kerb{position:absolute;left:0;bottom:-1px;width:100%;height:2.4%}
@@ -248,11 +248,11 @@ a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible,te
 .castcard p{color:#e9ddf7}
 @media (prefers-reduced-motion:no-preference) and (hover:hover){.castcard{transition:transform .35s cubic-bezier(.2,.8,.2,1)}.castcard:hover{transform:translateY(-6px) rotate(-.4deg)}}
 /* biplane towing a rainbow banner across the sky */
-.stage .ov-plane{position:absolute;left:0;top:6%;width:21%;aspect-ratio:4/1;will-change:transform;animation:fly 38s linear 3s infinite both}
+.stage .ov-plane{position:absolute;left:0;top:13%;width:21%;aspect-ratio:4/1;will-change:transform;animation:fly 24s linear -7s infinite both}
 .stage .ov-plane-bob{width:100%;height:100%;animation:planeBob 3.2s ease-in-out infinite}
 @keyframes fly{from{transform:translateX(-105%)}to{transform:translateX(480%)}}
 @keyframes planeBob{50%{transform:translateY(14%) rotate(-1.2deg)}}
-@media (max-width:700px){.stage .ov-plane{width:26%;top:4%}}
+@media (max-width:700px){.stage .ov-plane{width:18%;top:9%}}
 /* venue facade illustration */
 .vface{max-width:860px;margin:0 0 26px;border-radius:18px;overflow:hidden;background:#170c2c;box-shadow:0 22px 44px -26px rgba(26,16,51,.75)}
 .vface svg{display:block;width:100%;height:auto}
@@ -266,10 +266,7 @@ a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible,te
 .symgrid .spot{color:#C2185B;font-weight:700;font-size:.86rem;margin:0 0 6px}
 .symgrid p{margin:0 0 4px;font-size:.93rem}
 /* the Prom Posse dances up front, pinned to the left of the screen, in front of the car */
-.stage .ly-posse{position:absolute;left:calc(50% - 50vw + 14px);bottom:1.2%;width:20%;aspect-ratio:260/160;z-index:3}
-.stage .ly-posse svg{display:block;width:100%;height:100%;overflow:visible}
 .hero .ly-posse{animation:fadeUp .8s ease 1.3s both}
-@media(max-width:760px){.stage .ly-posse{left:calc(53% - 50vw + 4px);bottom:.4%;width:min(14%,31vw)}}
 /* peekers: the cast peeping out from behind headings, photos and pictures */
 .pk-hold{display:block;position:relative;height:0;z-index:1}
 .pk-hold .pk-win{bottom:0}
@@ -301,3 +298,24 @@ a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible,te
 .pridestrip strong{font:800 clamp(1.4rem,3.4vw,2.1rem)/1.1 'Bricolage Grotesque',system-ui,sans-serif}
 .pridestrip .ps-go{color:#e9ddf7}
 .pridestrip:hover strong{text-decoration:underline;text-decoration-color:#ff2e88;text-underline-offset:5px}
+/* night sky: sparkles, festoon glints, the moon in a rainbow cowboy hat */
+.stage .ov-sparkles{position:absolute;inset:0;pointer-events:none}
+.stage .spk{position:absolute;width:var(--s);height:var(--s);margin:calc(var(--s) / -2) 0 0 calc(var(--s) / -2);background:#fff;clip-path:polygon(50% 0,60% 40%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 40%);filter:drop-shadow(0 0 3px #fff);animation:spk 3s ease-in-out infinite;will-change:transform,opacity}
+@keyframes spk{0%,100%{transform:scale(.2) rotate(0);opacity:.15}45%{transform:scale(1) rotate(45deg);opacity:1}60%{transform:scale(.7) rotate(60deg);opacity:.8}}
+.stage .glint{position:absolute;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:radial-gradient(circle,#fff 0,rgba(255,236,170,.9) 25%,rgba(255,200,120,0) 70%);animation:glint 2.6s ease-in-out infinite;will-change:transform,opacity}
+@keyframes glint{0%,100%{transform:scale(.4);opacity:.2}50%{transform:scale(1.25);opacity:1}}
+.stage .ov-moon{position:absolute;left:66%;top:5%;width:10%;aspect-ratio:1}
+.stage .moon-rock{width:100%;height:100%;transform-origin:50% 70%;animation:moonRock 7s ease-in-out infinite;will-change:transform}
+.stage .moon-rock svg{display:block;width:100%;height:100%;overflow:visible}
+@keyframes moonRock{0%,100%{transform:rotate(-6deg) translateY(0)}50%{transform:rotate(6deg) translateY(-4%)}}
+.stage .mblink{transform-box:fill-box;transform-origin:center;animation:pkBlink 5.5s infinite}
+@media(max-width:760px){.stage .ov-moon{left:60%;top:.5%;width:6%}}
+/* animals cross left to right: Ziggy sprints past the car, Flo flies over the Prom */
+.stage .ov-run{position:absolute;left:0;top:77.6%;width:3.6%;aspect-ratio:60/55;animation:catRun 17s linear 2s infinite both;will-change:transform}
+.stage .ov-run svg{display:block;width:100%;height:100%;overflow:visible}
+@keyframes catRun{0%{transform:translateX(-150%)}62%,100%{transform:translateX(2900%)}}
+.stage .ov-fly{position:absolute;left:0;top:33%;width:11.5%;aspect-ratio:150/70;animation:floFly 21s linear 5s infinite both;will-change:transform}
+.stage .fly-bob{width:100%;height:100%;animation:flyBob 3.2s ease-in-out infinite}
+.stage .ov-fly svg{display:block;width:100%;height:100%;overflow:visible}
+@keyframes floFly{0%{transform:translateX(-130%)}70%,100%{transform:translateX(1300%)}}
+@keyframes flyBob{50%{transform:translateY(-35%) rotate(-3deg)}}

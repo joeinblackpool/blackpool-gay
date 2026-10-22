@@ -327,7 +327,7 @@ def hero_scene():
                f'<svg viewBox="{cvx} {cvy} {cvw} {cvh}" aria-hidden="true" focusable="false"><defs><radialGradient id="hpool"><stop offset="0" stop-color="#fff2c8" stop-opacity=".32"/><stop offset="1" stop-color="#fff2c8" stop-opacity="0"/></radialGradient></defs><ellipse cx="417" cy="110" rx="174" ry="15" fill="url(#hpool)"/>{car("h")}</svg></div></div>')
     # Prom walkers: they stroll the same way the car is going, so they drift slowly back as it overtakes them
     # each group is its own small layer inside the moving strip, so a leg swing repaints a few hundred pixels, not the whole strip
-    allg = walkers(); groups = allg[:3] + allg[4:]; spots = [90, 420, 760, 1330, 1680]   # the Posse dances up front instead
+    allg = walkers(); groups = allg[:3]; spots = [120, 640, 1240]   # the Posse dances up front instead
     def pbox(x, w):
         bx, by, bw, bh = x - 46, 755 - 204, w + 100, 214
         return (f'<div class="pg" style="left:{bx / 3840 * 100:.4f}%;top:{by / 9:.4f}%;width:{bw / 3840 * 100:.4f}%;height:{bh / 9:.4f}%">'
@@ -340,13 +340,17 @@ def hero_scene():
             + layer('ly-sky', 1600, sky)
             + f'<div class="ly ly-clouds par" data-d="14"><svg viewBox="0 0 1600 900" preserveAspectRatio="none" aria-hidden="true" focusable="false">{clouds}</svg></div>'
             + f'<div class="ly ly-far par" data-d="9" style="left:0;top:0;width:240%;height:100%"><div class="rl rl-far"><svg viewBox="0 0 3840 900" preserveAspectRatio="none" aria-hidden="true" focusable="false">{far_svg}</svg></div></div>'
+            + f'<div class="ov-fly"><div class="fly-bob">{flying_flamingo()}</div></div>'
+            + f'<div class="ov-sparkles" aria-hidden="true">{sky_sparkles()}</div><div class="ov-moon par" data-d="3"><div class="moon-rock">{moon_svg()}</div></div>'
             + f'<div class="ov-plane"><div class="ov-plane-bob">{biplane()}</div></div>'
             + sky_strip.replace('class="ly ly-sky2"', 'class="ly ly-sky2 par" data-d="5"', 1)
             + layer('ly-road', 1600, road)
             + f'<div class="ly ly-dash" style="left:0;top:0;width:200%;height:100%"><div class="rl rl-dash"><svg viewBox="0 0 3200 900" preserveAspectRatio="none" aria-hidden="true" focusable="false">{dashes}</svg></div></div>'
-            + f'<div class="ly ly-lamps" style="left:0;top:0;width:160%;height:100%"><div class="rl rl-lamps"><svg viewBox="0 0 2560 900" preserveAspectRatio="none" aria-hidden="true" focusable="false">{lamps}</svg></div></div>'
-            + people_div + car_div
-            + f'<div class="ly-posse"><svg viewBox="-30 -150 260 160" aria-hidden="true" focusable="false"><ellipse cx="100" cy="2" rx="132" ry="7" fill="#120a24" opacity=".45"/>{allg[3][1]}</svg></div>'
+            + f'<div class="ly ly-lamps" style="left:0;top:0;width:160%;height:100%"><div class="rl rl-lamps"><svg viewBox="0 0 2560 900" preserveAspectRatio="none" aria-hidden="true" focusable="false">{lamps}</svg>{bulb_glints()}</div></div>'
+            + f'<div class="ly ly-cross" style="left:0;top:0;width:{2 * POSSE_TILE / 16:.4f}%;height:100%"><div class="rl rl-posse"><svg viewBox="0 0 {2 * POSSE_TILE} 900" preserveAspectRatio="none" aria-hidden="true" focusable="false">' + ''.join(rainbow_crossing(CROSS_X + t * POSSE_TILE) for t in (0, 1)) + '</svg></div></div>'
+            + people_div + f'<div class="ov-run"><svg viewBox="-30 -50 60 55" aria-hidden="true" focusable="false"><g transform="scale(1.1)">{cat(run=True)}</g></svg></div>' + car_div
+            + f'<div class="ly ly-posse" style="left:0;top:0;width:{2 * POSSE_TILE / 16:.4f}%;height:100%"><div class="rl rl-posse"><svg viewBox="0 0 {2 * POSSE_TILE} 900" preserveAspectRatio="none" aria-hidden="true" focusable="false">'
+              + ''.join(f'<g transform="translate({1650 + t * POSSE_TILE} 866) scale(1.15)">{allg[3][1]}</g>' + belisha(CROSS_X + t * POSSE_TILE - 14, 892, 1.15) for t in (0, 1)) + '</svg></div></div>'
             + kerb + '</div>')
 
 
@@ -503,7 +507,7 @@ def walkers():
     sequins = ''.join(f'<circle cx="{x}" cy="{y}" r="1.1" fill="#fff" opacity=".8"/>' for x, y in [(-6, -78), (4, -70), (-2, -60), (8, -48), (-8, -40), (2, -30), (-4, -18), (9, -12), (-10, -8), (6, -36)])
     queen = (f'<g transform="scale(1.14)"><g>'
              f'<g><path d="M2 -46 l6 -2 l1 42 l7 4 h-12 l-2 -4z" fill="#f1c7a3"/><path d="M4 -4 l12 1 l-1 4 h-12z" fill="#ff2e88"/><path d="M14 0 l1 4" stroke="#ff2e88" stroke-width="1.6"/>'
-             f'<animateTransform attributeName="transform" type="rotate" values="-8 4 -46;10 4 -46;-8 4 -46" dur="1.2s" repeatCount="indefinite"/></g>'
+             f'<animateTransform attributeName="transform" type="rotate" values="-18 4 -46;18 4 -46;-18 4 -46" dur="1.05s" repeatCount="indefinite"/></g>'
              f'<path d="M-12 -86 q12 -7 24 0 l1 30 q9 38 7 56 h-17 l-4 -40 l-3 40 h-12 q-3 -18 3 -56z" fill="url(#qgown)"/>{sequins}'
              f'<rect x="-3.4" y="-97" width="7" height="9" rx="2.5" fill="#c98f6d"/><path d="M-10 -107 q0 -14 11 -14 q12 0 12 13 q0 6 -3.4 9.4 q-3.6 4 -8.6 4 q-8 0 -11 -7z" fill="#c98f6d"/>'
              f'<path d="M-11 -96 C-20 -104 -19 -124 -12 -134 C-15 -152 -3 -165 6 -163 C19 -161 23 -146 16 -132 C20 -126 17 -118 12.6 -115.4 C8 -120.6 1 -122.4 -4.6 -119 C-8.6 -115.6 -9.4 -107 -8 -99 Z" fill="url(#qwig)"/>'
@@ -512,18 +516,18 @@ def walkers():
              f'<path d="M3 -111 q4 -4 9 -1 M4 -107.5 l-1 -2.4 M6.5 -108.4 l-.6 -2.6 M9 -108.4 l.2 -2.6" stroke="#1b1420" stroke-width="1.3" fill="none" stroke-linecap="round"/><path d="M4.6 -101 q3 2.6 6.2 -.4 q-3 -1.2 -6.2 .4z" fill="#e0004d"/><circle cx="-6" cy="-102" r="2.4" fill="#ffc93c"/>'
              + ''.join(f'<circle cx="{x}" cy="{y}" r="{r}" fill="#ff6fd0"/>' for x, y, r in [(-14, -86, 5.4), (-8, -90, 5.8), (0, -91, 5.6), (8, -90, 5.8), (14, -86, 5.4), (17, -78, 4.8), (18, -70, 4.4), (-17, -78, 4.8), (-18, -70, 4.4)])
              + f'<g><path d="M8 -86 l12 18 l4 -2" stroke="#c98f6d" stroke-width="5.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 -66 h12 l-2 12 h-8z" fill="#ffc93c"/><path d="M22 -66 q4 -7 8 0" stroke="#ffc93c" stroke-width="1.6" fill="none"/>'
-             f'<animateTransform attributeName="transform" type="rotate" values="-4 8 -86;5 8 -86;-4 8 -86" dur="1.2s" repeatCount="indefinite"/></g>'
-             f'<animateTransform attributeName="transform" type="rotate" values="-2.5 0 0;2.5 0 0;-2.5 0 0" dur="1.2s" repeatCount="indefinite"/></g></g>')
+             f'<animateTransform attributeName="transform" type="rotate" values="-8 8 -86;8 8 -86;-8 8 -86" dur="1.05s" repeatCount="indefinite"/></g>'
+             f'<animateTransform attributeName="transform" type="rotate" values="-2.5 0 0;2.5 0 0;-2.5 0 0" dur="1.05s" repeatCount="indefinite"/></g></g>')
     queen += ('<path d="M27 -70 q18 26 32 44" stroke="#ff2e88" stroke-width="1.4" fill="none"/>'
               '<g transform="translate(52 0)">' + dog() + '</g>')
     return [(90, g1), (90, g2), (110, queen), (200, posse()), (40, cat()), (40, flamingo())]
 
 
-def _legs4(color, xs, top, dur, phase=0):
+def _legs4(color, xs, top, dur, phase=0, amp=22):
     """Four little trotting legs, diagonal pairs in step."""
     out = ''
     for i, x in enumerate(xs):
-        v = '22;-22;22' if i in (0, 3) else '-22;22;-22'
+        v = f'{amp};{-amp};{amp}' if i in (0, 3) else f'{-amp};{amp};{-amp}'
         vals = ';'.join(f'{a} {x} {top}' for a in v.split(';'))
         out += (f'<g><path d="M{x - 2} {top} h4 l-.4 {-top - 1} h-3.2z" fill="{color}"/><ellipse cx="{x + .6}" cy="-1" rx="2.6" ry="1.4" fill="{color}"/>'
                 f'<animateTransform attributeName="transform" type="rotate" values="{vals}" keyTimes="0;.5;1" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1" dur="{dur}" begin="-{phase}s" repeatCount="indefinite"/></g>')
@@ -542,11 +546,11 @@ def dog():
             '<circle cx="16.6" cy="-28.4" r="1.3" fill="#1a1033"/><path d="M8.6 -31 q-3.6 3 -2.4 10 q3.4 .6 4.6 -3 q.6 -4 -2.2 -7z" fill="#ece2f6"/><path d="M20 -21 q2 3 4 0" stroke="#ff6fa8" stroke-width="1.6" fill="none" stroke-linecap="round"/>'
             '<path d="M6 -22.6 q6 3.4 12 -1" stroke="#ff2e88" stroke-width="2.6" fill="none"/>'
             '<path d="M10 -18 l-8.4 -6 q-1.8 6 0 12z M10 -18 l8.4 -6 q1.8 6 0 12z" fill="url(#wrb)" stroke="#1a1033" stroke-width=".7" stroke-linejoin="round"/><circle cx="10" cy="-18" r="2.3" fill="#ffc93c" stroke="#1a1033" stroke-width=".6"/>')
-    bob = '<animateTransform attributeName="transform" type="translate" values="0 0;0 -1.4;0 0" dur=".36s" repeatCount="indefinite"/>'
-    return f'<g>{tail}{_legs4("#efe6f7", (-9, -4, 6, 11), -12, ".36s")}<g>{body}{bob}</g></g>'
+    bob = '<animateTransform attributeName="transform" type="translate" values="0 0;0 -1.4;0 0" dur=".3s" repeatCount="indefinite"/>'
+    return f'<g>{tail}{_legs4("#efe6f7", (-9, -4, 6, 11), -12, ".3s")}<g>{body}{bob}</g></g>'
 
 
-def cat():
+def cat(run=False):
     """A strutting grey cat with a rainbow Mohican, tail up. Feet on y=0, faces right."""
     mohawk = ''.join(f'<path d="M{x} {y} l{-2.2} -7 l4.6 1.4z" fill="{c}"/>' for (x, y), c in zip([(14, -36), (10, -37), (6, -35), (2.6, -32), (-.4, -29), (-3, -26)], ['#ff2d55', '#ff9f1c', '#ffe45e', '#2ee59d', '#2fb8ff', '#b56bff']))
     tail = ('<g><path d="M-14 -20 q-8 -6 -6 -16 q2 -8 7 -9" stroke="#8e8aa6" stroke-width="3.6" fill="none" stroke-linecap="round"/>'
@@ -557,7 +561,7 @@ def cat():
             + mohawk +
             '<ellipse cx="16" cy="-28" rx="1.3" ry="1.8" fill="#ffe45e"/><path d="M15.6 -29 v2" stroke="#1a1033" stroke-width=".8"/><path d="M19.6 -25.4 l1.4 .6 l-1.2 .8z" fill="#ff9fc9"/>'
             '<path d="M20 -24 l7 -1 M20 -23 l7 1" stroke="#e7dcf2" stroke-width=".6"/>')
-    return f'<g>{tail}{_legs4("#7d7896", (-11, -6, 6, 11), -12, ".6s")}<g>{body}<animateTransform attributeName="transform" type="translate" values="0 0;0 -.8;0 0" dur=".6s" repeatCount="indefinite"/></g></g>'
+    return f'<g>{tail}{_legs4("#7d7896", (-11, -6, 6, 11), -12, ".12s" if run else ".3s", amp=38 if run else 22)}<g>{body}<animateTransform attributeName="transform" type="translate" values="0 0;0 -.8;0 0" dur=".3s" repeatCount="indefinite"/></g></g>'
 
 
 def flamingo():
@@ -575,29 +579,67 @@ def flamingo():
             '<animateTransform attributeName="transform" type="translate" values="0 0;0 -1.6;0 0;0 -1.6;0 0" dur=".9s" repeatCount="indefinite"/></g></g>')
 
 
+CROSS_X = 520                      # where the rainbow zebra sits in each pavement tile
+POSSE_TILE = round(123 * 13.6)   # metres of pavement the car passes in one routine, in stage units
+POSSE_DUR = 13.6     # 32 beats at 141 bpm: walk in (8 beats), Y-M-C-A twice (16), walk off (8)
+def _timeline(pose, beats=32, ease=.35):
+    """SMIL values/keyTimes for a per-beat pose function: each beat moves to its pose in the first `ease` of the beat, then holds."""
+    times, vals = [], []
+    for k in range(beats):
+        t0, t1 = k / beats, (k + ease) / beats
+        times += [t0, t1]; vals += [pose(k - 1) if k else pose(0), pose(k)]
+    times.append(1); vals.append(pose(beats - 1))
+    return ';'.join(vals), ';'.join(f'{t:.4f}' for t in times), ';'.join(['.4 0 .2 1'] * (len(times) - 1))
+
+def _anim(kind, pose, extra=''):
+    v, kt, ks = _timeline(pose)
+    return f'<animateTransform attributeName="transform" type="{kind}" values="{v}" keyTimes="{kt}" calcMode="spline" keySplines="{ks}" dur="{POSSE_DUR}s" repeatCount="indefinite"{extra}/>'
+
+# arm poses per letter (upper, forearm) for the dancer's arm on the viewer's left; right arm mirrors except C
+LETTER = {'Y': ((150, 0), (-150, 0)), 'M': ((120, 112), (-120, -112)), 'C': ((158, 70), (66, -58)), 'A': ((178, 34), (-178, -34)), 'clap': ((60, 70), (-60, -70))}
+def _phase(k):
+    return 'in' if k < 8 else 'dance'
+def _letter(k):
+    j = (k - 8) % 8
+    return 'YMCA'[j // 2]
+
 def _dancer(skin, shirt, sleeves, trousers, shoes, hair, _unused, tash, hat='', front='', delay=0.0):
-    """Front-facing dancer doing the four-letter arm routine: Y, M, C, A, then a rest. Feet on y=0."""
-    KT = '0;.07;.19;.25;.37;.43;.55;.61;.76;.86;1'
-    # (upper, forearm) angles per keyframe for the dancer's arm on the viewer's left; the right arm mirrors except C
-    L = [(14, 0), (150, 0), (150, 0), (120, 112), (120, 112), (158, 70), (158, 70), (178, 34), (178, 34), (14, 0), (14, 0)]
-    R = [(-14, 0), (-150, 0), (-150, 0), (-120, -112), (-120, -112), (66, -58), (66, -58), (-178, -34), (-178, -34), (-14, 0), (-14, 0)]
-    sp = ';'.join(['.4 0 .2 1'] * 10)
-    def arm(x, keys):
-        up = ';'.join(f'{u} {x} -86' for u, _ in keys); fo = ';'.join(f'{f} {x} -69' for _, f in keys)
+    """Front-facing dancer: walks in, does the four-letter routine twice on the beat, walks off. Feet on y=0."""
+    def arm_pose(side):
+        def up(k):
+            ph = _phase(k)
+            if ph != 'dance': sw = 10 if (k + (side > 0)) % 2 else -6; return f'{(14 + sw) * (1 if side < 0 else -1)}'
+            return str(LETTER[_letter(k)][0 if side < 0 else 1][0])
+        def fo(k):
+            ph = _phase(k)
+            if ph != 'dance': return '-20' if side < 0 else '20'
+            return str(LETTER[_letter(k)][0 if side < 0 else 1][1])
+        return up, fo
+    def arm(x, side):
+        up, fo = arm_pose(side)
         return (f'<g><path d="M{x - 3.2} -88 h6.4 v19 h-6.4z" fill="{sleeves}"/>'
                 f'<g><path d="M{x - 2.8} -70 h5.6 v19 h-5.6z" fill="{skin}"/><circle cx="{x}" cy="-50" r="3.6" fill="{skin}"/>'
-                f'<animateTransform attributeName="transform" type="rotate" values="{fo}" keyTimes="{KT}" calcMode="spline" keySplines="{sp}" dur="3.4s" begin="-{delay}s" repeatCount="indefinite"/></g>'
-                f'<animateTransform attributeName="transform" type="rotate" values="{up}" keyTimes="{KT}" calcMode="spline" keySplines="{sp}" dur="3.4s" begin="-{delay}s" repeatCount="indefinite"/></g>')
-    body = (f'<path d="M-8 -50 h7 l-.6 45 h-7z M1 -50 h7 l.6 45 h-7z" fill="{trousers}"/><path d="M-10 -6 h9 v6 h-11z M1 -6 h9 l2 6 h-11z" fill="{shoes}"/>'
-            f'<path d="M-12 -88 q12 -6 24 0 l-1 40 h-22z" fill="{shirt}"/>{front}'
+                + _anim('rotate', lambda k: f'{fo(k)} {x} -69') + '</g>'
+                + _anim('rotate', lambda k: f'{up(k)} {x} -86') + '</g>')
+    def leg(x, which):
+        # a step lifts the knee: the leg shortens from the hip and swings a touch; dancing, the knees bounce on every beat
+        def sc(k):
+            ph = _phase(k)
+            if ph == 'dance': return '1 .93' if k % 2 else '1 1'
+            return '1 .84' if (k + which) % 2 else '1 1'
+        shin = f'<path d="M{x - 3.5} -50 h7 l.6 45 h-7z" fill="{trousers}"/><path d="M{x - 4.5} -6 h9 l2 6 h-11z" fill="{shoes}"/>'
+        return (f'<g transform="translate(0 -50)"><g>{_anim("scale", sc)}<g transform="translate(0 50)">{shin}</g></g></g>')
+    body = (f'<path d="M-12 -88 q12 -6 24 0 l-1 40 h-22z" fill="{shirt}"/>{front}'
             f'<rect x="-3.4" y="-97" width="6.8" height="9" rx="2.5" fill="{skin}"/><ellipse cx="0" cy="-107" rx="10" ry="11.6" fill="{skin}"/>{hair}'
-            f'<circle cx="-3.6" cy="-108" r="1.4" fill="#1b1420"/><circle cx="3.6" cy="-108" r="1.4" fill="#1b1420"/>'
+            f'<g class="blink"><circle cx="-3.6" cy="-108" r="1.4" fill="#1b1420"/><circle cx="3.6" cy="-108" r="1.4" fill="#1b1420"/></g>'
             f'<path d="M-6 -101 q3 -2.6 6 -.6 q3 -2 6 .6 q-2 2.4 -6 1 q-4 1.4 -6 -1z" fill="{tash}"/><path d="M-2.6 -97.6 q2.6 1.8 5.2 0" stroke="#7a2a2a" stroke-width="1.2" fill="none" stroke-linecap="round"/>{hat}')
-    bounce = (f'<animateTransform attributeName="transform" type="translate" values="0 0;0 -3;0 0;0 -3;0 0;0 -3;0 0;0 -3;0 0;0 0;0 0" keyTimes="{KT}" dur="3.4s" begin="-{delay}s" repeatCount="indefinite"/>')
-    return f'<g>{body}{arm(-14, L)}{arm(14, R)}{bounce}</g>'
+    upper = f'<g>{body}{arm(-14, -1)}{arm(14, 1)}' + _anim('rotate', lambda k: f'{(3.5 if k % 2 else -3.5) if _phase(k) == "dance" else (1.2 if k % 2 else -1.2)} 0 -50') + '</g>'
+    fig = f'{leg(-4.5, 0)}{leg(4.5, 1)}{upper}'
+    bob = _anim('translate', lambda k: f'0 {(-3 if k % 2 else 0) if _phase(k) == "dance" else (-2 if k % 2 else 0)}')
+    return f'<g>{fig}{bob}</g>'
 
 
-def posse():
+def posse(walk=True):
     """The Prom Posse: five original characters in classic disco-era costumes doing the four-letter arm dance.
     Cop, cowboy, builder, leather biker and sailor. Returns one group, about 150 wide."""
     short = lambda c: f'<path d="M-10 -110 q0 -10 10 -10 q10 0 10 10 q-4 -5 -10 -5 q-6 0 -10 5z" fill="{c}"/>'
@@ -617,7 +659,12 @@ def posse():
                      hat='<path d="M-10 -116 q0 -9 10 -9 q10 0 10 9z" fill="#fff"/><path d="M-12 -117 h24 v3 h-24z" fill="#fff" stroke="#d9d9e8" stroke-width=".8"/>',
                      front='<path d="M-12 -88 h24 l-5 12 h-14z" fill="#1f2f5c"/><path d="M-4 -78 l4 6 l4 -6" stroke="#ff2e88" stroke-width="2.2" fill="none"/>', delay=0)
     figs = [cop, cowboy, builder, biker, sailor]
-    return ''.join(f'<g transform="translate({i * 50} 0)">{f}</g>' for i, f in enumerate(figs))
+    def travel(k):
+        if k < 8: return f'{221 * (k + 1) / 8:.1f} 0'                               # walk along the pavement at walking pace (65 units/s over the ground)
+        return f'{221 + (6 if k % 4 == 1 else -6 if k % 4 == 3 else 0)} 0'            # then dance on the spot, side-stepping between letters
+    v, kt, _ = _timeline(travel, ease=.98)
+    move = f'<animateTransform attributeName="transform" type="translate" values="{v}" keyTimes="{kt}" calcMode="linear" dur="{POSSE_DUR}s" repeatCount="indefinite"/>'
+    return '<g>' + ''.join(f'<g transform="translate({i * 50} 0)">{f}</g>' for i, f in enumerate(figs)) + (move if walk else '') + '</g>' 
 
 
 
@@ -645,6 +692,80 @@ def biplane():
              '<path d="M36 41 l-4 6 M60 41 l4 6" stroke="#2a1d4a" stroke-width="1.6"/><circle cx="31" cy="48" r="3.4" fill="#2a1d4a"/><circle cx="65" cy="48" r="3.4" fill="#2a1d4a"/>'
              '</g>')
     return f'<svg viewBox="0 0 320 80" aria-hidden="true" focusable="false">{banner}{rope}{plane}</svg>'
+
+
+def moon_svg():
+    """A smiling full moon in a cowboy hat with a rainbow band. viewBox 0 0 200 200."""
+    rb = ['#e40303', '#ff8c00', '#ffed00', '#008026', '#004dff', '#750787']
+    band = ''.join(f'<path d="M44 {92 + i * 3.2} Q100 {104 + i * 3.2} 156 {92 + i * 3.2}" stroke="{c}" stroke-width="3.4" fill="none"/>' for i, c in enumerate(rb))
+    return ('<svg viewBox="0 0 200 200" aria-hidden="true" focusable="false"><defs><radialGradient id="mglow"><stop offset=".5" stop-color="#fff3c8" stop-opacity=".55"/><stop offset="1" stop-color="#fff3c8" stop-opacity="0"/></radialGradient>'
+            '<radialGradient id="mface" cx=".4" cy=".35"><stop offset="0" stop-color="#fffbe9"/><stop offset="1" stop-color="#f3dfa6"/></radialGradient></defs>'
+            '<circle cx="100" cy="122" r="96" fill="url(#mglow)"/><circle cx="100" cy="124" r="56" fill="url(#mface)"/>'
+            '<circle cx="78" cy="146" r="8" fill="#e8cf8c" opacity=".7"/><circle cx="126" cy="156" r="5" fill="#e8cf8c" opacity=".7"/><circle cx="130" cy="112" r="4" fill="#e8cf8c" opacity=".6"/>'
+            '<g class="mblink"><path d="M78 124 q6 -7 12 0 M110 124 q6 -7 12 0" stroke="#7a5a2a" stroke-width="3.2" fill="none" stroke-linecap="round"/></g>'
+            '<path d="M84 140 q16 14 32 0" stroke="#7a5a2a" stroke-width="3.2" fill="none" stroke-linecap="round"/><ellipse cx="74" cy="138" rx="7" ry="4" fill="#ff9fb8" opacity=".55"/><ellipse cx="126" cy="138" rx="7" ry="4" fill="#ff9fb8" opacity=".55"/>'
+            '<path d="M14 98 Q30 78 52 92 Q100 112 148 92 Q170 78 186 98 Q168 110 146 104 Q100 120 54 104 Q32 110 14 98z" fill="#c98a4b"/>'
+            '<path d="M52 94 Q54 40 82 46 Q100 58 118 46 Q146 40 148 94 Q100 112 52 94z" fill="#d99a58"/><path d="M82 46 Q100 60 118 46 Q108 70 100 72 Q92 70 82 46z" fill="#b97a3c"/>'
+            + band + '<path d="M60 64 Q70 54 80 58" stroke="#f0bb7c" stroke-width="3" fill="none" stroke-linecap="round" opacity=".7"/></svg>')
+
+
+def sky_sparkles(n=22, seed=11):
+    rnd = random.Random(seed)
+    return ''.join(f'<i class="spk" style="left:{rnd.uniform(1, 98):.2f}%;top:{rnd.uniform(1, 30):.2f}%;--s:{rnd.choice([7, 9, 11, 14])}px;animation-duration:{rnd.uniform(2.2, 5.4):.2f}s;animation-delay:-{rnd.uniform(0, 5):.2f}s"></i>' for _ in range(n))
+
+
+def bulb_glints(y_top=624, step=240, n=11, sag=30, every=4, W=2560, H=900):
+    """Glints that sparkle on top of festoon bulbs (positions match lamps_row), placed in % of the lamps strip."""
+    out = []
+    for k in range(n):
+        x = k * step
+        for i in range(1, 12):
+            if (i + k) % every: continue
+            t = i / 12; px, py = x + t * step, y_top + 10 + math.sin(t * math.pi) * sag
+            if px > W: continue
+            out.append(f'<i class="glint" style="left:{px / W * 100:.3f}%;top:{py / H * 100:.3f}%;animation-delay:-{((k * 7 + i * 3) % 13) / 4:.2f}s"></i>')
+    return ''.join(out)
+
+
+def flying_flamingo():
+    """Flo in flight: neck stretched forward, legs trailing, wings beating. viewBox -70 -40 150 70, flying to the right."""
+    wing = lambda y0, flip: (f'<g><path d="M-6 -2 Q-14 {-30 * flip} -40 {-34 * flip} Q-20 {-14 * flip} -2 2z" fill="#ff5c9a"/><path d="M-30 {-30 * flip} l-8 {-3 * flip} l6 {6 * flip}z" fill="#1a1033"/>'
+                             f'<animateTransform attributeName="transform" type="scale" values="1 1;1 -.55;1 1" dur=".55s" repeatCount="indefinite"/></g>')
+    return ('<svg viewBox="-70 -40 150 70" aria-hidden="true" focusable="false">'
+            + wing(0, 1) +
+            '<path d="M-60 2 L-12 0" stroke="#ff7fae" stroke-width="2.2" stroke-linecap="round"/><path d="M-60 2 l-6 2 M-60 2 l-6 -2" stroke="#ff7fae" stroke-width="1.8" stroke-linecap="round"/>'
+            '<ellipse cx="0" cy="0" rx="18" ry="8" fill="#ff8fbd"/><path d="M-18 -1 l-10 -4 l2 7z" fill="#ff5c9a"/>'
+            '<path d="M16 -2 Q40 -6 52 -4" stroke="#ff6fa8" stroke-width="5" fill="none" stroke-linecap="round"/><circle cx="56" cy="-4" r="5.4" fill="#ff6fa8"/>'
+            '<path d="M60 -6 q10 0 11 6 q-1 3 -4 3 q1 -4 -7 -5z" fill="#ffd1e3" stroke="#e0679a" stroke-width=".8"/><path d="M68 -1 q2 0 3 -1 q0 3 -3 3z" fill="#1a1033"/><circle cx="57.6" cy="-5.4" r="1.2" fill="#1a1033"/>'
+            + wing(0, -1).replace('#ff5c9a', '#ff4a8c') +
+            '<animateTransform attributeName="transform" type="translate" values="0 0;0 -3;0 0" dur=".55s" repeatCount="indefinite"/></svg>')
+
+
+def rainbow_crossing(x):
+    """A rainbow zebra crossing on the hero road (side view, slight perspective), with zigzags; the far Belisha beacon. Road y 756-846."""
+    cols = ['#e40303', '#ff8c00', '#ffed00', '#008026', '#004dff', '#750787', '#5bcefa']
+    y0, y1, sk, w = 760, 842, 16, 66       # top edge shifted right by sk for a touch of perspective
+    X = lambda y: x + (y1 - y) / (y1 - y0) * sk
+    out, y, k = [], y0, 0
+    while y < y1 - 1:
+        h = 6.2 if k % 2 == 0 else 5.4
+        fill = '#ffffff' if k % 2 == 0 else cols[(k // 2) % len(cols)]
+        yb = min(y + h, y1)
+        out.append(f'<path d="M{X(y):.1f} {y:.1f} h{w} L{X(yb) + w:.1f} {yb:.1f} H{X(yb):.1f}z" fill="{fill}"/>')
+        y, k = yb, k + 1
+    zz = lambda yy, x0, x1: 'M' + ' L'.join(f'{xx:.0f} {yy + (2.5 if i % 2 else -2.5)}' for i, xx in enumerate(range(int(x0), int(x1), 9)))
+    for yy in (764, 838):
+        out.append(f'<path d="{zz(yy, x - 150, x - 6)} M{zz(yy, x + w + 22, x + w + 166)[1:]}" stroke="#fff" stroke-width="2" fill="none" opacity=".85"/>')
+    return ''.join(out) + belisha(x + sk + w + 10, 752, .8)
+
+
+def belisha(x, ground, k=1.0):
+    """A Belisha beacon: black-and-white pole and a flashing amber globe (about once a second, as on real zebra crossings)."""
+    hpole = 46 * k
+    pole = ''.join(f'<rect x="{x - 1.6 * k:.1f}" y="{ground - hpole + i * hpole / 6:.1f}" width="{3.2 * k:.1f}" height="{hpole / 6:.1f}" fill="{"#111" if i % 2 else "#f4f4f4"}"/>' for i in range(6))
+    glow = (f'<circle cx="{x}" cy="{ground - hpole - 5 * k:.1f}" r="{14 * k:.1f}" fill="#ffb21e" opacity=".35"><animate attributeName="opacity" values=".45;.05;.45" dur="1.1s" repeatCount="indefinite"/></circle>'
+            f'<circle cx="{x}" cy="{ground - hpole - 5 * k:.1f}" r="{6 * k:.1f}" fill="#ffb21e"><animate attributeName="fill" values="#ffd04a;#a8651a;#ffd04a" dur="1.1s" repeatCount="indefinite"/></circle>')
+    return pole + glow
 
 
 WALKER_DEFS = ('<linearGradient id="wrb" x1="0" y1="0" x2="0" y2="1">' + ''.join(f'<stop offset="{i / 6:.3f}" stop-color="{c}"/><stop offset="{(i + 1) / 6:.3f}" stop-color="{c}"/>' for i, c in enumerate(['#ff2d55', '#ff9f1c', '#ffe45e', '#2ee59d', '#2fb8ff', '#b56bff'])) + '</linearGradient>' + '<linearGradient id="qgown" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b56bff"/><stop offset=".6" stop-color="#7b2cbf"/><stop offset="1" stop-color="#ff2e88"/></linearGradient>'

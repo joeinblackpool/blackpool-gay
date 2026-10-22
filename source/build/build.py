@@ -265,7 +265,9 @@ add('/pride/lord-street/', shell('/pride/lord-street/', 'Lord Street Pride Stree
 # ---------------------------------------------------------------- Meet the cast (the illustrated characters from the home page scene)
 _W = art.walkers()
 def castpic(i, label):
-    w, g = _W[i]; top = (-152, -152, -200, -146, -52, -122)[i]; pad = (40, 40, 40, 30, 20, 30)[i]; x0, x1 = -pad, w + pad + (14 if i == 2 else 0)
+    w, g = _W[i]
+    if i == 3: g = art.posse(walk=False)
+    top = (-152, -152, -200, -146, -52, -122)[i]; pad = (40, 40, 40, 30, 20, 30)[i]; x0, x1 = -pad, w + pad + (14 if i == 2 else 0)
     return f'<svg viewBox="{x0} {top} {x1 - x0} {-top + 8}" role="img" aria-label="{E(label)}"><path d="M{x0} 2 H{x1}" stroke="#3a2a5c" stroke-width="4"/><g transform="scale(1.02)">{g}</g></svg>'
 CAST = [
     (f'<svg viewBox="-14 -30 590 170" role="img" aria-label="Jay and Theo in their pink soft-top"><path d="M-14 128 H576" stroke="#3a2a5c" stroke-width="4"/>{art.car("cast", beam=False)}</svg>', 'Jay and Theo', 'Behind the wheel',

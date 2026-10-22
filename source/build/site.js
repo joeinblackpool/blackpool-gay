@@ -148,9 +148,11 @@
     function pump() { while (next < ctx.currentTime + .12) { play16(next, step); next += S16; step++; } timer = setTimeout(pump, 25); }
     function start() {
       if (on) return; if (!ctx) init(); if (ctx.resume) ctx.resume();
-      on = true; step = 0; next = ctx.currentTime + .06; pump();
+      // join the crew's routine where it is: the music picks up on their next beat, so letters land on the downbeats
+      var BEAT = 60 / BPM, ps = hero.querySelector('.ly-posse svg'), t = 0; try { t = ps ? ps.getCurrentTime() % (32 * BEAT) : 0; } catch (e) {}
+      var nb = Math.floor(t / BEAT) + 1;
+      on = true; step = (nb % 16) * 4; next = ctx.currentTime + (nb * BEAT - t); pump();
       master.gain.cancelScheduledValues(ctx.currentTime); master.gain.setTargetAtTime(.7, ctx.currentTime, .25);
-      var ps = hero.querySelector('.ly-posse svg'); if (ps) try { ps.setCurrentTime(0); } catch (e) {}   // the Posse hit Y on the downbeat
     }
     function stop() { if (!on) return; on = false; clearTimeout(timer); master.gain.cancelScheduledValues(ctx.currentTime); master.gain.setTargetAtTime(0.0001, ctx.currentTime, .12); }
     var visible = true;
