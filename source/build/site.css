@@ -326,3 +326,18 @@ a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible,te
 .hero.lite .star,.hero.lite .spk,.hero.lite .glint,.hero.lite .ov-fly,.hero.lite .ov-sparkles,.hero.lite .ov-run{display:none}
 .hero.lite .moon-rock,.hero.lite .ov-plane-bob,.hero.lite .ov-train,.hero.lite .scene .carbob{animation:none}
 .hero.lite .ly-clouds{display:none}
+
+/* page-head props: one small object per section */
+.phead .prop{position:absolute;right:max(250px,calc(50% - 330px));top:34px;width:96px;height:auto;max-height:150px;z-index:0;pointer-events:none;overflow:visible;filter:drop-shadow(0 8px 14px rgba(0,0,0,.35))}
+.phead .prop-whats-on{width:120px;top:58px}.phead .prop-explore,.phead .prop-map{width:130px;top:64px}.phead .prop-forum{width:110px;top:52px}
+@media(max-width:900px){.phead .prop{right:16px;top:26px;width:58px}.phead .prop-whats-on,.phead .prop-explore,.phead .prop-map,.phead .prop-forum{width:74px;top:30px}}
+@media(max-width:560px){.phead .prop{opacity:.55}}
+.prop .pg-spin{animation:pgSpin 2.4s steps(4) infinite}@keyframes pgSpin{to{transform:translateX(-20px)}}
+.prop .pg-gl{transform-box:fill-box;transform-origin:center;animation:pgGl 2.2s ease-in-out infinite}@keyframes pgGl{0%,100%{transform:scale(.1);opacity:0}50%{transform:scale(1);opacity:1}}
+.prop .pg-swing{transform-origin:0 -60px;animation:pgSwing 3.6s ease-in-out infinite}@keyframes pgSwing{50%{transform:rotate(7deg)}0%,100%{transform:rotate(-7deg)}}
+.prop .pg-flutter{transform-origin:-60px 0;animation:pgFlut 4s ease-in-out infinite}@keyframes pgFlut{50%{transform:rotate(-6deg) translateY(-4px)}}
+.prop .pg-wave{transform-origin:0 30px;animation:pgWave 1.8s ease-in-out infinite alternate}@keyframes pgWave{to{transform:skewY(-7deg) scaleX(.94)}}
+.prop .pg-dot{animation:pgDot 1.2s ease-in-out infinite}@keyframes pgDot{40%{transform:translateY(-4px);opacity:.5}}
+.prop .pg-roll{animation:pgRoll 3s ease-in-out infinite}@keyframes pgRoll{50%{transform:translateX(6px)}}
+.prop .pg-tilt{transform-origin:0 70px;animation:pgTilt 5s ease-in-out infinite}@keyframes pgTilt{50%{transform:rotate(8deg)}0%,100%{transform:rotate(-6deg)}}
+@media(prefers-reduced-motion:reduce){.prop *{animation:none!important}}

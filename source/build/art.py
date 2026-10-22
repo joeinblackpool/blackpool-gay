@@ -358,7 +358,7 @@ def hero_scene():
             + f'<div class="ly ly-cross" style="left:0;top:{680 / 9:.4f}%;width:{2 * POSSE_TILE / 16:.4f}%;height:{220 / 9:.4f}%"><div class="rl rl-posse"><svg viewBox="0 680 {2 * POSSE_TILE} 220" preserveAspectRatio="none" aria-hidden="true" focusable="false">' + ''.join(rainbow_crossing(CROSS_X + t * POSSE_TILE) for t in (0, 1)) + '</svg></div></div>'
             + people_div + f'<div class="ov-run"><svg viewBox="-30 -50 60 55" aria-hidden="true" focusable="false"><g transform="scale(1.1)">{cat(run=True)}</g></svg></div>' + car_div
             + f'<div class="ly ly-posse" style="left:0;top:{690 / 9:.4f}%;width:{2 * POSSE_TILE / 16:.4f}%;height:{210 / 9:.4f}%"><div class="rl rl-posse"><svg viewBox="0 690 {2 * POSSE_TILE} 210" preserveAspectRatio="none" aria-hidden="true" focusable="false">'
-              + ''.join(f'<g transform="translate({1650 + t * POSSE_TILE} 866) scale(1.15)">{allg[3][1]}</g>' + belisha(CROSS_X + t * POSSE_TILE - 14, 892, 1.15) for t in (0, 1)) + '</svg></div></div>'
+              + ''.join(f'<g transform="translate({1650 + t * POSSE_TILE} 866) scale(1.15)">{allg[3][1]}</g>' + belisha(CROSS_X + t * POSSE_TILE - 14, 892, 1.15) + f'<g transform="translate({1080 + t * POSSE_TILE} 882) scale(1.15)">{prom_fence(0, 0)}</g>' for t in (0, 1)) + '</svg></div></div>'
             + kerb + '</div>')
 
 
@@ -766,6 +766,32 @@ def rainbow_crossing(x):
     return ''.join(out) + belisha(x + sk + w + 10, 752, .8)
 
 
+def parrot():
+    """A rainbow parrot perched on a rail (feet at 0,0, facing right): head bobs, tail swings, a ruffle of the wing now and then."""
+    tail = ''.join(f'<path d="M-6 6 Q{-10 + i * 2} {34 + i * 3} {-14 + i * 3} {58 - i * 2}" stroke="{c}" stroke-width="5.2" fill="none" stroke-linecap="round"/>' for i, c in enumerate(['#750787', '#004dff', '#008026']))
+    return ('<g>'
+            f'<g>{tail}<animateTransform attributeName="transform" type="rotate" values="-4 -6 6;5 -6 6;-4 -6 6" dur="3.4s" repeatCount="indefinite" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1"/></g>'
+            '<path d="M-14 -4 Q-16 -30 2 -38 Q16 -40 18 -26 Q18 -8 6 4 Q-6 10 -14 -4z" fill="#e40303"/>'                     # body
+            '<path d="M-6 -2 Q-2 -14 10 -12 Q10 0 2 6z" fill="#ff8c00"/>'                                                  # belly
+            '<g><path d="M-12 -28 Q-4 -34 6 -24 Q4 -6 -8 2 Q-18 -10 -12 -28z" fill="#ffd23f"/><path d="M-11 -18 Q-2 -20 4 -12 Q0 -2 -8 2z" fill="#008026"/><path d="M-10 -8 Q-4 -8 0 -2 Q-4 2 -8 2z" fill="#004dff"/>'
+            '<animateTransform attributeName="transform" type="rotate" values="0 -6 -26;0 -6 -26;-14 -6 -26;3 -6 -26;0 -6 -26" keyTimes="0;.82;.88;.94;1" dur="6s" repeatCount="indefinite"/></g>'   # wing ruffle
+            '<g><path d="M2 -36 Q4 -52 18 -50 Q28 -46 26 -36 Q22 -30 10 -30z" fill="#e40303"/>'                            # head
+            '<path d="M14 -44 q6 -2 8 3 q-5 3 -8 1z" fill="#fff"/><circle cx="18" cy="-42.6" r="1.8" fill="#1a1033"/><circle cx="18.6" cy="-43.2" r=".6" fill="#fff"/>'
+            '<path d="M24 -42 Q34 -40 32 -30 Q30 -26 27 -30 Q30 -34 24 -36z" fill="#f4e6c8"/><path d="M24 -36 Q28 -33 27 -30 Q24 -31 23 -34z" fill="#2a1d1a"/>'   # beak
+            '<animateTransform attributeName="transform" type="translate" values="0 0;2 1.5;0 0;0 0;-1 -1;0 0" keyTimes="0;.12;.24;.6;.7;1" dur="2.8s" repeatCount="indefinite"/></g>'
+            '<path d="M-2 4 l-2 -4 M3 4 l1 -4" stroke="#7a6a8a" stroke-width="2.4" stroke-linecap="round"/>'
+            '</g>')
+
+
+def prom_fence(x, ground, length=150, h=34, bird_at=None):
+    """A short run of seafront railing with posts, for the near pavement; optionally the parrot sitting on its top rail."""
+    posts = ''.join(f'<rect x="{x + i:.1f}" y="{ground - h}" width="4" height="{h}" rx="1.5" fill="#2a1a48"/>' for i in range(0, length + 1, 25))
+    rails = (f'<rect x="{x - 3}" y="{ground - h - 3}" width="{length + 10}" height="6" rx="3" fill="#3a2560"/><path d="M{x - 2} {ground - h - 2} h{length + 8}" stroke="#ff9fc9" stroke-width="1.2" opacity=".55"/>'
+             f'<rect x="{x}" y="{ground - h * .45:.1f}" width="{length + 4}" height="3" fill="#2a1a48"/>')
+    bird = f'<g transform="translate({x + (bird_at if bird_at is not None else length * .6):.1f} {ground - h - 3})">{parrot()}</g>'
+    return posts + rails + bird
+
+
 def belisha(x, ground, k=1.0):
     """A Belisha beacon: black-and-white pole and a flashing amber globe (about once a second, as on real zebra crossings)."""
     hpole = 46 * k
@@ -915,3 +941,59 @@ def peeks():
             + ''.join(f'<stop offset="{i / 6:.3f}" stop-color="{c}"/><stop offset="{(i + 1) / 6:.3f}" stop-color="{c}"/>' for i, c in enumerate(['#ff2d55', '#ff9f1c', '#ffe45e', '#2ee59d', '#2fb8ff', '#b56bff']))
             + '</linearGradient><linearGradient id="pkwig" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff9ed8"/><stop offset="1" stop-color="#c77dff"/></linearGradient></defs></svg>')
     return {'defs': defs, 'who': P}
+
+
+# ---------------------------------------------------------------- page-head props: one small object per section that fits what the page is about
+def prop(sec):
+    R = RAINBOW
+    svg = lambda vb, inner, label: f'<svg class="prop prop-{sec}" viewBox="{vb}" aria-hidden="true" focusable="false">{inner}</svg>'
+    if sec in ('nightlife', 'open-tonight'):                  # a cocktail with a cherry and a rainbow stirrer, bubbles rising
+        inner = ('<g class="pg-tilt"><path d="M-40 -40 h80 l-40 46z" fill="#ff6fd0" opacity=".9"/><path d="M-40 -40 h80" stroke="#fff" stroke-width="3" stroke-linecap="round"/>'
+                 '<path d="M0 6 V54 M-22 56 h44" stroke="#e9ddf7" stroke-width="4" stroke-linecap="round"/>'
+                 + ''.join(f'<path d="M{8 + i * 2.2:.1f} -66 l{-10 + i * .2:.1f} 46" stroke="{c}" stroke-width="2.2"/>' for i, c in enumerate(R))
+                 + '<circle cx="-18" cy="-46" r="7" fill="#e40303"/><path d="M-18 -53 q4 -10 12 -12" stroke="#2f7a3a" stroke-width="2" fill="none"/>'
+                 + ''.join(f'<circle class="pg-dot" style="animation-delay:{i * .4:.1f}s" cx="{-10 + i * 10}" cy="{-22 + (i % 2) * 6}" r="2.4" fill="#fff" opacity=".8"/>' for i in range(3)) + '</g>')
+        return svg('-50 -72 100 134', inner, 'Cocktail')
+    if sec == 'cast':                                         # mirror ball on its chain, facets glinting
+        facets = ('<pattern id="pmbf" width="20" height="20" patternUnits="userSpaceOnUse"><rect width="20" height="20" fill="#8e93c9"/><rect x=".5" y=".5" width="9" height="9" fill="#cfd3ee"/><rect x="10.5" y="10.5" width="9" height="9" fill="#fff"/><rect x="10.5" y=".5" width="9" height="9" fill="#b6a7f0"/><rect x=".5" y="10.5" width="9" height="9" fill="#a3a8de"/></pattern>'
+                  '<rect x="-40" y="-40" width="100" height="80" fill="url(#pmbf)"/>')
+        glints = ''.join(f'<path class="pg-gl" style="animation-delay:-{i * .45:.2f}s" d="M{x} {y - 7} L{x + 2} {y - 2} L{x + 7} {y} L{x + 2} {y + 2} L{x} {y + 7} L{x - 2} {y + 2} L{x - 7} {y} L{x - 2} {y - 2}z" fill="#fff"/>' for i, (x, y) in enumerate([(-18, -14), (16, 6), (-4, 22), (24, -22), (-28, 14)]))
+        inner = ('<path d="M0 -150 V-46" stroke="#c9b6ff" stroke-width="2"/><clipPath id="pmb"><circle r="40"/></clipPath><g clip-path="url(#pmb)"><g class="pg-spin">' + facets + '</g><circle r="40" fill="url(#pmbs)"/></g><radialGradient id="pmbs" cx=".38" cy=".35"><stop offset=".55" stop-color="#1a1033" stop-opacity="0"/><stop offset="1" stop-color="#1a1033" stop-opacity=".55"/></radialGradient>'
+                 '<circle r="40" fill="none" stroke="#fff" stroke-opacity=".35"/><circle cx="-14" cy="-16" r="12" fill="#fff" opacity=".25"/>' + glints)
+        return svg('-60 -150 120 210', inner, 'Mirror ball')
+    if sec == 'stays':                                         # a guest-house key on a rainbow tassel
+        tassel = ''.join(f'<path d="M{-6 + i * 2.4:.1f} 70 l{-3 + i * 1.2:.1f} 34" stroke="{c}" stroke-width="2.6" stroke-linecap="round"/>' for i, c in enumerate(R))
+        inner = ('<g class="pg-swing"><path d="M0 -60 V-34" stroke="#c9b6ff" stroke-width="2"/><circle cy="-20" r="15" fill="none" stroke="#ffc93c" stroke-width="7"/>'
+                 '<rect x="-4.5" y="-5" width="9" height="62" rx="3" fill="#ffc93c"/><path d="M4 34 h12 v7 h-6 v6 h-6z M4 48 h9 v6 h-9z" fill="#ffc93c"/>'
+                 '<rect x="-16" y="56" width="32" height="16" rx="4" fill="#ff2e88"/><text x="0" y="68" text-anchor="middle" font-size="10" font-weight="800" fill="#fff" font-family="system-ui,sans-serif">12</text>' + tassel + '</g>')
+        return svg('-50 -60 100 170', inner, 'Room key')
+    if sec == 'whats-on':                                      # an admit-one ticket fluttering
+        inner = ('<g class="pg-flutter"><path d="M-60 -26 h120 v14 a8 8 0 0 0 0 16 v22 h-120 v-22 a8 8 0 0 0 0 -16z" fill="#ffc93c"/>'
+                 '<path d="M-28 -24 v50" stroke="#1a1033" stroke-width="1.6" stroke-dasharray="3 3"/>'
+                 '<text x="16" y="-2" text-anchor="middle" font-size="13" font-weight="900" fill="#1a1033" font-family="system-ui,sans-serif" letter-spacing="1">ADMIT</text>'
+                 '<text x="16" y="14" text-anchor="middle" font-size="13" font-weight="900" fill="#ff2e88" font-family="system-ui,sans-serif" letter-spacing="1">ONE</text>'
+                 '<text x="-44" y="5" text-anchor="middle" font-size="16" font-weight="900" fill="#1a1033" font-family="system-ui,sans-serif">★</text></g>')
+        return svg('-70 -40 140 80', inner, 'Ticket')
+    if sec == 'pride':                                         # the flag, flying
+        stripes = ''.join(f'<rect x="0" y="{i * 10}" width="96" height="10.5" fill="{c}"/>' for i, c in enumerate(R))
+        inner = ('<rect x="-6" y="-6" width="5" height="150" rx="2" fill="#e9ddf7"/><circle cx="-3.5" cy="-8" r="5" fill="#ffc93c"/>'
+                 f'<g class="pg-wave">{stripes}</g>')
+        return svg('-14 -16 120 170', inner, 'Pride flag')
+    if sec == 'forum':                                         # two speech bubbles, one typing
+        inner = ('<path d="M-58 -40 h70 a12 12 0 0 1 12 12 v22 a12 12 0 0 1 -12 12 h-46 l-14 12 v-12 h-10 a12 12 0 0 1 -12 -12 v-22 a12 12 0 0 1 12 -12z" fill="#ff2e88"/>'
+                 '<path d="M-36 -24 h40 M-36 -14 h28" stroke="#fff" stroke-width="4" stroke-linecap="round"/>'
+                 '<path d="M2 12 h46 a12 12 0 0 1 12 12 v18 a12 12 0 0 1 -12 12 h-6 v12 l-14 -12 h-26 a12 12 0 0 1 -12 -12 v-18 a12 12 0 0 1 12 -12z" fill="#2f9bff"/>'
+                 + ''.join(f'<circle class="pg-dot" style="animation-delay:{i * .18:.2f}s" cx="{12 + i * 12}" cy="33" r="4" fill="#fff"/>' for i in range(3)))
+        return svg('-74 -46 140 120', inner, 'Chat')
+    if sec in ('explore', 'map'):                               # a Blackpool double-deck heritage tram, rolling along
+        inner = ('<g class="pg-roll"><path d="M-70 -6 h140" stroke="#c9b6ff" stroke-width="2"/><rect x="-62" y="-70" width="124" height="60" rx="10" fill="#fff6ec"/><rect x="-62" y="-40" width="124" height="14" fill="#2fa36b"/>'
+                 + ''.join(f'<rect x="{-54 + i * 22}" y="{-64}" width="16" height="16" rx="3" fill="#1a1033"/><rect x="{-54 + i * 22}" y="{-24}" width="16" height="10" rx="2" fill="#1a1033"/>' for i in range(5))
+                 + '<path d="M0 -70 l-14 -20 h28z" fill="none" stroke="#1a1033" stroke-width="2"/><circle cx="-36" cy="-8" r="6" fill="#1a1033"/><circle cx="36" cy="-8" r="6" fill="#1a1033"/>'
+                 '<circle cx="62" cy="-20" r="3.4" fill="#ffd88a"/></g>')
+        return svg('-76 -96 152 96', inner, 'Tram')
+    # elsewhere: a stick of Blackpool rock, pink with the name running through it
+    inner = ('<g class="pg-tilt"><rect x="-13" y="-70" width="26" height="140" rx="13" fill="#ff8fc0"/><rect x="-13" y="-70" width="26" height="140" rx="13" fill="url(#rockstripe)"/>'
+             '<ellipse cx="0" cy="-66" rx="13" ry="5" fill="#fff"/><ellipse cx="0" cy="-66" rx="8" ry="3" fill="#ff2e88"/>'
+             '<text transform="rotate(90)" x="0" y="4" text-anchor="middle" font-size="12" font-weight="900" fill="#c4005e" font-family="system-ui,sans-serif" letter-spacing="1.5">BLACKPOOL</text></g>'
+             '<defs><pattern id="rockstripe" width="26" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(-30)"><rect width="26" height="4" fill="#fff" opacity=".55"/></pattern></defs>')
+    return svg('-40 -80 80 160', inner, 'Stick of rock')

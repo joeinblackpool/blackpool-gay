@@ -85,7 +85,7 @@ def phead(path, h1, intro, crumb_html):
     sec = path.strip('/').split('/')[0] if path.strip('/') else ''
     eb, sil = SECTION.get(sec, ('Blackpool.Gay', ''))
     return (f'<header class="phead"><div class="wrap">{crumb_html}<span class="eyebrow">{E(eb)}</span><h1>{E(h1)}</h1>' + (f'<p class="lede">{E(intro)}</p>' if intro else '')
-            + f'</div>{art.hub_sil(sil)}</header>')
+            + f'</div>{art.prop(sec)}{art.hub_sil(sil)}</header>')
 
 def shell(path, title, desc, h1, intro, body, crumbs=None, ld=None, noindex=False, wide=False, maps=False, script='', hero=None):
     crumb_html = ''
