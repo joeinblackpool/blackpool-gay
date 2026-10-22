@@ -1,6 +1,9 @@
 /* Blackpool.gay: drive the Rainbow Quarter in 3D.
    Streets, buildings, coast and North Pier: © OpenStreetMap contributors (ODbL).
-   Venue positions: the same coordinates as the site map. Everything is drawn in code; no external assets. */
+   Venue positions: the same coordinates as the site map. Everything is drawn in code; no external assets.
+   Facades are painted from a procedural atlas driven by OpenStreetMap tags. Photo facades are a TODO: this build machine could not reach
+   Wikimedia Commons or Mapillary, so no photos are used. Candidates once they can be fetched and credited (CC BY / CC BY-SA, never Google):
+   Commons/Geograph photos of Funny Girls (the former Odeon, Dickson Road), the Flying Handbag (Queen Street), Talbot Road and Dickson Road frontages. */
 (function () {
   'use strict';
   const box = document.getElementById('xp');
@@ -25,7 +28,7 @@
     card: el('div', 'xp-card'),
     toast: el('div', 'xp-toast'),
     mini: el('canvas', 'xp-mini'),
-    speed: el('div', 'xp-speed', '<svg viewBox="0 0 132 78" aria-hidden="true"><defs><linearGradient id="xpg" x1="0" x2="1"><stop offset="0" stop-color="#0fb5ae"/><stop offset=".55" stop-color="#ffc93c"/><stop offset="1" stop-color="#ff2e88"/></linearGradient></defs><path d="M12 70 A54 54 0 0 1 120 70" fill="none" stroke="rgba(255,246,236,.14)" stroke-width="9" stroke-linecap="round"/><path d="M12 70 A54 54 0 0 1 120 70" fill="none" stroke="url(#xpg)" stroke-width="5" stroke-linecap="round" stroke-dasharray="2 6"/><g class="xp-needle"><path d="M66 70 L66 24" stroke="#fff6ec" stroke-width="3" stroke-linecap="round"/><circle cx="66" cy="70" r="6" fill="#ff2e88"/></g></svg><b>0</b><span>mph</span>'),
+    speed: el('div', 'xp-speed', '<svg viewBox="0 0 132 78" aria-hidden="true"><defs><linearGradient id="xpg" x1="0" x2="1"><stop offset="0" stop-color="#0fb5ae"/><stop offset=".55" stop-color="#ffc93c"/><stop offset="1" stop-color="#ff2e88"/></linearGradient></defs><path d="M12 70 A54 54 0 0 1 120 70" fill="none" stroke="rgba(255,246,236,.14)" stroke-width="9" stroke-linecap="round"/><path d="M12 70 A54 54 0 0 1 120 70" fill="none" stroke="url(#xpg)" stroke-width="5" stroke-linecap="round" stroke-dasharray="2 6"/><g class="xp-needle"><path d="M66 70 L66 24" stroke="#fff6ec" stroke-width="3" stroke-linecap="round"/><circle cx="66" cy="70" r="6" fill="#ff2e88"/></g></svg><b>0</b><span>mph</span><i class="xp-road" style="display:block;margin-top:6px;font:700 11px/1.25 Inter,system-ui,sans-serif;font-style:normal;color:#fff6ec;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></i>'),
     pad: el('div', 'xp-pad', '<i></i>')
   };
   ui.hud.innerHTML = '<label class="xp-sel"><span>Drive to</span><select aria-label="Drive to a venue"><option value="">Choose a place…</option></select></label>'
@@ -51,7 +54,7 @@
   // quality tiers: 2 = bloom + shadows + sharp, 1 = shadows, 0 = light (software rendering / weak devices)
   const GPU = (() => { try { const gl = R.getContext(), d = gl.getExtension('WEBGL_debug_renderer_info'); return d ? gl.getParameter(d.UNMASKED_RENDERER_WEBGL) : ''; } catch (e) { return ''; } })();
   const SOFT = /swiftshader|basic render|llvmpipe|softpipe|software/i.test(GPU);
-  let tier = 2, usePost = false, warned = false, good = 0;
+  let tier = 2, usePost = false, warned = false, good = 0; const LITE_DPR = +(new URLSearchParams(location.search).get('dpr') || .75);
 
   // ------------------------------------------------------------------ post-processing: HDR, MSAA, bloom, ACES, vignette, grain
   const post = (function () {
@@ -94,8 +97,8 @@
 
   // ------------------------------------------------------------------ sky, clouds, fog, lights (two moods: sunset and Illuminations night)
   const MOODS = {
-    sunset: { top: '#2a1f6b', mid: '#c8508f', hor: '#ffa06e', fog: '#d98aa0', hs: '#b9a6ff', hg: '#4a3550', hi: .75, sun: '#ffb27a', si: 2.1, exp: .95, bulbs: 1.2, bloom: .5, th: 2.4, sea1: '#3a4aa8', sea2: '#f19c79', cloud: '#ffc2c8', win: .15 },
-    night: { top: '#05041a', mid: '#160f45', hor: '#4a2672', fog: '#22183f', hs: '#6a5fc4', hg: '#160f24', hi: .6, sun: '#9fb2ff', si: .6, exp: 1.25, bulbs: 4.2, bloom: .85, th: 1.25, sea1: '#0a0f38', sea2: '#5b3590', cloud: '#3a2a66', win: 1 }
+    sunset: { top: '#2b3f8f', mid: '#c96a9a', hor: '#ffb07a', fog: '#e9ab92', hs: '#d6dcff', hg: '#8a7560', hi: 1.35, sun: '#ffc999', si: 2.6, exp: 1.12, bulbs: 1.2, bloom: .5, th: 2.4, sea1: '#3a4aa8', sea2: '#f19c79', cloud: '#ffc2c8', win: .15 },
+    night: { top: '#05041a', mid: '#160f45', hor: '#4a2672', fog: '#22183f', hs: '#6f6cc8', hg: '#2a1f30', hi: .75, sun: '#9fb2ff', si: .55, exp: 1.25, bulbs: 4.2, bloom: .85, th: 1.25, sea1: '#0a0f38', sea2: '#5b3590', cloud: '#3a2a66', win: 1 }
   };
   const mood = { t: 0, target: 0 };
   const NIGHT = { value: 0 };
@@ -121,30 +124,149 @@
   S.add(sun); S.add(sun.target);
 
   // ------------------------------------------------------------------ geometry helpers (merged, vertex-coloured)
-  function Builder() { this.p = []; this.n = []; this.c = []; }
-  Builder.prototype.tri = function (a, b, c, col, want) {
+  // every vertex also carries an atlas tile (-1 = plain colour) and a tile-space uv, so one material textures a whole merged mesh
+  const UV0 = [[0, 0], [0, 0], [0, 0]];
+  function Builder() { this.p = []; this.n = []; this.c = []; this.uv = []; this.t = []; }
+  Builder.prototype.tri = function (a, b, c, col, want, uvs, tile) {
     const ux = b[0] - a[0], uy = b[1] - a[1], uz = b[2] - a[2], vx = c[0] - a[0], vy = c[1] - a[1], vz = c[2] - a[2];
     let nx = uy * vz - uz * vy, ny = uz * vx - ux * vz, nz = ux * vy - uy * vx;
-    let cols = Array.isArray(col[0]) ? col : [col, col, col];
-    if (want && nx * want[0] + ny * want[1] + nz * want[2] < 0) { const t = b; b = c; c = t; nx = -nx; ny = -ny; nz = -nz; cols = [cols[0], cols[2], cols[1]]; }
-    const l = Math.hypot(nx, ny, nz) || 1; nx /= l; ny /= l; nz /= l;
-    [a, b, c].forEach((v, k) => { this.p.push(v[0], v[1], v[2]); this.n.push(nx, ny, nz); this.c.push(cols[k][0], cols[k][1], cols[k][2]); });
+    let cols = Array.isArray(col[0]) ? col : [col, col, col], U = uvs || UV0;
+    if (want && nx * want[0] + ny * want[1] + nz * want[2] < 0) { const t = b; b = c; c = t; nx = -nx; ny = -ny; nz = -nz; cols = [cols[0], cols[2], cols[1]]; U = [U[0], U[2], U[1]]; }
+    const l = Math.hypot(nx, ny, nz) || 1; nx /= l; ny /= l; nz /= l; const ti = tile == null ? -1 : tile;
+    [a, b, c].forEach((v, k) => { this.p.push(v[0], v[1], v[2]); this.n.push(nx, ny, nz); this.c.push(cols[k][0], cols[k][1], cols[k][2]); this.uv.push(U[k][0], U[k][1]); this.t.push(ti); });
   };
   Builder.prototype.mesh = function (mat) {
     const g = new T.BufferGeometry();
     g.setAttribute('position', new T.Float32BufferAttribute(this.p, 3));
     g.setAttribute('normal', new T.Float32BufferAttribute(this.n, 3));
     g.setAttribute('color', new T.Float32BufferAttribute(this.c, 3));
+    g.setAttribute('auv', new T.Float32BufferAttribute(this.uv, 2));
+    g.setAttribute('atile', new T.Float32BufferAttribute(this.t, 1));
     g.computeBoundingSphere();
     return new T.Mesh(g, mat);
   };
+  // split a merged mesh into 320 m squares so three.js can skip the ones off screen (big win on software rendering)
+  Builder.prototype.chunks = function (mat, o) {
+    const parts = new Map(), CH = 320, P = this.p;
+    for (let i = 0; i < P.length; i += 9) { const k = Math.floor((P[i] + P[i + 3] + P[i + 6]) / 3 / CH) + ',' + Math.floor((P[i + 2] + P[i + 5] + P[i + 8]) / 3 / CH); let L = parts.get(k); if (!L) parts.set(k, L = []); L.push(i / 9); }
+    for (const L of parts.values()) {
+      const b = new Builder();
+      for (const t of L) { b.p.push(...this.p.slice(t * 9, t * 9 + 9)); b.n.push(...this.n.slice(t * 9, t * 9 + 9)); b.c.push(...this.c.slice(t * 9, t * 9 + 9)); b.uv.push(...this.uv.slice(t * 6, t * 6 + 6)); b.t.push(...this.t.slice(t * 3, t * 3 + 3)); }
+      const m = b.mesh(mat); m.castShadow = !!(o && o.cast); m.receiveShadow = !!(o && o.receive); S.add(m);
+    }
+  };
+  // textured quad: corners a b c d (counter-clockwise seen from `want`), uv per corner
+  function quadT(B, a, b, c, d, col, uv, tile, want) {
+    const cs = Array.isArray(col[0]) ? col : [col, col, col, col];
+    B.tri(a, b, c, [cs[0], cs[1], cs[2]], want, [uv[0], uv[1], uv[2]], tile);
+    B.tri(a, c, d, [cs[0], cs[2], cs[3]], want, [uv[0], uv[2], uv[3]], tile);
+  }
+
+  // ------------------------------------------------------------------ facade atlas: 4 x 4 tiles painted once in code, 256 px each
+  // alpha encodes how a texel is used: 255 = wall (tinted by the building's own colour from OpenStreetMap), 128 = fixed colour (frames, sills, mortar), 0 = glass (lit at night)
+  const TILE = { RENDER: 0, BRICK: 1, RENDER_G: 2, BRICK_G: 3, SHOP: 4, RENDER_PLAIN: 5, BRICK_PLAIN: 6, DOOR: 7, SLATE: 8, FLATROOF: 9, AWNING: 10, MODERN: 11, ASPHALT: 12, SLABS: 13, SETTS: 14, SAND: 15 };
+  const ATLAS = (function () {
+    const N = 1024, S = 256, cv = document.createElement('canvas'), mk = document.createElement('canvas'); cv.width = cv.height = mk.width = mk.height = N;
+    const c = cv.getContext('2d'), m = mk.getContext('2d');
+    let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const WALL = '#fff', FIX = 'rgb(128,128,128)', GLASS = '#000';
+    const box = (x, y, w, h, col, mask) => { c.fillStyle = col; c.fillRect(x, y, w, h); m.fillStyle = mask; m.fillRect(x, y, w, h); };
+    const render = (ox, oy, tone) => { box(ox, oy, S, S, tone || '#f4f1ec', WALL); for (let i = 0; i < 900; i++) { const v = 225 + rnd() * 30 | 0; c.fillStyle = `rgba(${v},${v},${v - 4},.35)`; c.fillRect(ox + rnd() * S, oy + rnd() * S, 1 + rnd() * 3, 1 + rnd() * 2); } };
+    const bricks = (ox, oy, x0 = 0, y0 = 0, w = S, h = S) => {
+      box(ox + x0, oy + y0, w, h, 'rgb(188,180,168)', FIX);
+      for (let r = 0, y = y0; y < y0 + h; r++, y += 6) for (let x = x0 - (r % 2 ? 9 : 0); x < x0 + w; x += 18) {
+        const v = 196 + rnd() * 59 | 0, xx = Math.max(x, x0), ww = Math.min(x + 17, x0 + w) - xx; if (ww <= 0) continue;
+        box(ox + xx, oy + y, ww, Math.min(5, y0 + h - y), `rgb(${v},${v * .97 | 0},${v * .95 | 0})`, WALL);
+      }
+    };
+    const glass = (x, y, w, h) => { const g = c.createLinearGradient(x, y, x + w * .6, y + h); g.addColorStop(0, '#8fa6c4'); g.addColorStop(.35, '#4b5d7c'); g.addColorStop(.36, '#3a4864'); g.addColorStop(1, '#262f45'); c.fillStyle = g; c.fillRect(x, y, w, h); m.fillStyle = GLASS; m.fillRect(x, y, w, h); };
+    // a Victorian sash window: two sashes, glazing bars, curtains, stone or painted surround
+    const sash = (ox, oy, x, y, w, h, brick) => {
+      if (brick) box(ox + x - 4, oy + y - 4, w + 8, h + 8, '#5a4440', FIX); else box(ox + x - 9, oy + y - 9, w + 18, h + 18, '#fbf8f1', FIX);
+      box(ox + x, oy + y, w, h, '#f7f5ef', FIX);
+      const gx = ox + x + 6, gw = w - 12, top = oy + y + 6, mid = oy + y + h / 2;
+      glass(gx, top, gw, mid - top - 3); glass(gx, mid + 3, gw, oy + y + h - 6 - mid - 3);
+      box(gx + gw / 2 - 2, top, 4, mid - top, '#f7f5ef', FIX);
+      const cur = ['#e9d3c0', '#d9c4de', '#f1e4c8', '#c9d8e6'][Math.floor(rnd() * 4)];
+      c.fillStyle = cur; m.fillStyle = 'rgb(48,48,48)'; for (const [cx, cw] of [[gx, 13], [gx + gw - 13, 13]]) { c.fillRect(cx, top, cw, oy + y + h - 6 - top); m.fillRect(cx, top, cw, oy + y + h - 6 - top); }
+      box(ox + x - 10, oy + y + h + (brick ? 4 : 9), w + 20, 9, '#e8e2d6', FIX);
+      if (brick) { box(ox + x - 8, oy + y - 16, w + 16, 12, '#e6dccb', FIX); box(ox + x + w / 2 - 7, oy + y - 18, 14, 16, '#efe7d8', FIX); }
+      else box(ox + x - 14, oy + y - 20, w + 28, 9, '#fbf8f1', FIX);
+    };
+    const T0 = i => [(i % 4) * S, Math.floor(i / 4) * S];
+    let o;
+    o = T0(TILE.RENDER); render(...o); sash(...o, 84, 50, 88, 150, false); box(o[0], o[1] + 250, S, 6, '#e9e4da', FIX);
+    o = T0(TILE.BRICK); bricks(...o); sash(...o, 84, 56, 88, 146, true);
+    o = T0(TILE.RENDER_G); render(...o); sash(...o, 70, 54, 116, 150, false); box(o[0], o[1] + 228, S, 28, '#8d8781', FIX);
+    o = T0(TILE.BRICK_G); bricks(...o); sash(...o, 70, 58, 116, 146, true); box(o[0], o[1] + 232, S, 24, '#6f625c', FIX);
+    // shopfront: fascia, display glass with goods and shelving, mullions, stall riser
+    o = T0(TILE.SHOP); box(o[0], o[1], S, S, '#2a2140', FIX); box(o[0], o[1] + 40, S, 4, '#c8a24a', FIX);
+    { const gx = o[0] + 10, gy = o[1] + 56, gw = S - 20, gh = 150, g = c.createLinearGradient(0, gy, 0, gy + gh); g.addColorStop(0, '#d9b98f'); g.addColorStop(1, '#6d5040'); c.fillStyle = g; c.fillRect(gx, gy, gw, gh); m.fillStyle = GLASS; m.fillRect(gx, gy, gw, gh);
+      for (let k = 0; k < 3; k++) { c.fillStyle = 'rgba(60,40,40,.55)'; c.fillRect(gx, gy + 40 + k * 38, gw, 4); for (let j = 0; j < 9; j++) { c.fillStyle = `hsla(${rnd() * 360},55%,${50 + rnd() * 25}%,.8)`; c.fillRect(gx + 6 + j * 26 + rnd() * 6, gy + 18 + k * 38 + rnd() * 6, 12 + rnd() * 8, 20); } }
+      c.fillStyle = 'rgba(255,255,255,.18)'; c.beginPath(); c.moveTo(gx, gy + gh); c.lineTo(gx + 60, gy); c.lineTo(gx + 110, gy); c.lineTo(gx + 50, gy + gh); c.fill();
+      for (const x of [0, S / 2 - 3, S - 10]) box(o[0] + x + (x ? 0 : 4), gy - 4, 6, gh + 8, '#1c1630', FIX);
+      box(o[0], o[1] + 214, S, 42, '#3b3150', FIX); box(o[0] + 8, o[1] + 222, S - 16, 26, '#4a3e63', FIX); }
+    o = T0(TILE.RENDER_PLAIN); render(...o); box(o[0], o[1] + 250, S, 6, '#e9e4da', FIX);
+    o = T0(TILE.BRICK_PLAIN); bricks(...o);
+    // guest-house front door: panelled door, fanlight, pilasters, step
+    o = T0(TILE.DOOR); render(...o); box(o[0] + 72, o[1] + 22, 112, 234, '#fbf8f1', FIX); glass(o[0] + 86, o[1] + 34, 84, 34);
+    box(o[0] + 86, o[1] + 72, 84, 160, ['#1f4f5a', '#5a1f3a', '#23305e', '#2f5a35'][Math.floor(rnd() * 4)], FIX);
+    for (const [px, py] of [[94, 82], [132, 82], [94, 160], [132, 160]]) box(o[0] + px, o[1] + py, 30, 62, 'rgba(255,255,255,.08)', FIX);
+    box(o[0] + 156, o[1] + 150, 6, 6, '#d8b55a', FIX); box(o[0] + 60, o[1] + 236, 136, 20, '#cfc8bb', FIX); box(o[0], o[1] + 236, 60, 20, '#8d8781', FIX); box(o[0] + 196, o[1] + 236, 60, 20, '#8d8781', FIX);
+    // Welsh slate: staggered courses
+    o = T0(TILE.SLATE); box(...o, S, S, '#9a96a0', WALL);
+    for (let r = 0, y = 0; y < S; r++, y += 11) for (let x = -(r % 2) * 9; x < S; x += 18) { const v = 150 + rnd() * 70 | 0; box(o[0] + Math.max(0, x), o[1] + y, Math.min(17, S - Math.max(0, x)), 9, `rgb(${v},${v},${v + 8})`, WALL); }
+    o = T0(TILE.FLATROOF); box(...o, S, S, '#b8b4ae', WALL); for (let i = 0; i < 2500; i++) { const v = 140 + rnd() * 110 | 0; c.fillStyle = `rgb(${v},${v},${v})`; c.fillRect(o[0] + rnd() * S, o[1] + rnd() * S, 2, 2); } box(o[0], o[1] + 126, S, 3, '#8a8580', WALL);
+    o = T0(TILE.AWNING); for (let x = 0; x < S; x += 64) { box(o[0] + x, o[1], 32, S, '#ffffff', WALL); box(o[0] + x + 32, o[1], 32, S, '#fbf6ec', FIX); }
+    for (let x = 0; x < S; x += 4) { c.fillStyle = 'rgba(0,0,0,.05)'; c.fillRect(o[0] + x, o[1], 1, S); }
+    // modern commercial: ribbon glazing between panels
+    o = T0(TILE.MODERN); box(...o, S, S, '#e8e6e2', WALL); glass(o[0], o[1] + 70, S, 120); for (let x = 0; x < S; x += 64) box(o[0] + x, o[1] + 70, 6, 120, '#3c3a44', FIX); box(o[0], o[1] + 66, S, 4, '#9a98a2', FIX); box(o[0], o[1] + 190, S, 4, '#9a98a2', FIX);
+    o = T0(TILE.ASPHALT); box(...o, S, S, '#d4d4d8', WALL); for (let i = 0; i < 9000; i++) { const v = 150 + rnd() * 105 | 0; c.fillStyle = `rgb(${v},${v},${v + 4})`; c.fillRect(o[0] + rnd() * S, o[1] + rnd() * S, 1 + rnd() * 2, 1 + rnd() * 2); }
+    if (0) for (let i = 0; i < 5; i++) { c.strokeStyle = 'rgba(40,40,48,.35)'; c.lineWidth = 1.5; c.beginPath(); let x = o[0] + rnd() * S, y = o[1] + rnd() * S; c.moveTo(x, y); for (let k = 0; k < 6; k++) { x = clamp(x + (rnd() - .5) * 50, o[0], o[0] + S); y = clamp(y + (rnd() - .5) * 50, o[1], o[1] + S); c.lineTo(x, y); } c.stroke(); }
+    o = T0(TILE.SLABS); box(...o, S, S, '#b4afa6', FIX); for (let y = 0; y < S; y += 64) for (let x = 0; x < S; x += 64) { const v = 222 + rnd() * 26 | 0; box(o[0] + x + 2, o[1] + y + 2, 60, 60, `rgb(${v},${v},${v - 3})`, WALL); for (let i = 0; i < 40; i++) { c.fillStyle = 'rgba(0,0,0,.06)'; c.fillRect(o[0] + x + 2 + rnd() * 58, o[1] + y + 2 + rnd() * 58, 2, 2); } }
+    o = T0(TILE.SETTS); box(...o, S, S, '#9c968c', FIX); for (let r = 0, y = 0; y < S; r++, y += 16) for (let x = -(r % 2) * 16; x < S; x += 32) { const v = 190 + rnd() * 60 | 0; box(o[0] + Math.max(0, x) + 1, o[1] + y + 1, Math.min(30, S - Math.max(0, x) - 1), 14, `rgb(${v},${v * .96 | 0},${v * .92 | 0})`, WALL); }
+    o = T0(TILE.SAND); box(...o, S, S, '#f0ebe2', WALL); for (let i = 0; i < 9000; i++) { const v = 200 + rnd() * 55 | 0; c.fillStyle = `rgb(${v},${v},${v - 6})`; c.fillRect(o[0] + rnd() * S, o[1] + rnd() * S, 1, 1); }
+    // combine colour and usage mask into one RGBA texture (no premultiplied alpha), rows flipped so tile 0 sits top-left
+    const cd = c.getImageData(0, 0, N, N).data, md = m.getImageData(0, 0, N, N).data, out = new Uint8Array(N * N * 4);
+    for (let y = 0; y < N; y++) { const sr = y * N * 4, dr = (N - 1 - y) * N * 4; for (let x = 0; x < N * 4; x += 4) { out[dr + x] = cd[sr + x]; out[dr + x + 1] = cd[sr + x + 1]; out[dr + x + 2] = cd[sr + x + 2]; out[dr + x + 3] = md[sr + x]; } }
+    const t = new T.DataTexture(out, N, N, T.RGBAFormat); t.colorSpace = T.SRGBColorSpace; t.wrapS = t.wrapT = T.ClampToEdgeWrapping;
+    t.generateMipmaps = true; t.minFilter = T.LinearMipmapLinearFilter; t.magFilter = T.LinearFilter; t.anisotropy = 4; t.needsUpdate = true;
+    return t;
+  })();
+  // Lambert (cheap enough for software rendering) plus the atlas: tile lookup, colour tint, glass that lights up at night
+  // on software rendering the mip level comes from distance per vertex instead of screen derivatives per pixel (much cheaper)
+  const CHEAP = SOFT || /[?&]cheap/.test(location.search), LODK = { value: .1 };
+  function atlasMat(opts) {
+    const mat = new T.MeshLambertMaterial(Object.assign({ vertexColors: true }, opts || {}));
+    const gl2 = R.capabilities.isWebGL2;
+    mat.onBeforeCompile = sh => {
+      sh.uniforms.uAtlas = { value: ATLAS }; sh.uniforms.uNight = NIGHT;
+      sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nattribute vec2 auv; attribute float atile; varying vec2 vAuv; varying float vTile; varying float vLod; uniform float uLodK;')
+        .replace('#include <begin_vertex>', '#include <begin_vertex>\nvAuv = auv; vTile = atile;')
+        .replace('#include <project_vertex>', '#include <project_vertex>\nvLod = clamp(log2(max(-mvPosition.z, 1.0) * uLodK), 0.0, 5.0);');
+      sh.uniforms.uLodK = LODK;
+      sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nuniform sampler2D uAtlas; uniform float uNight; varying vec2 vAuv; varying float vTile; varying float vLod;')
+        .replace('#include <map_fragment>', 'float tintM = 1.0, glassM = 0.0; vec3 glassC = vec3(0.0);\n'
+          + 'if (vTile > -0.5) { float ti = floor(vTile + 0.5); vec2 cell = vec2(mod(ti, 4.0), 3.0 - floor(ti / 4.0)); vec2 auv = (cell + clamp(fract(vAuv), 0.004, 0.996)) * 0.25;'
+          + (gl2 && CHEAP ? ' vec4 tx = textureLod(uAtlas, auv, vLod);' : gl2 ? ' vec2 gx = dFdx(vAuv) * 0.25, gy = dFdy(vAuv) * 0.25; float gm = max(length(gx), length(gy)); float lim = 0.03; if (gm > lim) { gx *= lim / gm; gy *= lim / gm; } vec4 tx = textureGrad(uAtlas, auv, gx, gy);' : ' vec4 tx = texture2D(uAtlas, auv);')
+          + ' tintM = clamp((tx.a - 0.5) * 2.0, 0.0, 1.0); glassM = clamp((0.5 - tx.a) * 2.0, 0.0, 1.0); diffuseColor.rgb *= tx.rgb; glassC = tx.rgb; }')
+        .replace('#include <color_fragment>', '#ifdef USE_COLOR\ndiffuseColor.rgb *= mix(vec3(1.0), vColor, tintM);\n#endif')
+        .replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\n'
+          + 'if (glassM > 0.01) { float shop = step(3.5, vTile) * step(vTile, 4.5); float rnd = fract(sin(dot(floor(vAuv) + floor(vTile + 0.5) * 3.1, vec2(127.1, 311.7))) * 43758.5453);'
+          + ' float lit = max(step(0.5, rnd), shop); vec3 wc = mix(vec3(1.0, 0.66, 0.34), vec3(1.0, 0.48, 0.72), step(0.92, rnd) * (1.0 - shop));'
+          + ' totalEmissiveRadiance += glassM * lit * mix(wc, wc * glassC * 2.2, shop * 0.6) * (uNight * mix(1.5, 1.7, shop) + shop * 0.1); }');
+    };
+    mat.customProgramCacheKey = () => 'atlas' + (gl2 ? 2 : 1) + (CHEAP ? 'c' : '');
+    return mat;
+  }
   const rgb = (hex, k = 1) => { const c = new T.Color(hex); return [c.r * k, c.g * k, c.b * k]; };
   const area = pts => { let s = 0; for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) s += pts[j][0] * pts[i][1] - pts[i][0] * pts[j][1]; return s / 2; };
   const inside = (x, z, pts) => { let c = false; for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) { const a = pts[i], b = pts[j]; if ((a[1] > z) !== (b[1] > z) && x < (b[0] - a[0]) * (z - a[1]) / (b[1] - a[1]) + a[0]) c = !c; } return c; };
   const centroid = pts => { let x = 0, z = 0; for (const p of pts) { x += p[0]; z += p[1]; } return [x / pts.length, z / pts.length]; };
-  function flat(B, pts, y, col) {
-    const tris = T.ShapeUtils.triangulateShape(pts.map(p => new T.Vector2(p[0], p[1])), []);
-    for (const t of tris) B.tri([pts[t[0]][0], y, pts[t[0]][1]], [pts[t[1]][0], y, pts[t[1]][1]], [pts[t[2]][0], y, pts[t[2]][1]], col, [0, 1, 0]);
+  // horizontal polygon; with a tile, textured in world space at `sc` metres per tile
+  function flat(B, pts, y, col, tile, sc) {
+    const tris = T.ShapeUtils.triangulateShape(pts.map(p => new T.Vector2(p[0], p[1])), []), k = 1 / (sc || 4);
+    for (const t of tris) { const a = pts[t[0]], b = pts[t[1]], c = pts[t[2]]; B.tri([a[0], y, a[1]], [b[0], y, b[1]], [c[0], y, c[1]], col, [0, 1, 0], tile == null ? null : [[a[0] * k, -a[1] * k], [b[0] * k, -b[1] * k], [c[0] * k, -c[1] * k]], tile); }
   }
   function prism(B, pts, y0, y1, wall, roof) {
     // walls darken towards the ground (cheap ambient occlusion); roofs get a parapet lip
@@ -158,16 +280,19 @@
     }
     flat(B, pts, y1, roof);
   }
-  function ribbon(B, pts, w, y, col, caps) {
-    const h = w / 2;
+  // a strip along a polyline; with a tile, textured along its length (su metres per tile) and across it (sv metres per tile)
+  function ribbon(B, pts, w, y, col, caps, tile, su, sv) {
+    const h = w / 2, T1 = tile == null ? null : tile, ku = 1 / (su || 4), kv = 1 / (sv || su || 4); let run = 0;
     for (let i = 0; i < pts.length - 1; i++) {
       const a = pts[i], b = pts[i + 1], dx = b[0] - a[0], dz = b[1] - a[1], l = Math.hypot(dx, dz) || 1, nx = -dz / l * h, nz = dx / l * h;
-      B.tri([a[0] + nx, y, a[1] + nz], [b[0] + nx, y, b[1] + nz], [b[0] - nx, y, b[1] - nz], col, [0, 1, 0]);
-      B.tri([a[0] + nx, y, a[1] + nz], [b[0] - nx, y, b[1] - nz], [a[0] - nx, y, a[1] - nz], col, [0, 1, 0]);
+      const u0 = run * ku, u1 = (run + l) * ku; run += l;
+      const U = T1 == null ? null : [[u0, h * kv], [u1, h * kv], [u1, -h * kv], [u0, -h * kv]];
+      B.tri([a[0] + nx, y, a[1] + nz], [b[0] + nx, y, b[1] + nz], [b[0] - nx, y, b[1] - nz], col, [0, 1, 0], U && [U[0], U[1], U[2]], T1);
+      B.tri([a[0] + nx, y, a[1] + nz], [b[0] - nx, y, b[1] - nz], [a[0] - nx, y, a[1] - nz], col, [0, 1, 0], U && [U[0], U[2], U[3]], T1);
     }
-    if (caps) for (const p of pts) for (let k = 0; k < 10; k++) {
-      const a1 = k / 10 * Math.PI * 2, a2 = (k + 1) / 10 * Math.PI * 2;
-      B.tri([p[0], y, p[1]], [p[0] + Math.cos(a1) * h, y, p[1] + Math.sin(a1) * h], [p[0] + Math.cos(a2) * h, y, p[1] + Math.sin(a2) * h], col, [0, 1, 0]);
+    if (caps) for (const p of pts) for (let k = 0; k < 6; k++) {
+      const a1 = k / 6 * Math.PI * 2, a2 = (k + 1) / 6 * Math.PI * 2, A = [p[0] + Math.cos(a1) * h, p[1] + Math.sin(a1) * h], Bq = [p[0] + Math.cos(a2) * h, p[1] + Math.sin(a2) * h];
+      B.tri([p[0], y, p[1]], [A[0], y, A[1]], [Bq[0], y, Bq[1]], col, [0, 1, 0], T1 == null ? null : [[p[0] * ku, p[1] * ku], [A[0] * ku, A[1] * ku], [Bq[0] * ku, Bq[1] * ku]], T1);
     }
   }
   const dec = (a, i0) => { const o = []; let x = 0, z = 0; for (let i = i0; i < a.length - 1; i += 2) { x += a[i]; z += a[i + 1]; o.push([x, z]); } return o; };
@@ -245,7 +370,7 @@
   const PINS = CFG.pins.map(p => Object.assign({}, p, proj(p.p), { slug: p.u.split('/')[2] }));
 
   // ------------------------------------------------------------------ world
-  const W = { cells: new Map(), rg: new Map(), coast: [], nodes: new Map(), roads: [], bounds: { x0: -560, x1: 600, z0: -690, z1: 880 } };
+  const W = { loose: [], cells: new Map(), rg: new Map(), coast: [], nodes: new Map(), roads: [], bounds: { x0: -560, x1: 600, z0: -690, z1: 880 } };
   let tower = null, bulbs = null, halos = null, gulls = [];
   const beacons = [], labels = [], venueMeshes = [];
   const seaU = { t: { value: 0 }, c1: { value: new T.Color() }, c2: { value: new T.Color() }, sunDir: skyU.sunDir, fogC: { value: new T.Color() }, fogN: { value: 450 }, fogF: { value: 2600 }, night: NIGHT };
@@ -269,29 +394,27 @@
     if (coastA) {
       const cp = dec(coastA, 2);
       W.coast = cp.slice().sort((a, b) => a[1] - b[1]);
-      flat(ground, cp.concat([[4000, cp[cp.length - 1][1]], [4000, cp[0][1]]]), 0, rgb('#d8c8de'));
-    } else flat(ground, [[-600, -3000], [4000, -3000], [4000, 3000], [-600, 3000]], 0, rgb('#d8c8de'));
+      flat(ground, cp.concat([[4000, cp[cp.length - 1][1]], [4000, cp[0][1]]]), 0, rgb('#a49d95'), TILE.ASPHALT, 6);
+    } else flat(ground, [[-600, -3000], [4000, -3000], [4000, 3000], [-600, 3000]], 0, rgb('#a49d95'), TILE.ASPHALT, 6);
     for (const a of Wd.a) {
       const pts = ring(dec(a, 2));
-      if (a[0] === 'beach' && pts.length > 2) flat(ground, pts, 0.05, rgb('#f2d6a2'));
-      else if (a[0] === 'park' && pts.length > 2) flat(ground, pts, 0.12, rgb('#9ed493'));
-      else if (a[0] === 'park0' && pts.length > 2) flat(ground, pts, 0.1, rgb('#c9bccf'));
+      if (a[0] === 'beach' && pts.length > 2) flat(ground, pts, 0.05, rgb('#f2d9ad'), TILE.SAND, 3);
+      else if (a[0] === 'park' && pts.length > 2) flat(ground, pts, 0.12, rgb('#86b86f'), TILE.SAND, 2);
+      else if (a[0] === 'park0' && pts.length > 2) flat(ground, pts, 0.1, rgb('#d3cdc4'), TILE.SLABS, 2.4);
       else if (a[0] === 'plat' && pts.length > 2) prism(bld, pts, 0, 1.1, rgb('#bdb3c9'), rgb('#e7e1ee'));
-      else if (a[0] === 'rail') ribbon(roads, dec(a, 2), 3.2, 0.09, rgb('#8d8299'), true);
+      else if (a[0] === 'rail') ribbon(roads, dec(a, 2), 3.2, 0.09, rgb('#7a7068'), true, TILE.SAND, 2);
       else if (a[0] === 'pier') buildPier(pts, a[1]);
     }
-    const RW = [5, 7.5, 9, 12, 7], RY = [0.16, 0.2, 0.24, 0.28, 0.18], RC = ['#8c84a0', '#837a99', '#7b7292', '#746a8b', '#e4d6c6'];
+    const RW = [5, 7.5, 9, 12, 7], RY = [0.16, 0.2, 0.24, 0.28, 0.18], RC = ['#6f6e76', '#67666f', '#605f69', '#5a5963', '#ddd0bb'];
     const named = new Map();
     for (let ri = 0; ri < Wd.r.length; ri++) {
       const r = Wd.r[ri], cls = r[0], pts = dec(r, 2); if (pts.length < 2) continue;
       const rw = (Wd.rw && Wd.rw[ri]) || RW[cls];
-      if (cls !== 4) ribbon(ground, pts, rw + (cls ? 4.6 : 1.6), 0.14, rgb('#e2d7ea'), true);
-      ribbon(roads, pts, rw, RY[cls], rgb(RC[cls]), true);
-      if (cls >= 2) for (let i = 0; i < pts.length - 1; i++) {
-        const a = pts[i], b = pts[i + 1], l = Math.hypot(b[0] - a[0], b[1] - a[1]);
-        for (let s = 2; s < l - 3; s += 9) { const t0 = s / l, t1 = Math.min((s + 4) / l, 1); ribbon(marks, [[lerp(a[0], b[0], t0), lerp(a[1], b[1], t0)], [lerp(a[0], b[0], t1), lerp(a[1], b[1], t1)]], .35, RY[cls] + .02, rgb('#fbf3ff'), false); }
-      }
-      W.roads.push({ cls, name: r[1], pts, w: (Wd.rw && Wd.rw[ri]) || RW[cls] });
+      if (cls !== 4) ribbon(ground, pts, rw + (cls ? 4.6 : 1.6), 0.14, rgb('#d2ccc2'), true, TILE.SLABS, 2.4);
+      ribbon(roads, pts, rw, RY[cls], rgb(RC[cls]), true, cls === 4 ? TILE.SETTS : TILE.ASPHALT, cls === 4 ? 3 : 5);
+      { const lanes = +((Wd.ln || '')[ri] || 0), owf = (Wd.o && Wd.o[ri]) || '', ow = /^\++$/.test(owf) ? '+' : /^-+$/.test(owf) ? '-' : '';
+        if (cls < 4) roadMarks(marks, pts, rw, RY[cls] + .02, cls, lanes, ow); }
+      W.roads.push({ cls, name: r[1], pts, ms: (Wd.ms || [])[ri] || '', w: (Wd.rw && Wd.rw[ri]) || RW[cls], sw: (Wd.sw || '')[ri] || (cls >= 1 && cls <= 3 ? 'b' : 'n') });
       for (let i = 0; i < pts.length - 1; i++) { const a = pts[i], b = pts[i + 1]; for (let x = Math.floor(Math.min(a[0], b[0]) / 20); x <= Math.floor(Math.max(a[0], b[0]) / 20); x++) for (let z = Math.floor(Math.min(a[1], b[1]) / 20); z <= Math.floor(Math.max(a[1], b[1]) / 20); z++) { const k = x + ',' + z; let c = W.rg.get(k); if (!c) W.rg.set(k, c = []); c.push([a[0], a[1], b[0], b[1], cls]); } }
       if (r[1]) { const e = named.get(r[1]) || []; e.push(pts); named.set(r[1], e); }
       // one-way streets from OpenStreetMap: '+' only in drawing order, '-' only against it; cost is travel time
@@ -302,9 +425,10 @@
           if (f !== '+') n.e.push([p, cost]); if (f !== '-') p.e.push([n, cost]); }
       }
     }
-    const gMesh = ground.mesh(new T.MeshStandardMaterial({ vertexColors: true, roughness: 1 })); gMesh.receiveShadow = true; S.add(gMesh);
-    const rMesh = roads.mesh(new T.MeshStandardMaterial({ vertexColors: true, roughness: .8, metalness: .05 })); rMesh.receiveShadow = true; S.add(rMesh);
-    S.add(marks.mesh(new T.MeshBasicMaterial({ vertexColors: true })));
+    giveWays(marks, RY);
+    pavements(roads);
+    W.matStatic = atlasMat(); ground.chunks(W.matStatic, { receive: true }); roads.chunks(W.matStatic, { receive: true });
+    marks.chunks(new T.MeshBasicMaterial({ vertexColors: true }));
     buildStreetDetail(Wd);
     streetLabels(named);
 
@@ -319,7 +443,7 @@
       const [x, z, k, name] = q; if (k === 't') { tramStop(bld, x, z, name); continue; }
       let hit = -1, bd = 12;
       for (let i = 0; i < FP.length; i++) { const b = BB[i]; if (x < b[0] - 12 || x > b[1] + 12 || z < b[2] - 12 || z > b[3] + 12 || FP[i].length < 3) continue; if (inside(x, z, FP[i])) { hit = i; break; } const c = centroid(FP[i]), d = Math.hypot(c[0] - x, c[1] - z) - Math.sqrt(Math.abs(area(FP[i]))) / 2; if (d < bd) { bd = d; hit = i; } }
-      if (hit >= 0) { const L = bPOI.get(hit) || []; L.push({ x, z, k, name }); bPOI.set(hit, L); }
+      if (hit >= 0) { const L = bPOI.get(hit) || []; L.push({ x, z, k, name }); bPOI.set(hit, L); } else W.loose.push({ x, z, k, name });
     }
     Wd.b.forEach((b, i) => {
       const pts = ring(dec(b, 2)); if (pts.length < 3) return;
@@ -333,9 +457,10 @@
       if (pin) { venueBuilding(pin, pts, Math.max(h, 9), bPOI.get(i)); return; }
       blackpoolHouse(bld, glow, pts, h, A, r, bPOI.get(i) || [], meta);
     });
+    // businesses with no building footprint nearby (kiosks, stalls, units OpenStreetMap maps as a point): a sign on a post where they are
+    for (const q of W.loose) { const r = nearRoad(q.x, q.z); let nx = 0, nz = 1; if (r[1] >= 0) { nx = -r[3]; nz = r[2]; } prism(bld, circ(q.x, q.z, .07, 6), 0, 2.4, rgb('#3a3350'), rgb('#3a3350')); SIGNS.push({ text: q.name, k: q.k, x: q.x, z: q.z, nx, nz, w: 2.6, y: 2.4 }); SIGNS.push({ text: q.name, k: q.k, x: q.x, z: q.z, nx: -nx, nz: -nz, w: 2.6, y: 2.4 }); }
     S.add(glow.mesh(new T.MeshBasicMaterial({ vertexColors: true, toneMapped: false })));
-    const bm = bld.mesh(withWindows(new T.MeshStandardMaterial({ vertexColors: true, roughness: .78, flatShading: true }), 1));
-    bm.castShadow = bm.receiveShadow = true; S.add(bm);
+    bld.chunks(W.matStatic, { cast: true, receive: true });
     for (const pin of PINS) if (pin.free) {
       const s = 4.5, pts = [[pin.x - s, pin.z - s], [pin.x + s, pin.z - s], [pin.x + s, pin.z + s], [pin.x - s, pin.z + s]];
       addCollider(pts); venueBuilding(pin, pts, 9);
@@ -411,72 +536,107 @@
   // pastel or brick terraces, cream cornices, slate pitched roofs with chimney stacks, white two-storey bays to the street,
   // and glowing shopfronts with striped awnings on the main roads
   const PAL2 = ['#f3dfe8', '#e2ecf6', '#f3ead2', '#e6def5', '#d9eedf', '#f6d9cc', '#efe7dc', '#fde3c8', '#dcebf0', '#f2d6e4'];
-  const SLATE = ['#5b5070', '#544a68', '#625874', '#4e4562'], CREAM = rgb('#fbf5ea'), BRICK = rgb('#a85d4b'), BAY = rgb('#fbf8f2'), LEAD = rgb('#4a4060');
+  const SLATE = ['#77748a', '#6d6b80', '#807b8c', '#6a6678'], CREAM = rgb('#fbf5ea'), BRICK = rgb('#a85d4b'), BAY = rgb('#fbf8f2'), LEAD = rgb('#4a4060');
   const SHOP = [rgb('#ffd59a', 1.5), rgb('#ffb3d6', 1.45), rgb('#bfe9ff', 1.4), rgb('#fff0c2', 1.5)], AWN = ['#ff2e88', '#0fb5ae', '#ffc93c', '#8b5cf6', '#e4413f'];
   const colourOf = c => { if (!c) return null; try { const k = new T.Color().setStyle(c.replace(/\s+/g, ''), T.SRGBColorSpace); return [k.r, k.g, k.b]; } catch (e) { return null; } };
   const NONHOUSE = /^(retail|commercial|office|industrial|church|school|college|train_station|warehouse|supermarket|civic|public|hospital|service|shelter|garage|roof)$/;
+  const FLOOR = 3.1, BAYW = 3.4;
+  // one wall from a to b, 0 to `top` metres: a ground floor of bays and the upper floors, from the facade atlas.
+  // Floors come from the building's real height (OpenStreetMap levels/height, or Microsoft's measured height), bays from the wall's real length.
+  function facade(B, a, b, top, col, o) {
+    const dx = b[0] - a[0], dz = b[1] - a[1], len = Math.hypot(dx, dz); if (len < .05 || top <= 0) return;
+    const off = o.off || 0, w = o.want, P = (t, y) => [a[0] + dx * t + w[0] * off, y, a[1] + dz * t + w[2] * off];
+    const ao = col.map(v => v * .68), mid = col.map(v => v * .9), u0 = Math.floor(hash(a[0] * 7.3, a[1] * 3.1) * 40), plain = o.brick ? TILE.BRICK_PLAIN : TILE.RENDER_PLAIN;
+    if (len < (o.minLen || 2.2) || top < 2.6) { quadT(B, P(0, 0), P(1, 0), P(1, top), P(0, top), [ao, ao, col, col], [[u0, 0], [u0 + len / BAYW, 0], [u0 + len / BAYW, top / FLOOR], [u0, top / FLOOR]], plain, w); return; }
+    const n = Math.max(1, Math.round(len / BAYW)), floors = Math.max(1, Math.round(top / FLOOR)), fh = top / floors, g = o.ground;
+    if (typeof g === 'function') for (let i = 0; i < n; i++) quadT(B, P(i / n, 0), P((i + 1) / n, 0), P((i + 1) / n, fh), P(i / n, fh), [ao, ao, mid, mid], [[u0 + i, 0], [u0 + i + 1, 0], [u0 + i + 1, 1], [u0 + i, 1]], g(i), w);
+    else quadT(B, P(0, 0), P(1, 0), P(1, fh), P(0, fh), [ao, ao, mid, mid], [[u0, 0], [u0 + n, 0], [u0 + n, 1], [u0, 1]], g == null ? plain : g, w);
+    if (floors > 1) quadT(B, P(0, fh), P(1, fh), P(1, top), P(0, top), [mid, mid, col, col], [[u0, 0], [u0 + n, 0], [u0 + n, floors - 1], [u0, floors - 1]], o.upper == null ? plain : o.upper, w);
+    return { n, fh };
+  }
+  function band(B, a, b, y0, y1, col, want) { quadT(B, [a[0], y0, a[1]], [b[0], y0, b[1]], [b[0], y1, b[1]], [a[0], y1, a[1]], col, UV0.concat([[0, 0]]), -1, want); }
   function blackpoolHouse(B, G, pts, h, A, r, pois, meta) {
     meta = meta || [];
-    const kinds = pois.map(q => q.k), commercial = kinds.some(k => k === 's' || k === 'f' || k === 'b'), guest = kinds.includes('g');
+    const kinds = pois.map(q => q.k), guest = kinds.includes('g');
     const brick = meta[4] === 'brick' || (!meta[4] && r > .8), wall = colourOf(meta[1]) || (brick ? BRICK : rgb(PAL2[Math.floor(r * 97) % PAL2.length]));
     const house = !NONHOUSE.test(meta[0] || '') && ((A < 2400 && h < 16) || (guest && h < 18));
-    if (house) { walls(B, pts, 0, h - .6, wall, wall.map(v => v * .6)); walls(B, pts, h - .6, h, CREAM, CREAM); flat(B, pts, h, rgb('#7b7090')); }
-    else prism(B, pts, 0, h, wall, wall.map(v => v * .8));
-    if (house) {
-      const o = obb(pts); let su = o.u1 - o.u0, sv = o.v1 - o.v0;
-      if (su * sv > 0 && A / (su * sv) > .72 && meta[3] !== 'flat') {
-        if (sv > su) { [o.ux, o.uz, o.vx, o.vz] = [o.vx, o.vz, -o.ux, -o.uz]; const u0 = o.u0, u1 = o.u1; o.u0 = o.v0; o.u1 = o.v1; o.v0 = -u1; o.v1 = -u0; [su, sv] = [sv, su]; }
-        const rh = clamp(sv * .42, 1.6, 5.5), vm = (o.v0 + o.v1) / 2, e = .35, roof = colourOf(meta[2]) || rgb(r < .18 ? '#9a5a4a' : SLATE[Math.floor(r * 31) % SLATE.length]);
-        quad(B, OP(o, o.u0 - e, o.v0 - e, h - .2), OP(o, o.u1 + e, o.v0 - e, h - .2), OP(o, o.u1 + e, vm, h + rh), OP(o, o.u0 - e, vm, h + rh), roof, [-o.vx, 1, -o.vz]);
-        quad(B, OP(o, o.u0 - e, o.v1 + e, h - .2), OP(o, o.u0 - e, vm, h + rh), OP(o, o.u1 + e, vm, h + rh), OP(o, o.u1 + e, o.v1 + e, h - .2), roof.map(v => v * .82), [o.vx, 1, o.vz]);
-        B.tri(OP(o, o.u0, o.v0, h), OP(o, o.u0, o.v1, h), OP(o, o.u0, vm, h + rh), wall, [-o.ux, 0, -o.uz]);
-        B.tri(OP(o, o.u1, o.v0, h), OP(o, o.u1, o.v1, h), OP(o, o.u1, vm, h + rh), wall, [o.ux, 0, o.uz]);
-        const chim = brick ? rgb('#8e4b3c') : rgb('#b8705c');
-        for (let u = o.u0 + 1.4; u < o.u1 - .8; u += 6.4) { obox(B, o, u, vm, .55, .85, h + rh - 1.2, h + rh + 1.7, chim); obox(B, o, u, vm, .2, .2, h + rh + 1.7, h + rh + 2.3, rgb('#c97a5a')); }
-      }
-    }
-    // street-facing details
-    const edges = streetEdges(pts);
-    // each business sits on the street-facing wall nearest to it
-    const onEdge = new Map();
+    const shopType = /^(retail|commercial|supermarket)$/.test(meta[0] || ''), modern = !house && (shopType || /^(office|industrial|warehouse)$/.test(meta[0] || '') || A > 2500);
+    const top = house ? h - .6 : h - .8, floorsAll = Math.max(1, Math.round(top / FLOOR)), fh = top / floorsAll;
+    const WIN = brick ? TILE.BRICK : TILE.RENDER, WIN_G = brick ? TILE.BRICK_G : TILE.RENDER_G;
+    // street-facing walls, and each business on the street-facing wall nearest to it
+    const edges = streetEdges(pts), onEdge = new Map();
     for (const q of pois) {
       let best = null, bd = 1e9;
       for (const ed of (edges.length ? edges : allEdges(pts))) { const t = clamp((q.x - ed.a[0]) * ed.tx + (q.z - ed.a[1]) * ed.tz, 0, ed.len), d = Math.hypot(ed.a[0] + ed.tx * t - q.x, ed.a[1] + ed.tz * t - q.z); if (d < bd) { bd = d; best = [ed, t]; } }
       if (best) { const L = onEdge.get(best[0]) || []; L.push({ q, t: best[1] }); onEdge.set(best[0], L); }
     }
-    for (const [ed, L] of onEdge) {
-      L.sort((a, b) => a.t - b.t);
-      L.forEach((it, j) => {
-        // a terrace of guest houses: every house painted its own colour, like the real seafront
-        const s0 = j ? (L[j - 1].t + it.t) / 2 : 0, s1 = j < L.length - 1 ? (it.t + L[j + 1].t) / 2 : ed.len;
-        if (it.q.k === 'g' && L.length > 1) {
-          const pc = rgb(PAL2[Math.floor(hash(it.q.x * 13, it.q.z * 7) * 97) % PAL2.length]), P = (t, y) => [ed.a[0] + ed.tx * t + ed.nx * .03, y, ed.a[1] + ed.tz * t + ed.nz * .03];
-          quad(B, P(s0, 0), P(s1, 0), P(s1, h - .62), P(s0, h - .62), [pc.map(v => v * .62), pc.map(v => v * .62), pc, pc], [ed.nx, 0, ed.nz]);
-        }
-        const big = it.q.k !== 'g', w = clamp((s1 - s0) * .86, 2.6, big ? 7.5 : 4.6);
-        SIGNS.push({ text: it.q.name, k: it.q.k, x: ed.a[0] + ed.tx * it.t + ed.nx * .16, z: ed.a[1] + ed.tz * it.t + ed.nz * .16, nx: ed.nx, nz: ed.nz, w, y: it.q.k === 'g' ? Math.min(3.4, h - 1.6) : 3.7 });
-      });
-    }
-    for (const ed of edges) {
-      const here = (onEdge.get(ed) || []).map(it => it.q.k);
-      const shop = here.some(k => k === 's' || k === 'f' || k === 'b') || (!guest && !commercial && ed.cls >= 2 && hash(ed.a[0] * 3, ed.b[1] * 7) < .3);
-      if (shop) {
-        const y0 = .45, y1 = 3, off = .06, col = SHOP[Math.floor(r * 13) % SHOP.length], aw = rgb(AWN[Math.floor(r * 17) % AWN.length]);
-        for (let s = .6; s < ed.len - 1.2; s += 2.4) {
-          const s1 = Math.min(s + 2.1, ed.len - .6), p = t => [ed.a[0] + ed.tx * t + ed.nx * off, ed.a[1] + ed.tz * t + ed.nz * off];
-          const A0 = p(s), A1 = p(s1); quad(G, [A0[0], y0, A0[1]], [A1[0], y0, A1[1]], [A1[0], y1, A1[1]], [A0[0], y1, A0[1]], col, [ed.nx, 0, ed.nz]);
-        }
-        for (let s = 0, k = 0; s < ed.len - .2; s += .9, k++) {
-          const s1 = Math.min(s + .9, ed.len), q = (t, o2, y) => [ed.a[0] + ed.tx * t + ed.nx * o2, y, ed.a[1] + ed.tz * t + ed.nz * o2];
-          quad(B, q(s, .08, 3.55), q(s1, .08, 3.55), q(s1, 1.5, 2.95), q(s, 1.5, 2.95), k % 2 ? aw : CREAM, [ed.nx, 1, ed.nz]);
-        }
-      } else if (house) {
-        const bh = Math.min(6.6, h - .9);
-        for (let s = 2.3; s < ed.len - 2.1; s += 5.6) {
-          const c = [ed.a[0] + ed.tx * s, ed.a[1] + ed.tz * s], P = (t, n) => [c[0] + ed.tx * t + ed.nx * n, c[1] + ed.tz * t + ed.nz * n];
-          prism(B, [P(-1.6, 0), P(-1, .95), P(1, .95), P(1.6, 0)], 0, bh, BAY, LEAD);
-        }
+    const ccw = area(pts) > 0, bayAt = [];
+    for (let i = 0; i < pts.length; i++) {
+      const a = pts[i], b = pts[(i + 1) % pts.length], dx = b[0] - a[0], dz = b[1] - a[1], len = Math.hypot(dx, dz); if (len < .05) continue;
+      let nx = dz / len, nz = -dx / len; if (!ccw) { nx = -nx; nz = -nz; }
+      const want = [nx, 0, nz], se = edges.find(e => e.a === a), L = se ? (onEdge.get(se) || []).sort((p, q) => p.t - q.t) : [];
+      const shopEdge = !!se && (L.some(it => it.q.k === 's' || it.q.k === 'f' || it.q.k === 'b') || shopType);
+      let ground, upper = modern ? TILE.MODERN : WIN;
+      if (shopEdge) ground = TILE.SHOP;
+      else if (modern) ground = se ? TILE.MODERN : null;
+      else if (se && house) ground = k => (k % 2 ? WIN_G : TILE.DOOR);
+      else if (se) ground = WIN_G;
+      else ground = null;
+      // a terrace of guest houses: every house painted its own colour, like the real Rainbow Quarter
+      const segs = [];
+      if (se && L.filter(it => it.q.k === 'g').length > 1 && !brick) L.forEach((it, j) => { const s0 = j ? (L[j - 1].t + it.t) / 2 : 0, s1 = j < L.length - 1 ? (it.t + L[j + 1].t) / 2 : len; segs.push([s0, s1, it.q.k === 'g' ? rgb(PAL2[Math.floor(hash(it.q.x * 13, it.q.z * 7) * 97) % PAL2.length]) : wall]); });
+      else segs.push([0, len, wall]);
+      for (const [s0, s1, col] of segs) {
+        const A0 = [a[0] + dx / len * s0, a[1] + dz / len * s0], A1 = [a[0] + dx / len * s1, a[1] + dz / len * s1];
+        const f = facade(B, A0, A1, top, col, { brick, ground, upper, want });
+        // white two-storey bay windows over the window bays of house fronts
+        if (f && se && house && !shopEdge && top > 5.5) for (let k = 1; k < f.n; k += 2) bayAt.push([A0, A1, (k + .5) / f.n, want, Math.min(6.2, top - .3)]);
       }
+      if (house) band(B, a, b, top, h, CREAM, want); else band(B, a, b, top, h, wall.map(v => v * .93), want);
+    }
+    // bays: textured windows on their three faces, lead roof
+    for (const [A0, A1, t, want, bh] of bayAt) {
+      const c = [lerp(A0[0], A1[0], t), lerp(A0[1], A1[1], t)], len = Math.hypot(A1[0] - A0[0], A1[1] - A0[1]), tx = (A1[0] - A0[0]) / len, tz = (A1[1] - A0[1]) / len;
+      const P = (s, d) => [c[0] + tx * s + want[0] * d, c[1] + tz * s + want[2] * d], Q = [P(-1.5, .02), P(-1, .9), P(1, .9), P(1.5, .02)];
+      const inn = P(0, .3);
+      for (let k = 0; k < 3; k++) {
+        const p = Q[k], q = Q[k + 1], ex = q[0] - p[0], ez = q[1] - p[1], el = Math.hypot(ex, ez) || 1; let nx = ez / el, nz = -ex / el;
+        if (nx * ((p[0] + q[0]) / 2 - inn[0]) + nz * ((p[1] + q[1]) / 2 - inn[1]) < 0) { nx = -nx; nz = -nz; }
+        facade(B, p, q, bh, BAY, { ground: TILE.RENDER_G, upper: TILE.RENDER, want: [nx, 0, nz], minLen: .8 });
+      }
+      flat(B, Q, bh, LEAD);
+    }
+    // roofs: pitched Welsh slate on houses (real shape where OpenStreetMap has one), felt on flat roofs
+    const roofC = colourOf(meta[2]);
+    flat(B, pts, h, roofC || rgb(house ? '#8b8794' : '#9a96a0'), TILE.FLATROOF, 6);
+    if (house) {
+      const o = obb(pts); let su = o.u1 - o.u0, sv = o.v1 - o.v0;
+      if (su * sv > 0 && A / (su * sv) > .72 && meta[3] !== 'flat') {
+        if (sv > su) { [o.ux, o.uz, o.vx, o.vz] = [o.vx, o.vz, -o.ux, -o.uz]; const u0 = o.u0, u1 = o.u1; o.u0 = o.v0; o.u1 = o.v1; o.v0 = -u1; o.v1 = -u0; [su, sv] = [sv, su]; }
+        const rh = clamp(sv * .42, 1.6, 5.5), vm = (o.v0 + o.v1) / 2, e = .35, roof = roofC || rgb(r < .18 ? '#b0624c' : SLATE[Math.floor(r * 31) % SLATE.length]);
+        const sl = Math.hypot(vm - o.v0 + e, rh + .2) / 5, ul = (su + 2 * e) / 5;
+        quadT(B, OP(o, o.u0 - e, o.v0 - e, h - .2), OP(o, o.u1 + e, o.v0 - e, h - .2), OP(o, o.u1 + e, vm, h + rh), OP(o, o.u0 - e, vm, h + rh), roof, [[0, 0], [ul, 0], [ul, sl], [0, sl]], TILE.SLATE, [-o.vx, 1, -o.vz]);
+        quadT(B, OP(o, o.u0 - e, o.v1 + e, h - .2), OP(o, o.u0 - e, vm, h + rh), OP(o, o.u1 + e, vm, h + rh), OP(o, o.u1 + e, o.v1 + e, h - .2), roof.map(v => v * .85), [[0, 0], [0, sl], [ul, sl], [ul, 0]], TILE.SLATE, [o.vx, 1, o.vz]);
+        const gu = [[o.v0 / BAYW, h / FLOOR], [o.v1 / BAYW, h / FLOOR], [vm / BAYW, (h + rh) / FLOOR]], pl = brick ? TILE.BRICK_PLAIN : TILE.RENDER_PLAIN;
+        B.tri(OP(o, o.u0, o.v0, h), OP(o, o.u0, o.v1, h), OP(o, o.u0, vm, h + rh), wall, [-o.ux, 0, -o.uz], gu, pl);
+        B.tri(OP(o, o.u1, o.v0, h), OP(o, o.u1, o.v1, h), OP(o, o.u1, vm, h + rh), wall, [o.ux, 0, o.uz], gu, pl);
+        const chim = brick ? rgb('#8e4b3c') : rgb('#b8705c');
+        for (let u = o.u0 + 1.4; u < o.u1 - .8; u += 6.4) { obox(B, o, u, vm, .55, .85, h + rh - 1.2, h + rh + 1.7, chim); obox(B, o, u, vm, .2, .2, h + rh + 1.7, h + rh + 2.3, rgb('#c97a5a')); }
+      }
+    }
+    // business signs from OpenStreetMap names; cafés and restaurants get a striped awning
+    for (const [ed, L] of onEdge) {
+      L.forEach((it, j) => {
+        const s0 = j ? (L[j - 1].t + it.t) / 2 : 0, s1 = j < L.length - 1 ? (it.t + L[j + 1].t) / 2 : ed.len;
+        const big = it.q.k !== 'g', w = clamp((s1 - s0) * .86, 2.6, big ? 7.5 : 4.6), x = ed.a[0] + ed.tx * it.t, z = ed.a[1] + ed.tz * it.t;
+        SIGNS.push({ text: it.q.name, k: it.q.k, x: x + ed.nx * .16, z: z + ed.nz * .16, nx: ed.nx, nz: ed.nz, w, y: it.q.k === 'g' ? Math.min(fh + .5, h - 1.6) : fh + .08 });
+        if (it.q.k === 'f') {
+          const aw = rgb(AWN[Math.floor(hash(x, z) * 97) % AWN.length]), hw = Math.min(w / 2, 3.2), y0 = fh - .15, y1 = fh - .85, d = 1.4;
+          const Pp = (s, o2, y) => [x + ed.tx * s + ed.nx * o2, y, z + ed.tz * s + ed.nz * o2], U = hw * 2 / 2;
+          quadT(B, Pp(-hw, d, y1), Pp(hw, d, y1), Pp(hw, .05, y0), Pp(-hw, .05, y0), aw, [[0, 0], [U, 0], [U, 1], [0, 1]], TILE.AWNING, [ed.nx, 1, ed.nz]);
+          quadT(B, Pp(-hw, d, y1 - .28), Pp(hw, d, y1 - .28), Pp(hw, d, y1), Pp(-hw, d, y1), aw.map(v => v * .9), [[0, 0], [U, 0], [U, .2], [0, .2]], TILE.AWNING, [ed.nx, 0, ed.nz]);
+        }
+      });
     }
   }
 
@@ -487,6 +647,77 @@
     let best = 1e9, w = 9;
     for (const r of W.roads) { if (r.cls === 4) continue; for (let i = 0; i < r.pts.length - 1; i++) { const a = r.pts[i], b = r.pts[i + 1], dx = b[0] - a[0], dz = b[1] - a[1], l2 = dx * dx + dz * dz || 1, t = clamp(((x - a[0]) * dx + (z - a[1]) * dz) / l2, 0, 1), d = Math.hypot(x - a[0] - dx * t, z - a[1] - dz * t); if (d < best) { best = d; w = r.w; } } }
     return w;
+  }
+  // road markings from OpenStreetMap tags: lane lines from `lanes`, a centre line on two-way main roads, arrows on one-way streets
+  const PAINT = rgb('#f2efe8');
+  function dashed(B, line, y, on, off, w) {
+    let s = 0;
+    for (let i = 0; i < line.length - 1; i++) {
+      const a = line[i], b = line[i + 1], l = Math.hypot(b[0] - a[0], b[1] - a[1]); if (l < .01) continue;
+      for (; s < l; s += on + off) { const e = Math.min(s + on, l), P = t => [lerp(a[0], b[0], t / l), lerp(a[1], b[1], t / l)]; if (e - s > .3) ribbon(B, [P(s), P(e)], w, y, PAINT, false); }
+      s -= l;
+    }
+  }
+  function roadMarks(B, pts, rw, y, cls, lanes, ow) {
+    if (ow && lanes >= 2) for (let k = 1; k < lanes; k++) dashed(B, offsetLine(pts, -rw / 2 + k * rw / lanes), y, 3, 6, .12);
+    else if (!ow && (cls >= 2 || lanes >= 2)) dashed(B, pts, y, 4, 5, .15);
+    if (!ow) return;
+    // one-way arrows every 45 m, pointing the legal way
+    let run = 0;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const a = pts[i], b = pts[i + 1], l = Math.hypot(b[0] - a[0], b[1] - a[1]); if (l < 1) continue;
+      let tx = (b[0] - a[0]) / l, tz = (b[1] - a[1]) / l; if (ow === '-') { tx = -tx; tz = -tz; }
+      const nx = -tz, nz = tx;
+      for (let s = (14 - run % 45 + 45) % 45; s < l - 3; s += 45) {
+        const c = [lerp(a[0], b[0], s / l), lerp(a[1], b[1], s / l)], Q = (f, g) => [c[0] + tx * f + nx * g, y, c[1] + tz * f + nz * g];
+        quadT(B, Q(-2.6, -.09), Q(1, -.09), Q(1, .09), Q(-2.6, .09), PAINT, UV0.concat([[0, 0]]), -1, [0, 1, 0]);
+        B.tri(Q(1, -.5), Q(2.6, 0), Q(1, .5), PAINT, [0, 1, 0]);
+      }
+      run += l;
+    }
+  }
+  // give-way lines where a minor street meets a bigger one (junction geometry and street class from OpenStreetMap)
+  function giveWays(B, RY) {
+    const at = new Map(), key = p => Math.round(p[0]) + ',' + Math.round(p[1]);
+    W.roads.forEach((r, ri) => { if (r.cls < 4) r.pts.forEach(p => { const k = key(p); const L = at.get(k) || []; L.push(ri); at.set(k, L); }); });
+    W.roads.forEach((r, ri) => {
+      if (r.cls >= 3 || r.cls === 0 || r.pts.length < 2) return;
+      for (const end of [0, 1]) {
+        const p = end ? r.pts[r.pts.length - 1] : r.pts[0], q = end ? r.pts[r.pts.length - 2] : r.pts[1];
+        const major = (at.get(key(p)) || []).map(j => W.roads[j]).filter(o => o !== r && o.cls > r.cls && o.cls < 4);
+        if (!major.length) continue;
+        const l = Math.hypot(q[0] - p[0], q[1] - p[1]), back = Math.max(...major.map(o => o.w)) / 2 + 1.2; if (l < back + 2) continue;
+        const tx = (q[0] - p[0]) / l, tz = (q[1] - p[1]) / l, nx = -tz, nz = tx, y = RY[r.cls] + .025;
+        for (const d of [back, back + .55]) { const c = [p[0] + tx * d, p[1] + tz * d]; dashed(B, [[c[0] - nx * r.w / 2 * .92, c[1] - nz * r.w / 2 * .92], [c[0] + nx * r.w / 2 * .92, c[1] + nz * r.w / 2 * .92]], y, .6, .3, .3); }
+      }
+    });
+  }
+  // raised pavements with kerb stones, on the sides of each street that OpenStreetMap says have a pavement; cut back where another street crosses
+  function pavements(B) {
+    const grid = new Map(), KY = .4, PW = 2.2, KERB = rgb('#cfccc6'), FACE = rgb('#a9a59e'), SLAB = rgb('#d6d0c6'), EDGE = rgb('#8f8a83');
+    W.roads.forEach((r, ri) => { if (r.cls === 4) return; for (let i = 0; i < r.pts.length - 1; i++) { const a = r.pts[i], b = r.pts[i + 1], sg = [a[0], a[1], b[0], b[1], r.w / 2, ri];
+      for (let x = Math.floor((Math.min(a[0], b[0]) - 8) / 20); x <= Math.floor((Math.max(a[0], b[0]) + 8) / 20); x++) for (let z = Math.floor((Math.min(a[1], b[1]) - 8) / 20); z <= Math.floor((Math.max(a[1], b[1]) + 8) / 20); z++) { const k = x + ',' + z; let c = grid.get(k); if (!c) grid.set(k, c = []); c.push(sg); } } });
+    const clear = (x, z, ri, pad) => { const c = grid.get(Math.floor(x / 20) + ',' + Math.floor(z / 20)); if (!c) return true; for (const s of c) { if (s[5] === ri) continue; const dx = s[2] - s[0], dz = s[3] - s[1], l2 = dx * dx + dz * dz || 1, t = clamp(((x - s[0]) * dx + (z - s[1]) * dz) / l2, 0, 1); if (Math.hypot(x - s[0] - dx * t, z - s[1] - dz * t) < s[4] + pad) return false; } return true; };
+    W.roads.forEach((r, ri) => {
+      if (r.cls === 4 || !r.sw || r.sw === 'n') return;
+      const d0 = r.w / 2, RYc = [0.16, 0.2, 0.24, 0.28][r.cls];
+      for (const side of r.sw === 'b' ? [-1, 1] : r.sw === 'l' ? [-1] : [1]) for (let i = 0; i < r.pts.length - 1; i++) {
+        const a = r.pts[i], b = r.pts[i + 1], dx = b[0] - a[0], dz = b[1] - a[1], L = Math.hypot(dx, dz); if (L < 1) continue;
+        const tx = dx / L, tz = dz / L, nx = -tz * side, nz = tx * side, n = Math.max(1, Math.ceil(L / 1.5)), ok = [];
+        for (let k = 0; k <= n; k++) { const s = L * k / n, x = a[0] + tx * s, z = a[1] + tz * s; ok.push(clear(x + nx * (d0 + .2), z + nz * (d0 + .2), ri, .5) && clear(x + nx * (d0 + PW), z + nz * (d0 + PW), ri, .5) && (!W.coast.length || x + nx * (d0 + PW) > coastX(z + nz * (d0 + PW)) + 2)); }
+        for (let k = 0; k < n; k++) {
+          if (!ok[k] || !ok[k + 1]) continue;
+          let k1 = k + 1; while (k1 < n && ok[k1 + 1]) k1++;
+          const s0 = L * k / n, s1 = L * k1 / n; k = k1 - 1;
+          const P = (s, d, y) => [a[0] + tx * s + nx * d, y, a[1] + tz * s + nz * d], out = [nx, 0, nz], inn = [-nx, 0, -nz];
+          quadT(B, P(s0, d0, RYc), P(s1, d0, RYc), P(s1, d0, KY), P(s0, d0, KY), FACE, UV0.concat([[0, 0]]), -1, inn);
+          quadT(B, P(s0, d0, KY), P(s1, d0, KY), P(s1, d0 + .3, KY), P(s0, d0 + .3, KY), KERB, UV0.concat([[0, 0]]), -1, [0, 1, 0]);
+          const u0 = s0 / 2.4, u1 = s1 / 2.4, v0 = (d0 + .3) / 2.4, v1 = (d0 + PW) / 2.4;
+          quadT(B, P(s0, d0 + .3, KY - .02), P(s1, d0 + .3, KY - .02), P(s1, d0 + PW, KY - .02), P(s0, d0 + PW, KY - .02), SLAB, [[u0, v0], [u1, v0], [u1, v1], [u0, v1]], TILE.SLABS, [0, 1, 0]);
+          quadT(B, P(s0, d0 + PW, 0), P(s1, d0 + PW, 0), P(s1, d0 + PW, KY - .02), P(s0, d0 + PW, KY - .02), EDGE, UV0.concat([[0, 0]]), -1, out);
+        }
+      }
+    });
   }
   const circ = (x, z, r, n = 8) => Array.from({ length: n }, (_, i) => [x + Math.cos(i / n * Math.PI * 2) * r, z + Math.sin(i / n * Math.PI * 2) * r]);
   function buildStreetDetail(Wd) {
@@ -530,12 +761,12 @@
     // areas
     for (const a of Wd.a) {
       const kind = a[0], line = dec(a, 2), pts = ring(line);
-      if (kind === 'parking' && pts.length > 2) flat(M, pts, .1, rgb('#6f6787'));
-      else if (kind === 'grass' && pts.length > 2) flat(M, pts, .13, rgb('#8fcf88'));
+      if (kind === 'parking' && pts.length > 2) flat(M, pts, .1, rgb('#7a7880'), TILE.ASPHALT, 5);
+      else if (kind === 'grass' && pts.length > 2) flat(M, pts, .13, rgb('#7fb86a'), TILE.SAND, 2);
       else if (kind === 'wall') for (let i = 0; i < line.length - 1; i++) { const p = line[i], q = line[i + 1], dx = q[0] - p[0], dz = q[1] - p[1], L = Math.hypot(dx, dz) || 1, nx = -dz / L * .15, nz = dx / L * .15; prism(M, [[p[0] + nx, p[1] + nz], [q[0] + nx, q[1] + nz], [q[0] - nx, q[1] - nz], [p[0] - nx, p[1] - nz]], 0, 1.4, rgb('#a8705c'), rgb('#c4907a')); }
       else if (kind === 'tram') for (const d of [-.72, .72]) ribbon(M, offsetLine(line, d), .12, .32, rgb('#cfc8dc'), false);
     }
-    const m1 = M.mesh(new T.MeshStandardMaterial({ vertexColors: true, roughness: .8, flatShading: true })); m1.receiveShadow = true; S.add(m1);
+    M.chunks(W.matStatic, { receive: true });
     S.add(G.mesh(new T.MeshBasicMaterial({ vertexColors: true, toneMapped: false })));
   }
   // ------------------------------------------------------------------ no gaps: terraces along every street frontage OpenStreetMap leaves empty
@@ -582,6 +813,13 @@
     }
     return out;
   }
+  // the street the car is on, for the HUD: real name and speed limit from OpenStreetMap
+  function roadAt(x, z) {
+    let best = null, bd = 9;
+    for (const r of W.roads) { if (r.cls === 4) continue; const p0 = r.pts[0]; if (Math.abs(p0[0] - x) > 900 && Math.abs(p0[1] - z) > 900) continue;
+      for (let i = 0; i < r.pts.length - 1; i++) { const a = r.pts[i], b = r.pts[i + 1], dx = b[0] - a[0], dz = b[1] - a[1], l2 = dx * dx + dz * dz || 1, t = clamp(((x - a[0]) * dx + (z - a[1]) * dz) / l2, 0, 1), d = Math.hypot(x - a[0] - dx * t, z - a[1] - dz * t) - r.w / 2; if (d < bd && (r.name || !best)) { bd = d; best = r; } } }
+    return best;
+  }
   function addCollider(pts) { for (let i = 0; i < pts.length; i++) { const a = pts[i], b = pts[(i + 1) % pts.length], s = [a[0], a[1], b[0], b[1]]; const x0 = Math.floor(Math.min(a[0], b[0]) / 20), x1 = Math.floor(Math.max(a[0], b[0]) / 20), z0 = Math.floor(Math.min(a[1], b[1]) / 20), z1 = Math.floor(Math.max(a[1], b[1]) / 20); for (let x = x0; x <= x1; x++) for (let z = z0; z <= z1; z++) { const k = x + ',' + z; let c = W.cells.get(k); if (!c) W.cells.set(k, c = []); c.push(s); } } }
 
   // --- venues: glowing building, light beam, spinning gem, label
@@ -594,7 +832,7 @@
     if (pin.k !== 'stay') own.forEach(q => q.k = 'b');
     blackpoolHouse(B, G2, pts, h, Math.abs(area(pts)), hash(pin.x * 7, pin.z * 11), own);
     if (G2.p.length) S.add(G2.mesh(new T.MeshBasicMaterial({ vertexColors: true, toneMapped: false })));
-    const m = B.mesh(withWindows(new T.MeshStandardMaterial({ vertexColors: true, roughness: .7, flatShading: true, emissive: col, emissiveIntensity: .05 }), 1));
+    const m = B.mesh(atlasMat({ emissive: col, emissiveIntensity: .05 }));
     m.castShadow = m.receiveShadow = true; m.userData.pin = pin; S.add(m); venueMeshes.push(m);
     const c = centroid(pts); pin.cx = c[0]; pin.cz = c[1]; pin.h = h;
     const beam = new T.Mesh(new T.CylinderGeometry(1.4, 1.4, 90, 14, 1, true), new T.MeshBasicMaterial({ map: beamTex, color: col.clone().multiplyScalar(1.6), transparent: true, depthWrite: false, blending: T.AdditiveBlending, side: T.DoubleSide, fog: false }));
@@ -734,10 +972,10 @@
     }
     const postM = new T.InstancedMesh(new T.CylinderGeometry(.13, .2, 7.8, 6), new T.MeshStandardMaterial({ color: '#2f2a3d', roughness: .5, metalness: .4 }), posts.length), M = new T.Matrix4();
     posts.forEach(([x, z], i) => { M.makeTranslation(x, 3.9, z); postM.setMatrixAt(i, M); }); postM.castShadow = true; S.add(postM);
-    const crowns = new T.InstancedMesh(new T.SphereGeometry(.42, 10, 8), new T.MeshBasicMaterial({ color: new T.Color('#fff2c8').multiplyScalar(3) }), posts.length);
+    const crowns = new T.InstancedMesh(new T.SphereGeometry(.42, 6, 4), new T.MeshBasicMaterial({ color: new T.Color('#fff2c8').multiplyScalar(3) }), posts.length);
     posts.forEach(([x, z], i) => { M.makeTranslation(x, 8, z); crowns.setMatrixAt(i, M); }); S.add(crowns);
     const all = pts.concat(tower ? tower.lights : []);
-    bulbs = new T.InstancedMesh(new T.SphereGeometry(.2, 6, 4), new T.MeshBasicMaterial(), all.length);
+    bulbs = new T.InstancedMesh(new T.OctahedronGeometry(.22, 0), new T.MeshBasicMaterial(), all.length);
     all.forEach(([x, y, z, ty], i) => { if (ty) M.makeScale(1.7, 1.7, 1.7).setPosition(x, y, z); else M.makeTranslation(x, y, z); bulbs.setMatrixAt(i, M); bulbs.setColorAt(i, new T.Color('#fff')); });
     bulbs.userData.prom = pts.length; bulbs.userData.ty = all.map(p => p[3] || 0);
     S.add(bulbs);
@@ -1052,12 +1290,12 @@
   // the lightest tier also drops the shader sky/sea, glow sprites and far scenery
   function applyLite() {
     const lite = tier === 0; box.classList.toggle('lite', lite);
-    sky.visible = !lite; S.background = lite ? S.fog.color : null; cam.far = lite ? 900 : 4000; cam.updateProjectionMatrix();
-    S.fog.near = lite ? 160 : 450; S.fog.far = lite ? 850 : 2600;
+    sky.visible = true; sky.scale.setScalar(lite ? .4 : 1); S.background = null; cam.far = lite ? 1300 : 4000; cam.updateProjectionMatrix();
+    S.fog.near = lite ? 260 : 450; S.fog.far = lite ? 1250 : 2600; seaU.fogN.value = S.fog.near; seaU.fogF.value = S.fog.far;
     if (W.sea) W.sea.material = lite ? W.seaLite : W.seaRich; if (halos) halos.visible = !lite; clouds.forEach(c => { c.m.visible = !lite; });
-    if (lite) dpr = Math.min(dpr, SOFT ? .5 : .75), R.setPixelRatio(dpr), resize();
+    if (lite) dpr = Math.min(dpr, SOFT ? LITE_DPR : .85), R.setPixelRatio(dpr), resize();
   }
-  function resize() { const w = box.clientWidth, h = box.clientHeight; R.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix(); if (post) post.size(Math.round(w * dpr), Math.round(h * dpr)); }
+  function resize() { const w = box.clientWidth, h = box.clientHeight; LODK.value = 75 * 2 * Math.tan(cam.fov * Math.PI / 360) / Math.max(1, h * dpr) * 1.4; R.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix(); if (post) post.size(Math.round(w * dpr), Math.round(h * dpr)); }
   new ResizeObserver(resize).observe(box); resize();
   setTier(SOFT ? 0 : 2);
   new IntersectionObserver(es => { visible = es[0].isIntersecting; if (visible && !raf) { lastT = performance.now(); frame.prev = 0; frames = 0; fpsT = 0; raf = requestAnimationFrame(frame); } }, { threshold: 0 }).observe(box);
@@ -1147,6 +1385,7 @@
 
     if (started && !st.auto) { let near = null, nd = 22; for (const p of PINS) { const d = Math.hypot((p.cx ?? p.x) - st.x, (p.cz ?? p.z) - st.z); if (d < nd) { nd = d; near = p; } } if (dismissed && Math.hypot((dismissed.cx ?? dismissed.x) - st.x, (dismissed.cz ?? dismissed.z) - st.z) > 30) dismissed = null; if (near && near !== dismissed && (!cardPin || cardPin === near || ui.card.hidden)) showCard(near, true); else if (cardPin && Math.hypot((cardPin.cx ?? cardPin.x) - st.x, (cardPin.cz ?? cardPin.z) - st.z) > 60 && st.arrived !== cardPin) hideCard(); }
     if (toastT > 0) { toastT -= dt; if (toastT <= 0) ui.toast.hidden = true; }
+    if (W.roads.length && Math.hypot(st.x - (frame.rx ?? 1e9), st.z - (frame.rz ?? 1e9)) > 3) { frame.rx = st.x; frame.rz = st.z; const r = roadAt(st.x, st.z), t = r ? (r.name || '') + (r.ms ? ' · ' + r.ms + ' mph' : '') : ''; if (t !== ui.speed.road) { ui.speed.road = t; ui.speed.querySelector('.xp-road').textContent = t; } }
     { const mph = Math.round(Math.abs(st.v) * 2.237); if (mph !== ui.speed.mph) { ui.speed.mph = mph; ui.speed.querySelector('b').textContent = mph; needle.style.transform = `rotate(${-90 + Math.min(mph, 60) / 60 * 180}deg)`; } }
     if (started) drawMini();
     if (usePost) post.render(S, cam, time); else R.render(S, cam);
@@ -1171,5 +1410,5 @@
     box.classList.add('ready');
     if (new URLSearchParams(location.search).has('go')) begin();
   }).catch(e => { console.error(e); goCap.textContent = 'Could not load the map. Please refresh.'; });
-  window.__xp = { st, cam, R, S, begin, tier: n => setTier(n), gpu: GPU, sim: secs => { for (let i = 0; i < secs * 120; i++) physics(STEP); }, skip: () => { intro = 1; snap = 1; }, settle: () => { mood.t = mood.target; snap = 1; }, view: (d, p) => { camS.dist = d; camS.pitch = p; snap = 1; }, goPin: s => goPin(PINS.find(p => p.slug === s)), night: v => { mood.target = v ? 1 : 0; } };
+  window.__xp = { st, cam, R, S, begin, signs: () => SIGNS.length, loose: () => W.loose.length, tier: n => setTier(n), gpu: GPU, sim: secs => { for (let i = 0; i < secs * 120; i++) physics(STEP); }, skip: () => { intro = 1; snap = 1; }, settle: () => { mood.t = mood.target; snap = 1; }, view: (d, p) => { camS.dist = d; camS.pitch = p; snap = 1; }, goPin: s => goPin(PINS.find(p => p.slug === s)), night: v => { mood.target = v ? 1 : 0; } };
 })();

@@ -13,6 +13,10 @@ Output keys:
   r   streets    [class, name, x0, z0, dx1, dz1, ...]  class 0 service, 1 residential, 2 tertiary, 3 primary/secondary, 4 footway/pedestrian (not driven)
   rw  street width in metres per street (real where tagged, else by class)
   o   one-way flags per segment ('+' drawing order only, '-' against it, '0' two-way)
+  sw  pavements per street from the OpenStreetMap sidewalk tag: 'b' both, 'l' left, 'r' right, 'n' none
+      (untagged: both for public streets, none for service roads and paths)
+  ln  lanes per street from the OpenStreetMap lanes tag (0 = untagged), one digit per street
+  ms  speed limit per street from maxspeed, mph as a string list ('' = untagged)
   x   crossings  [x, z, kind, angle] kind: zebra | signals | rainbow
   f   furniture  [kind, x, z]  lamp | tree | bench | signals | busstop | postbox | phone
   a   areas      kept areas plus parking, grass, walls, fences, tram lines
@@ -66,7 +70,7 @@ for m in src['msBuildings']:
 CLS = {'primary': 3, 'secondary': 3, 'trunk': 3, 'tertiary': 2, 'residential': 1, 'unclassified': 1, 'living_street': 1, 'service': 0,
        'pedestrian': 4, 'footway': 4, 'path': 4, 'steps': 4, 'cycleway': 4}
 DEFW = {3: 10.5, 2: 8.5, 1: 7.0, 0: 4.5, 4: 3.0}
-r, rw, ow = [], [], []
+r, rw, ow, sw, ln, ms = [], [], [], [], [], []
 for h in src['highways']:
     c = CLS.get(h['hw'])
     if c is None or len(h['pts']) < 2 or not any(inb(p) for p in h['pts']): continue
@@ -81,6 +85,11 @@ for h in src['highways']:
     r.append([c, h.get('n', '')] + enc(pts)); rw.append(round(w, 1))
     f = '+' if h.get('ow') in ('yes', 'true', '1') else '-' if h.get('ow') == '-1' else '0'
     ow.append(f * (len(pts) - 1) if c < 4 else '0' * (len(pts) - 1))
+    try: ln.append(str(min(9, int(float(h.get('ln') or 0)))))
+    except ValueError: ln.append('0')
+    ms.append(''.join(ch for ch in (h.get('ms') or '') if ch.isdigit()))
+    t = h.get('sw') or ''
+    sw.append({'both': 'b', 'separate': 'b', 'left': 'l', 'right': 'r', 'no': 'n', 'none': 'n'}.get(t, 'b' if 1 <= c <= 3 and h['hw'] != 'living_street' else 'n'))
 
 # ---------------------------------------------------------------- crossings: real OpenStreetMap crossings plus the 2024 rainbow crossings on Dickson Road
 def road_angle(x, z, names=None):
@@ -145,9 +154,10 @@ for a in src['areas']:
     if len(pts) < 2 or not any(inb(p) for p in pts): continue
     kk = {'parking': 'parking', 'grass': 'grass', 'park': 'park', 'pitch': 'grass', 'wall': 'wall', 'fence': 'wall', 'retaining_wall': 'wall', 'tram': 'tram'}.get(k)
     if kk: A.append([kk, a.get('n', '')] + enc(pts))
+_seen = set(); A = [a for a in A if not (json.dumps(a) in _seen or _seen.add(json.dumps(a)))]   # re-running must not duplicate kept areas
 
 W = dict(old)
-W.update({'b': b, 'bm': bm, 'r': r, 'rw': rw, 'o': ow, 'x': xs, 'f': F, 'a': A})
+W.update({'b': b, 'bm': bm, 'r': r, 'rw': rw, 'o': ow, 'sw': ''.join(sw), 'ln': ''.join(ln), 'ms': ms, 'x': xs, 'f': F, 'a': A})
 json.dump(W, open(os.path.join(D, 'world.json'), 'w'), separators=(',', ':'))
 print('buildings', len(b), 'with height', sum(1 for x in b if x[0] > 0), 'streets', len(r), 'crossings', len(xs), 'rainbow', len(rain), 'furniture', len(F), 'areas', len(A),
       'kb', os.path.getsize(os.path.join(D, 'world.json')) // 1024)
