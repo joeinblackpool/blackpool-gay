@@ -618,3 +618,92 @@ def biplane():
 
 WALKER_DEFS = ('<linearGradient id="wrb" x1="0" y1="0" x2="0" y2="1">' + ''.join(f'<stop offset="{i / 6:.3f}" stop-color="{c}"/><stop offset="{(i + 1) / 6:.3f}" stop-color="{c}"/>' for i, c in enumerate(['#ff2d55', '#ff9f1c', '#ffe45e', '#2ee59d', '#2fb8ff', '#b56bff'])) + '</linearGradient>' + '<linearGradient id="qgown" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b56bff"/><stop offset=".6" stop-color="#7b2cbf"/><stop offset="1" stop-color="#ff2e88"/></linearGradient>'
                '<linearGradient id="qwig" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff9ed8"/><stop offset="1" stop-color="#c77dff"/></linearGradient>')
+
+
+# ---------------------------------------------------------------- venue facades (illustrations, not photos)
+def facade(slug, name, kind):
+    """Night-time illustration of a venue front in the house style: a Blackpool terrace with a neon name sign.
+    Bars get a glowing shopfront, stays a bay-windowed guest house, Funny Girls an art deco picture house. Closed venues stay dark."""
+    import random as _r
+    from html import escape as _e
+    R = _r.Random(slug); k = kind.lower(); closed = 'closed' in k
+    deco = slug == 'funny-girls'
+    bar = (not deco) and any(w in k for w in ('bar', 'club', 'pub', 'lounge', 'cabaret', 'sauna', 'bistro'))
+    if any(w in k for w in ('hotel', 'guest house', 'b&b')) and 'bar and hotel' not in k and 'bar with rooms' not in k and 'cabaret bar' not in k: bar = False
+    paint = R.choice(['#f3d9e6', '#d8ecf0', '#efe3c8', '#e3dcf5', '#cfe8d8', '#f2c9b8', '#9a5a46'])
+    trim = R.choice(['#ff2e88', '#0fb5ae', '#ffc93c', '#8b5cf6'])
+    neon = '#5a5470' if closed else R.choice(['#ff2e88', '#ff5fb0', '#2ff3e0', '#ffe45e'])
+    lit = lambda: '#3a2a5c' if closed or R.random() < .3 else R.choice(['#ffd88a', '#ffc46b', '#ffb3d9', '#fff1c9'])
+    uid = re.sub(r'[^a-z0-9]', '', slug)[:10] or 'v'
+    W, H, G = 800, 460, 410    # canvas, ground line
+    out = [f'<svg class="facade" viewBox="0 0 {W} {H}" role="img" aria-label="Illustration of the front of {_e(name)}{" (closed)" if closed else ""} at night">',
+           f'<defs><linearGradient id="fs{uid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#170c2c"/><stop offset=".7" stop-color="#3a1a6e"/><stop offset="1" stop-color="#7a2f7a"/></linearGradient>'
+           f'<filter id="fg{uid}" x="-20%" y="-60%" width="140%" height="220%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>'
+           f'<linearGradient id="fw{uid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe7a8"/><stop offset="1" stop-color="#ff9fc9"/></linearGradient></defs>',
+           f'<rect width="{W}" height="{H}" fill="url(#fs{uid})"/>']
+    out += [f'<circle cx="{R.randint(10, 790)}" cy="{R.randint(8, 120)}" r="{R.choice([.8, 1, 1.3])}" fill="#fff" opacity="{R.choice([.4, .6, .9])}"/>' for _ in range(26)]
+    # neighbours
+    for x0, x1 in ((-10, 170), (630, 810)):
+        top = R.randint(110, 170)
+        out.append(f'<rect x="{x0}" y="{top}" width="{x1 - x0}" height="{G - top}" fill="#2a1d4a"/>')
+        out += [f'<rect x="{x}" y="{y}" width="26" height="34" rx="2" fill="{lit() if R.random() < .5 else "#3a2a5c"}" opacity=".8"/>' for x in range(x0 + 24, x1 - 30, 52) for y in range(top + 24, G - 50, 66)]
+    x0, x1 = 170, 630
+    if deco:
+        out.append('<g transform="translate(0 80)">')
+        G -= 80
+        out.append(f'<path d="M{x0} {G} V120 H{x1} V{G}Z" fill="#efe3c8"/><path d="M{x0} {G} V120 H{x1} V{G}Z" fill="#1a1033" opacity=".35"/>')
+        out += [f'<path d="M{x0} {y} H{x1}" stroke="#d6c6a4" stroke-width="3" opacity=".7"/>' for y in (150, 162, 174)]
+        out.append(f'<rect x="372" y="34" width="56" height="200" fill="#efe3c8"/><rect x="372" y="34" width="56" height="200" fill="#1a1033" opacity=".3"/>'
+                   f'<g filter="url(#fg{uid})" font-family="\'Bricolage Grotesque\',system-ui,sans-serif" font-weight="800" font-size="24" fill="{neon}" text-anchor="middle">'
+                   + ''.join(f'<text x="400" y="{62 + i * 23}">{_e(ch)}</text>' for i, ch in enumerate('FUNNY')) + '</g>'
+                   f'<rect x="{x0 + 20}" y="236" width="{x1 - x0 - 40}" height="20" rx="4" fill="#1a1033"/>'
+                   + ''.join(f'<circle cx="{x}" cy="246" r="3.2" fill="{"#ffe45e" if i % 2 else "#ff9fc9"}"/>' for i, x in enumerate(range(x0 + 30, x1 - 20, 16)))
+                   + f'<text x="400" y="226" text-anchor="middle" font-family="Monoton,sans-serif" font-size="30" fill="{neon}" filter="url(#fg{uid})">GIRLS</text>'
+                   + ''.join(f'<rect x="{x}" y="262" width="54" height="{G - 262}" rx="3" fill="url(#fw{uid})" opacity=".85"/>' for x in (200, 270, 476, 546))
+                   + f'<rect x="352" y="262" width="96" height="{G - 262}" rx="3" fill="#2a1d4a"/><rect x="398" y="262" width="4" height="{G - 262}" fill="#1a1033"/></g>')
+        G += 80
+    else:
+        fsz = max(18, min(34, int(400 / max(6, len(name)) * 1.5)))
+        floors = 2     # storeys above the ground floor (stays: above the two-storey bay)
+        base = (G - 182) if bar else (G - 174)                        # bottom of the sign band
+        rows = [base - fsz - 84 - 70 * j for j in range(floors)]            # window tops, above the sign
+        top = rows[-1] - 22
+        out.append(f'<rect x="{x0}" y="{top}" width="{x1 - x0}" height="{G - top}" fill="{paint}"/><rect x="{x0}" y="{top}" width="{x1 - x0}" height="{G - top}" fill="#1a1033" opacity=".42"/>'
+                   f'<rect x="{x0 - 8}" y="{top - 12}" width="{x1 - x0 + 16}" height="14" fill="{paint}"/><rect x="{x0 - 8}" y="{top - 12}" width="{x1 - x0 + 16}" height="14" fill="#1a1033" opacity=".55"/>')
+        for y in rows:
+            for wx in (205, 300, 440, 535):
+                out.append(f'<rect x="{wx}" y="{y}" width="60" height="48" rx="3" fill="{lit()}"/><path d="M{wx + 30} {y} V{y + 48} M{wx} {y + 24} H{wx + 60}" stroke="#2a1d4a" stroke-width="3"/>')
+        if not bar:   # two-storey canted bay on the left, door with fanlight on the right
+            out.append(f'<path d="M190 {G} V{G - 150} L210 {G - 166} H350 L370 {G - 150} V{G}Z" fill="{paint}"/><path d="M190 {G} V{G - 150} L210 {G - 166} H350 L370 {G - 150} V{G}Z" fill="#1a1033" opacity=".3"/>')
+            for yy in (G - 148, G - 74):
+                out.append(f'<rect x="206" y="{yy}" width="44" height="54" rx="2" fill="{lit()}"/><rect x="258" y="{yy}" width="44" height="54" rx="2" fill="{lit()}"/><rect x="310" y="{yy}" width="44" height="54" rx="2" fill="{lit()}"/>')
+            out.append(f'<rect x="452" y="{G - 96}" width="70" height="96" rx="4" fill="{trim}"/><path d="M452 {G - 96} a35 30 0 0 1 70 0z" fill="{lit()}"/><circle cx="508" cy="{G - 46}" r="3.4" fill="#ffc93c"/>'
+                       f'<path d="M444 {G} h86 v-6 h-86z M436 {G + 6} h102 v-6 h-102z" fill="#cfc4dc"/>')
+        else:          # glowing shopfront with dancing silhouettes and a striped awning
+            out.append(f'<rect x="{x0}" y="{G - 108}" width="{x1 - x0}" height="108" fill="#1a1033"/>')
+            out.append(f'<rect x="190" y="{G - 92}" width="170" height="80" rx="4" fill="{"#2a2440" if closed else "url(#fw" + uid + ")"}"/><rect x="440" y="{G - 92}" width="170" height="80" rx="4" fill="{"#2a2440" if closed else "url(#fw" + uid + ")"}"/>')
+            if not closed:
+                for bx in (205, 252, 300, 455, 505, 560):
+                    hh = R.randint(34, 46)
+                    out.append(f'<g fill="#1a1033" opacity=".55"><circle cx="{bx + 10}" cy="{G - 12 - hh}" r="6"/><path d="M{bx} {G - 12} q0 -{hh - 6} 10 -{hh - 6} q10 0 10 {hh - 6}z"/>'
+                               f'<path d="M{bx + 2} {G - 30 - hh // 2} l-8 -{hh // 2}" stroke="#1a1033" stroke-width="4" stroke-linecap="round"/></g>')
+                out.append(f'<circle cx="275" cy="{G - 82}" r="7" fill="#fff" opacity=".7"/><circle cx="525" cy="{G - 82}" r="7" fill="#fff" opacity=".7"/>')
+            else:
+                out.append(f'<text x="275" y="{G - 46}" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-weight="700" font-size="16" fill="#8f86a8">CLOSED</text>'
+                           f'<text x="525" y="{G - 46}" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-weight="700" font-size="16" fill="#8f86a8">CLOSED</text>')
+            out.append(f'<rect x="372" y="{G - 92}" width="56" height="92" rx="3" fill="{trim}" opacity="{.45 if closed else 1}"/><rect x="398" y="{G - 92}" width="4" height="92" fill="#1a1033"/>')
+            out.append(''.join(f'<path d="M{x} {G - 116} h28 l-4 18 h-28z" fill="{trim if i % 2 else "#fff6ec"}" opacity="{.5 if closed else .95}"/>' for i, x in enumerate(range(186, 612, 28))))
+        # name sign over the ground floor
+        sy = base - 12
+        fs = fsz
+        out.append(f'<rect x="{x0 + 20}" y="{sy - fs - 4}" width="{x1 - x0 - 40}" height="{fs + 22}" rx="8" fill="#1a1033" stroke="{neon}" stroke-width="2.4" opacity=".96"/>'
+                   f'<text x="400" y="{sy + 6}" text-anchor="middle" font-family="\'Bricolage Grotesque\',system-ui,sans-serif" font-weight="800" font-size="{fs}" fill="{neon}"{"" if closed else f" filter=\"url(#fg{uid})\""}>{_e(name)}</text>')
+        if not closed:   # rainbow flag on a pole
+            fy = top + 30
+            out.append(f'<path d="M{x1 - 30} {fy} l40 -26" stroke="#cfc4dc" stroke-width="3"/>'
+                       + ''.join(f'<path d="M{x1 + 8} {fy - 24 + i * 5} l38 6 v5 l-38 -6z" fill="{c}"/>' for i, c in enumerate(['#ff2d55', '#ff9f1c', '#ffe45e', '#2ee59d', '#2fb8ff', '#b56bff'])))
+    # pavement, kerb, lamp
+    out.append(f'<rect y="{G}" width="{W}" height="{H - G}" fill="#241640"/><rect y="{G + 22}" width="{W}" height="4" fill="#ff9fc9" opacity=".25"/>'
+               f'<path d="M110 {G} V{G - 170} q0 -14 14 -14 h14" stroke="#2a1d4a" stroke-width="6" fill="none"/><circle cx="140" cy="{G - 180}" r="9" fill="#ffd88a"/><circle cx="140" cy="{G - 180}" r="28" fill="#ffd88a" opacity=".16"/>')
+    out.append('</svg>')
+    return ''.join(out)

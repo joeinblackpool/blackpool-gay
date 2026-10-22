@@ -119,6 +119,7 @@ PAGES = {}
 def add(path, page): PAGES[path] = page
 
 # ---------------------------------------------------------------- stays
+def vface(s): v = VBY[s]; return f'<figure class="vface">{art.facade(s, v["name"], v["kind"])}<figcaption>Illustration, not a photo. {E(v["address"])}</figcaption></figure>'
 def stay_page(s):
     v = VBY[s]; c = STAYS.get(s) or {}
     near = sorted([(walk(s, b), b) for b in BAR_SLUGS if b != s and walk(s, b)], key=lambda x: x[0])[:6]
@@ -128,7 +129,7 @@ def stay_page(s):
     tower = WALK.get(s, {}).get('to', {}).get('blackpool-tower')
     stamp = f'<span class="stamp" aria-hidden="true"><b>{tower}</b>min to the Tower</span>' if tower else ''
     mp = mapblock([p for p in ALLPINS if p['u'] == f'/stays/{s}/'] + [p for p in ALLPINS if p['k'] == 'bar' and p['u'].split('/')[2] in [b for _, b in near]], center=v['geo'], zoom=17, h=340)
-    body = ('<div class="stay-grid"><div class="main">' + f'<div class="postcard">{stamp}{mp}</div>' +
+    body = (vface(s) + '<div class="stay-grid"><div class="main">' + f'<div class="postcard">{stamp}{mp}</div>' +
             (c.get('body_html') or f'<p>{E(v["name"])} is a {E(v["kind"].lower())} at {E(v["address"])}.</p>') +
             f'<h2>Walking times from {E(v["name"])}</h2><table class="walk"><thead><tr><th>Place</th><th>On foot</th></tr></thead><tbody>{fixed}{rows}</tbody></table><p class="small">Walking times are estimates from map positions.</p>'
             + f'</div><aside class="register" aria-label="Guest register"><span class="eyebrow">Guest register</span>{facts}{maplinks(v)}</aside></div>' + promo(s, v['name']))
@@ -174,7 +175,7 @@ for s in BAR_SLUGS:
     v = VBY[s]; c = CARDS.get(s)
     if not c or not v.get('geo'): continue
     near = sorted([(walk(s, h), h) for h in STAY_SLUGS if h != s and walk(s, h) and f'/stays/{h}/' in PAGES], key=lambda x: x[0])[:5]
-    body = (f'<div class="staybox"><ul class="facts"><li><strong>Address:</strong> {E(v["address"])}{", " + E(v["postcode"]) if v.get("postcode") else ""}</li><li><strong>Type:</strong> {E(v["kind"])}</li>' + (f'<li><strong>Prices:</strong> {E(v["price"])}</li>' if v.get('price') else '') + '</ul>' + maplinks(v) + '</div>' + c['body_html'] +
+    body = (vface(s) + f'<div class="staybox"><ul class="facts"><li><strong>Address:</strong> {E(v["address"])}{", " + E(v["postcode"]) if v.get("postcode") else ""}</li><li><strong>Type:</strong> {E(v["kind"])}</li>' + (f'<li><strong>Prices:</strong> {E(v["price"])}</li>' if v.get('price') else '') + '</ul>' + maplinks(v) + '</div>' + c['body_html'] +
             '<h2>Opening hours</h2>' + hours_table(v) + ('<h2>Closest places to stay</h2><ul>' + ''.join(f'<li><a href="/stays/{h}/">{E(VBY[h]["name"])}</a>, {m} min walk</li>' for m, h in near) + '</ul>' if near else '') +
             mapblock([p for p in ALLPINS if p['u'] == f'/nightlife/{s}/'] + [p for p in ALLPINS if p['k'] == 'stay' and p['u'].split('/')[2] in [h for _, h in near]], center=v['geo'], zoom=17, h=300) + promo(s, v['name']))
     typ = v.get('schemaType') or ('NightClub' if 'club' in v['kind'].lower() else 'BarOrPub')
