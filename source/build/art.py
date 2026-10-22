@@ -358,7 +358,7 @@ def hero_scene():
             + f'<div class="ly ly-far par" data-d="9" style="left:0;top:0;width:240%;height:100%"><div class="rl rl-far"><svg viewBox="0 0 3840 900" preserveAspectRatio="none" aria-hidden="true" focusable="false">{far_svg}</svg></div></div>'
             + f'<div class="ov-fly"><div class="fly-bob">{flying_flamingo()}</div></div>'
             + f'<div class="ov-sparkles" aria-hidden="true">{sky_sparkles()}</div>'
-            + f'<div class="ov-plane"><div class="ov-plane-bob">{biplane()}</div></div><div class="ov-moon par" data-d="3"><div class="moon-rock">{moon_svg()}</div></div>'
+            + f'<div class="ov-balloon"><div class="bl-sway">{balloon()}</div></div>' + f'<div class="ov-plane"><div class="ov-plane-bob">{biplane()}</div></div><div class="ov-moon par" data-d="3"><div class="moon-rock">{moon_svg()}</div></div>'
             + sky_strip.replace('class="ly ly-sky2"', 'class="ly ly-sky2 par" data-d="5"', 1)
             + layer('ly-road', 1600, road)
             + f'<div class="ly ly-dash" style="left:0;top:{798 / 9:.4f}%;width:200%;height:{18 / 9:.4f}%"><div class="rl rl-dash"><svg viewBox="0 798 3200 18" preserveAspectRatio="none" aria-hidden="true" focusable="false">{dashes}</svg></div></div>'
@@ -725,29 +725,59 @@ def posse(walk=True):
 
 
 def biplane():
-    """A little biplane towing a waving rainbow banner. viewBox 0 0 320 80, flies to the right."""
+    """A shaded biplane towing a waving Progress Pride banner. viewBox 0 0 340 84, flies to the right."""
     cols = RAINBOW
+    chev = ['#ffffff', '#ffafc8', '#74d7ee', '#613915', '#000000']
     def flag(a):
-        return (f'M6 {12 + a} C46 {12 - a} 86 {12 + a} 126 {12 - a * .6} L170 12 L170 52 L126 {52 - a * .6} C86 {52 + a} 46 {52 - a} 6 {52 + a} Z')
+        return (f'M6 {12 + a} C46 {12 - a} 86 {12 + a} 126 {12 - a * .6} L180 12 L180 56 L126 {56 - a * .6} C86 {56 + a} 46 {56 - a} 6 {56 + a} Z')
     shapes = [flag(a) for a in (4, -4, 4)]
-    stripes = ''.join(f'<rect x="0" y="{12 + i * 40 / 6:.2f}" width="172" height="{40 / 6 + .4:.2f}" fill="{c}"/>' for i, c in enumerate(cols))
+    stripes = ''.join(f'<rect x="0" y="{8 + i * 52 / 6:.2f}" width="184" height="{52 / 6 + .4:.2f}" fill="{c}"/>' for i, c in enumerate(cols))
+    chevrons = ''.join(f'<path d="M{-30 + i * 9} 4 L{10 + i * 9} 34 L{-30 + i * 9} 64 H-40 V4z" fill="{c}"/>' for i, c in reversed(list(enumerate(chev))))
     banner = (f'<clipPath id="bpclip"><path d="{shapes[0]}"><animate attributeName="d" values="{";".join(shapes)}" dur="1.1s" repeatCount="indefinite"/></path></clipPath>'
-              f'<g clip-path="url(#bpclip)">{stripes}<text x="88" y="37.5" text-anchor="middle" font-family="Bricolage Grotesque,Arial Black,system-ui,sans-serif" font-weight="900" font-size="15" letter-spacing=".5" fill="#fff" stroke="#1a1033" stroke-width="3" paint-order="stroke">BLACKPOOL.GAY</text></g>'
-              f'<path d="M6 12 V52" stroke="#fff6ec" stroke-width="2.4"/>')
-    rope = '<path d="M170 22 L214 40 M170 42 L214 40" stroke="#fff6ec" stroke-width="1" opacity=".8"/>'
-    plane = ('<g transform="translate(214 18)">'
-             '<path d="M2 22 l-6 -12 h8 l8 10z" fill="#ff2e88"/>'                                # tail fin
-             '<path d="M0 20 q30 -8 70 -4 q8 2 8 8 q0 6 -8 7 q-40 3 -70 -4z" fill="#fff6ec"/>'   # fuselage
-             '<path d="M10 24 h56" stroke="#ff2e88" stroke-width="2.4"/>'
-             '<rect x="22" y="2" width="44" height="5" rx="2.5" fill="#ff2e88"/><rect x="24" y="34" width="44" height="5" rx="2.5" fill="#ff2e88"/>'  # wings
-             '<path d="M30 7 L32 34 M58 7 L60 34" stroke="#2a1d4a" stroke-width="1.6"/>'
-             '<circle cx="44" cy="15" r="4.4" fill="#f1c7a3"/><path d="M39.6 13 q4.4 -6 9 -1.6" fill="#7a4a2a"/><path d="M40 14 h8" stroke="#2a1d4a" stroke-width="1.6"/>'  # pilot + goggles
-             '<path d="M40 19 q-10 0 -18 -4 q8 6 18 7z" fill="#ffc93c"><animate attributeName="d" values="M40 19 q-10 0 -18 -4 q8 6 18 7z;M40 19 q-10 4 -18 2 q8 2 18 3z;M40 19 q-10 0 -18 -4 q8 6 18 7z" dur=".5s" repeatCount="indefinite"/></path>'  # scarf
-             '<circle cx="78" cy="23" r="3" fill="#ffc93c"/>'
-             '<ellipse cx="80" cy="23" rx="2.2" ry="13" fill="#fff6ec" opacity=".32"/>'  # propeller blur
-             '<path d="M36 41 l-4 6 M60 41 l4 6" stroke="#2a1d4a" stroke-width="1.6"/><circle cx="31" cy="48" r="3.4" fill="#2a1d4a"/><circle cx="65" cy="48" r="3.4" fill="#2a1d4a"/>'
+              f'<g clip-path="url(#bpclip)">{stripes}{chevrons}'
+              '<text x="104" y="40" text-anchor="middle" font-family="Bricolage Grotesque,Arial Black,system-ui,sans-serif" font-weight="900" font-size="14" letter-spacing=".6" fill="#fff" stroke="#1a1033" stroke-width="3" paint-order="stroke">BLACKPOOL PRIDE</text>'
+              '<rect x="0" y="8" width="184" height="52" fill="url(#bpshade)"/></g>'
+              '<path d="M6 10 V58" stroke="#fff6ec" stroke-width="2.4"/>')
+    rope = '<path d="M180 22 L224 42 M180 48 L224 42" stroke="#fff6ec" stroke-width="1" opacity=".8"/>'
+    plane = ('<g transform="translate(224 20)">'
+             '<path d="M2 22 l-8 -14 h9 l9 12z" fill="url(#bpred)"/><path d="M-2 24 l-6 4 h10z" fill="#c4005e"/>'                         # tail fin + tailplane
+             '<path d="M30 6 h44 l-2 6 h-44z" fill="url(#bpred)"/><path d="M28 6 h4 v30 h-4z M64 6 h3 v30 h-3z" fill="#2a1d4a"/>'           # top wing + struts
+             '<path d="M0 22 q30 -11 72 -6 q10 2 10 9 q0 7 -10 8 q-42 4 -72 -5z" fill="url(#bpbody)"/>'                                  # fuselage
+             '<path d="M10 25 h58" stroke="#ff2e88" stroke-width="2.6"/><path d="M72 16 q10 2 10 9 q0 7 -10 8z" fill="#c9c3d8"/>'           # stripe, cowling
+             '<path d="M26 33 h48 l-3 6 h-48z" fill="url(#bpred)"/>'                                                                         # lower wing
+             '<circle cx="46" cy="15" r="4.6" fill="#f1c7a3"/><path d="M41 13 q5 -7 10 -1.4" fill="#7a4a2a"/><path d="M41.6 14 h8.4" stroke="#2a1d4a" stroke-width="1.8"/>'
+             '<path d="M42 19 q-12 0 -22 -5 q10 7 22 8z" fill="#ffc93c"><animate attributeName="d" values="M42 19 q-12 0 -22 -5 q10 7 22 8z;M42 19 q-12 5 -22 2 q10 2 22 3z;M42 19 q-12 0 -22 -5 q10 7 22 8z" dur=".5s" repeatCount="indefinite"/></path>'
+             '<ellipse cx="84" cy="25" rx="2.4" ry="15" fill="url(#bpprop)"/><circle cx="84" cy="25" r="2.6" fill="#ffc93c"/>'          # propeller disc + spinner
+             '<path d="M38 39 l-4 7 M62 39 l4 7" stroke="#2a1d4a" stroke-width="1.6"/><circle cx="33" cy="48" r="4" fill="#2a1d4a"/><circle cx="33" cy="48" r="1.4" fill="#c9c3d8"/><circle cx="67" cy="48" r="4" fill="#2a1d4a"/><circle cx="67" cy="48" r="1.4" fill="#c9c3d8"/>'
              '</g>')
-    return f'<svg viewBox="0 0 320 80" aria-hidden="true" focusable="false">{banner}{rope}{plane}</svg>'
+    defs = ('<defs><linearGradient id="bpbody" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".6" stop-color="#f3e9f7"/><stop offset="1" stop-color="#c9b8dc"/></linearGradient>'
+            '<linearGradient id="bpred" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff5fa8"/><stop offset="1" stop-color="#d81b72"/></linearGradient>'
+            '<radialGradient id="bpprop"><stop offset="0" stop-color="#fff" stop-opacity=".7"/><stop offset="1" stop-color="#fff" stop-opacity=".1"/></radialGradient>'
+            '<linearGradient id="bpshade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".18"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".18"/></linearGradient></defs>')
+    return f'<svg viewBox="0 0 340 84" aria-hidden="true" focusable="false">{defs}{banner}{rope}{plane}</svg>'
+
+
+def balloon():
+    """A rainbow hot-air balloon (original): shaded gores, skirt, ropes, wicker basket and a flickering burner. viewBox 0 0 120 176."""
+    env = 'M60 4 C100 4 117 36 113 66 C109 94 86 114 74 128 H46 C34 114 11 94 7 66 C3 36 20 4 60 4Z'
+    U = lambda j: (j - 3.5) / 3.5
+    bnd = lambda j: (f'{60 + U(j) * 58:.1f} 6', f'{60 + U(j) * 66:.1f} 72', f'{60 + U(j) * 14:.1f} 130')
+    def gore(k):
+        c1, c2, e = bnd(k); d1, d2, f = bnd(k + 1)
+        return f'<path d="M60 2 C{c1} {c2} {e} L{f} C{d2} {d1} 60 2Z" fill="{(RAINBOW + ["#5bcefa", "#ff9ccf"])[k]}"/>'
+    gores = ''.join(gore(k) for k in range(7))
+    seams = ''.join(f'<path d="M60 2 C{" ".join(bnd(j))}" stroke="#1a1033" stroke-opacity=".22" stroke-width="1" fill="none"/>' for j in range(1, 7))
+    return ('<svg viewBox="0 0 120 176" aria-hidden="true" focusable="false"><defs>'
+            f'<clipPath id="blc"><path d="{env}"/></clipPath>'
+            '<radialGradient id="blsh" cx=".34" cy=".3" r=".8"><stop offset="0" stop-color="#fff" stop-opacity=".45"/><stop offset=".45" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#1a1033" stop-opacity=".45"/></radialGradient>'
+            '<radialGradient id="blfl" cy=".7"><stop offset="0" stop-color="#fff6c8"/><stop offset=".5" stop-color="#ffb21e"/><stop offset="1" stop-color="#ff5a1e" stop-opacity="0"/></radialGradient></defs>'
+            f'<g clip-path="url(#blc)">{gores}{seams}<path d="{env}" fill="url(#blsh)"/></g>'
+            '<path d="M46 128 h28 l-4 10 h-20z" fill="#7b2ff7"/><path d="M46 128 h28" stroke="#ffc93c" stroke-width="2"/>'
+            '<path d="M50 138 L48 156 M70 138 L72 156 M56 138 L54 156 M64 138 L66 156" stroke="#c9b6a0" stroke-width="1"/>'
+            '<ellipse cx="60" cy="146" rx="5" ry="8" fill="url(#blfl)"><animate attributeName="ry" values="8;4;9;6;8" dur="1.3s" repeatCount="indefinite"/></ellipse>'
+            '<path d="M46 156 h28 l-2 16 h-24z" fill="#a8743f"/><path d="M46 156 h28" stroke="#6e4a26" stroke-width="2.4"/>'
+            '<path d="M48 162 h24 M49 167 h22 M53 156 v16 M60 156 v16 M67 156 v16" stroke="#7d5530" stroke-width="1" opacity=".8"/></svg>')
+
 
 
 def moon_svg():
@@ -782,17 +812,36 @@ def bulb_glints(y_top=624, step=240, n=11, sag=30, every=7, W=2560, H=900, Y0=0)
 
 
 def flying_flamingo():
-    """Flo in flight: neck stretched forward, legs trailing, wings beating. viewBox -70 -40 150 70, flying to the right."""
-    wing = lambda y0, flip: (f'<g><path d="M-6 -2 Q-14 {-30 * flip} -40 {-34 * flip} Q-20 {-14 * flip} -2 2z" fill="#ff5c9a"/><path d="M-30 {-30 * flip} l-8 {-3 * flip} l6 {6 * flip}z" fill="#1a1033"/>'
-                             f'<animateTransform attributeName="transform" type="scale" values="1 1;1 -.55;1 1" dur=".55s" repeatCount="indefinite"/></g>')
-    return ('<svg viewBox="-70 -40 150 70" aria-hidden="true" focusable="false">'
-            + wing(0, 1) +
-            '<path d="M-60 2 L-12 0" stroke="#ff7fae" stroke-width="2.2" stroke-linecap="round"/><path d="M-60 2 l-6 2 M-60 2 l-6 -2" stroke="#ff7fae" stroke-width="1.8" stroke-linecap="round"/>'
-            '<ellipse cx="0" cy="0" rx="18" ry="8" fill="#ff8fbd"/><path d="M-18 -1 l-10 -4 l2 7z" fill="#ff5c9a"/>'
-            '<path d="M16 -2 Q40 -6 52 -4" stroke="#ff6fa8" stroke-width="5" fill="none" stroke-linecap="round"/><circle cx="56" cy="-4" r="5.4" fill="#ff6fa8"/>'
-            '<path d="M60 -6 q10 0 11 6 q-1 3 -4 3 q1 -4 -7 -5z" fill="#ffd1e3" stroke="#e0679a" stroke-width=".8"/><path d="M68 -1 q2 0 3 -1 q0 3 -3 3z" fill="#1a1033"/><circle cx="57.6" cy="-5.4" r="1.2" fill="#1a1033"/>'
-            + wing(0, -1).replace('#ff5c9a', '#ff4a8c') +
-            '<animateTransform attributeName="transform" type="translate" values="0 0;0 -3;0 0" dur=".55s" repeatCount="indefinite"/></svg>')
+    """Flo in flight (original drawing): long neck stretched forward, legs trailing, shaded pink body, black-tipped wings
+    beating with an eased stroke. viewBox -100 -64 200 120, flying to the right."""
+    ease = 'calcMode="spline" keyTimes="0;.45;1" keySplines=".5 0 .3 1;.4 0 .6 1"'
+    def wing(near):
+        base, mid, dark = ('#ff6fa8', '#ff8fbd', '#ffc2da') if near else ('#e04a87', '#ea5f96', '#f58ab4')
+        return (f'<g transform="translate(14 -6)"><g><path d="M-14 -6 C-20 -26 -34 -46 -58 -58 C-54 -44 -48 -30 -40 -20 C-30 -12 -20 -6 -4 -2z" fill="{base}"/>'
+                f'<path d="M-16 -8 C-22 -22 -30 -32 -42 -40 C-36 -28 -30 -20 -18 -10z" fill="{dark}" opacity=".7"/>'
+                f'<path d="M-58 -58 C-66 -60 -74 -58 -80 -54 C-70 -50 -62 -48 -54 -46 C-62 -44 -68 -40 -72 -36 C-62 -36 -54 -38 -48 -32 C-52 -28 -56 -24 -58 -20 C-50 -22 -44 -24 -40 -20z" fill="#1a1033"/>'
+                f'<path d="M-30 -18 q8 -6 18 -6 M-38 -28 q10 -6 20 -4 M-46 -40 q8 -4 16 -2" stroke="{mid}" stroke-width="1.4" fill="none" opacity=".8"/>'
+                f'<animateTransform attributeName="transform" type="scale" values="1 1;1 {-.62 if near else -.5};1 1" {ease} dur=".78s" repeatCount="indefinite"/></g></g>')
+    return ('<svg viewBox="-100 -64 200 120" aria-hidden="true" focusable="false"><defs>'
+            '<linearGradient id="flb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffc2da"/><stop offset=".55" stop-color="#ff7fb1"/><stop offset="1" stop-color="#e2508c"/></linearGradient>'
+            '<linearGradient id="fln" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ff7fb1"/><stop offset="1" stop-color="#ff9cc4"/></linearGradient></defs><g>'
+            + wing(False) +
+            # trailing legs, knees bent a touch, little webbed feet
+            '<path d="M-20 6 L-52 9 L-86 12" stroke="#ff7fae" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'
+            '<path d="M-20 3 L-50 5 L-84 4" stroke="#f26aa0" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'
+            '<circle cx="-52" cy="9" r="2.2" fill="#ff7fae"/><path d="M-86 12 l-8 3 l3 -5 l-4 -3z" fill="#ff7fae"/><path d="M-84 4 l-7 1 l3 -4z" fill="#f26aa0"/>'
+            # body with a ruffled tail
+            '<path d="M-26 0 C-24 -14 -6 -18 12 -14 C26 -10 30 -2 26 6 C20 14 -2 16 -18 10 C-24 8 -28 4 -26 0z" fill="url(#flb)"/>'
+            '<path d="M-26 0 l-12 -5 l3 5 l-6 2 l9 3 z" fill="#e2508c"/><path d="M-6 8 q12 4 26 -4" stroke="#d24680" stroke-width="1.2" fill="none" opacity=".6"/>'
+            # neck, head and the bent black-tipped beak
+            '<path d="M22 -8 C38 -14 50 -10 64 -12" stroke="url(#fln)" stroke-width="7" fill="none" stroke-linecap="round"/>'
+            '<ellipse cx="70" cy="-13" rx="8" ry="6.6" fill="#ff9cc4"/>'
+            '<path d="M76 -16 C86 -17 92 -13 93 -7 C93 -4 91 -2 89 -3 C89 -7 85 -10 77 -9z" fill="#ffe1ec" stroke="#e0679a" stroke-width=".7"/>'
+            '<path d="M89 -9 C92 -8 93 -6 93 -4 C92 -2 90 -2 89 -3 C89 -5 89 -7 89 -9z" fill="#1a1033"/>'
+            '<circle cx="72" cy="-15" r="1.8" fill="#fff6c8"/><circle cx="72.4" cy="-15" r="1" fill="#1a1033"/>'
+            + wing(True) +
+            '<animateTransform attributeName="transform" type="translate" values="0 2;0 -3;0 2" calcMode="spline" keyTimes="0;.45;1" keySplines=".5 0 .3 1;.4 0 .6 1" dur=".78s" repeatCount="indefinite"/></g></svg>')
+
 
 
 def rainbow_crossing(x):
