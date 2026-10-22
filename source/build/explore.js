@@ -465,7 +465,14 @@
       const s = 4.5, pts = [[pin.x - s, pin.z - s], [pin.x + s, pin.z - s], [pin.x + s, pin.z + s], [pin.x - s, pin.z + s]];
       addCollider(pts); venueBuilding(pin, pts, 9);
     }
-    buildSigns();
+    // real house numbers from OpenStreetMap addresses: a small plaque by the door on the nearest building face
+    for (const [num, x, z] of Wd.ad || []) {
+      let best = null, bd = 10;
+      for (let i = 0; i < FP.length; i++) { const bb = BB[i]; if (x < bb[0] - 10 || x > bb[1] + 10 || z < bb[2] - 10 || z > bb[3] + 10) continue;
+        for (const ed of allEdges(FP[i])) { const t = clamp((x - ed.a[0]) * ed.tx + (z - ed.a[1]) * ed.tz, .4, ed.len - .4), px = ed.a[0] + ed.tx * t, pz = ed.a[1] + ed.tz * t, d = Math.hypot(px - x, pz - z); if (d < bd) { bd = d; best = { x: px + ed.nx * .08, z: pz + ed.nz * .08, nx: ed.nx, nz: ed.nz }; } } }
+      if (best) NUMS.push(Object.assign(best, { text: num, k: 'n', w: .5, y: 2.25 }));
+    }
+    buildSigns(); buildSigns(NUMS, 128, 64, 16, 32);
     pruneGraph();
     if (towerXZ) buildTower(towerXZ[0], towerXZ[1]);
     buildIlluminations(named.get('Promenade') || []);
@@ -491,34 +498,40 @@
     g: { bg: '#fbf5ea', fg: '#3a1f5c', rim: '#c8a24a', neon: false },
     s: { bg: null, fg: '#ffffff', rim: '#ffffff', neon: false },
     f: { bg: null, fg: '#ffffff', rim: '#ffe7a8', neon: false },
-    b: { bg: '#1a1033', fg: null, rim: null, neon: true }
+    b: { bg: '#1a1033', fg: null, rim: null, neon: true },
+    p: { bg: '#1f5fbf', fg: '#ffffff', rim: '#ffffff', neon: false },
+    n: { bg: '#1d2333', fg: '#f4efe4', rim: '#c8a24a', neon: false }
   };
+  const NUMS = [];
   const BOARD = ['#c2185b', '#0b7f7a', '#3d2a8a', '#b8461f', '#1f5c99', '#7a1f6e', '#2f6b3a'];
-  function buildSigns() {
-    if (!SIGNS.length) return;
-    const CW = 320, CH = 64, COLS = 6, ROWS = 32, PER = COLS * ROWS, fontF = '"Bricolage Grotesque", "Inter", system-ui, sans-serif';
-    for (let a0 = 0; a0 < SIGNS.length; a0 += PER) {
-      const part = SIGNS.slice(a0, a0 + PER), pos = [], uv = [];
-      const tex = canvasTex(CW * COLS, CH * ROWS, (x) => {
+  // signs with the same words and style share one atlas cell
+  function buildSigns(LIST, CW, CH, COLS, ROWS) {
+    LIST = LIST || SIGNS; CW = CW || 320; CH = CH || 64; COLS = COLS || 6; ROWS = ROWS || 32;
+    if (!LIST.length) return;
+    const PER = COLS * ROWS, fontF = '"Bricolage Grotesque", "Inter", system-ui, sans-serif', cells = new Map(), uniq = [];
+    for (const sg of LIST) { const key = sg.k + '|' + sg.text + '|' + (sg.k === 'b' || !SIGN_STYLE[sg.k].bg ? Math.floor(hash(sg.x * 5, sg.z * 3) * 97) % 4 : 0); if (!cells.has(key)) { cells.set(key, uniq.length); uniq.push([sg]); } else uniq[cells.get(key)].push(sg); }
+    for (let a0 = 0; a0 < uniq.length; a0 += PER) {
+      const groups = uniq.slice(a0, a0 + PER), part = groups.map(g => g[0]), pos = [], uv = [], rows = Math.min(ROWS, Math.ceil(part.length / COLS)), RH = 1 << Math.ceil(Math.log2(rows * CH)) ;
+      const tex = canvasTex(CW * COLS, RH, (x) => {
         part.forEach((sg, i) => {
           const cx = (i % COLS) * CW, cy = Math.floor(i / COLS) * CH, st = SIGN_STYLE[sg.k], hsh = hash(sg.x * 5, sg.z * 3);
           const bg = sg.k === 'b' ? '#1a1033' : st.bg || BOARD[Math.floor(hsh * 97) % BOARD.length];
           x.fillStyle = bg; x.beginPath(); if (x.roundRect) x.roundRect(cx + 3, cy + 3, CW - 6, CH - 6, 10); else x.rect(cx + 3, cy + 3, CW - 6, CH - 6); x.fill();
           if (st.rim) { x.strokeStyle = st.rim; x.lineWidth = 3; x.stroke(); }
-          let fs = 34; x.font = `800 ${fs}px ${fontF}`; while (x.measureText(sg.text).width > CW - 30 && fs > 12) { fs -= 1; x.font = `800 ${fs}px ${fontF}`; }
+          let fs = CH * .53 | 0; x.font = `800 ${fs}px ${fontF}`; while (x.measureText(sg.text).width > CW - 30 && fs > 12) { fs -= 1; x.font = `800 ${fs}px ${fontF}`; }
           x.textAlign = 'center'; x.textBaseline = 'middle';
           if (st.neon) { const nc = ['#ff4fd8', '#33e1ff', '#ffe45e', '#7dff9b'][Math.floor(hsh * 41) % 4]; x.shadowColor = nc; x.shadowBlur = 14; x.fillStyle = nc; x.fillText(sg.text, cx + CW / 2, cy + CH / 2 + 1); x.shadowBlur = 0; x.fillStyle = '#ffffff'; x.globalAlpha = .55; x.fillText(sg.text, cx + CW / 2, cy + CH / 2 + 1); x.globalAlpha = 1; }
           else { x.fillStyle = st.fg; x.fillText(sg.text, cx + CW / 2, cy + CH / 2 + 2); }
         });
       });
-      const H = CH * ROWS, Wt = CW * COLS;
-      part.forEach((sg, i) => {
+      const H = RH, Wt = CW * COLS;
+      groups.forEach((grp, i) => grp.forEach(sg => {
         const u0 = (i % COLS) * CW / Wt, u1 = u0 + CW / Wt, vt = 1 - Math.floor(i / COLS) * CH / H, vb = vt - CH / H;
         const rx = sg.nz, rz = -sg.nx, w = sg.w, hh = w * CH / CW, y0 = sg.y, y1 = sg.y + hh;
         const L = [sg.x - rx * w / 2, sg.z - rz * w / 2], R = [sg.x + rx * w / 2, sg.z + rz * w / 2];
         pos.push(L[0], y0, L[1], R[0], y0, R[1], R[0], y1, R[1], L[0], y0, L[1], R[0], y1, R[1], L[0], y1, L[1]);
         uv.push(u0, vb, u1, vb, u1, vt, u0, vb, u1, vt, u0, vt);
-      });
+      }));
       const g = new T.BufferGeometry(); g.setAttribute('position', new T.Float32BufferAttribute(pos, 3)); g.setAttribute('uv', new T.Float32BufferAttribute(uv, 2)); g.computeBoundingSphere();
       const m = new T.Mesh(g, new T.MeshBasicMaterial({ map: tex, side: T.DoubleSide, toneMapped: false, color: new T.Color(1.05, 1.05, 1.05) }));
       S.add(m); W.signMats = (W.signMats || []).concat(m.material);
@@ -719,6 +732,8 @@
       }
     });
   }
+  // unit direction of the nearest street, so street furniture faces it
+  function roadDir(x, z) { const r = nearRoad(x, z); return r[1] >= 0 ? [r[2], r[3]] : [1, 0]; }
   const circ = (x, z, r, n = 8) => Array.from({ length: n }, (_, i) => [x + Math.cos(i / n * Math.PI * 2) * r, z + Math.sin(i / n * Math.PI * 2) * r]);
   function buildStreetDetail(Wd) {
     const M = new Builder(), G = new Builder(), Y = .34, UP = [0, 1, 0];
@@ -730,7 +745,7 @@
         const n = PROGRESS.length, bw = 2 * half / n;
         PROGRESS.forEach((c, k) => quad(M, Q(-1.6, -half + k * bw, Y - .01), Q(1.6, -half + k * bw, Y - .01), Q(1.6, -half + (k + 1) * bw, Y - .01), Q(-1.6, -half + (k + 1) * bw, Y - .01), rgb(c), UP));
       }
-      if (kind === 'signals' || kind === 'rainbowlights') {
+      if (kind === 'signals' || kind === 'rainbowlights' || kind === 'marked') {
         for (const a of [-1.7, 1.7]) for (let b = -half; b < half - .3; b += 1.1) quad(M, Q(a - .08, b, Y), Q(a + .08, b, Y), Q(a + .08, b + .55, Y), Q(a - .08, b + .55, Y), rgb('#fbf3ff'), UP);
         continue;
       }
@@ -754,9 +769,45 @@
       else if (k === 'tree') { prism(M, circ(x, z, .18, 6), 0, 2.4, rgb('#6b4a3a'), rgb('#6b4a3a')); prism(M, circ(x, z, 1.8, 7), 2.2, 4.6, rgb('#5e9e63'), rgb('#7cc07f')); prism(M, circ(x, z, 1.2, 7), 4.6, 5.8, rgb('#6db070'), rgb('#8fd191')); }
       else if (k === 'bench') prism(M, [[x - .8, z - .25], [x + .8, z - .25], [x + .8, z + .25], [x - .8, z + .25]], .4, .5, rgb('#8a6a4a'), rgb('#a07c58'));
       else if (k === 'signals') { prism(M, circ(x, z, .08, 6), 0, 3, rgb('#2a2440'), rgb('#2a2440')); prism(M, [[x - .18, z - .14], [x + .18, z - .14], [x + .18, z + .14], [x - .18, z + .14]], 2.2, 3.1, rgb('#1a1a1a'), rgb('#1a1a1a')); prism(G, circ(x, z, .11, 6), 2.85, 3.0, rgb('#ff3030', 2), rgb('#ff3030', 2)); prism(G, circ(x, z, .11, 6), 2.35, 2.5, rgb('#3dff6a', 2), rgb('#3dff6a', 2)); }
-      else if (k === 'busstop') { prism(M, circ(x, z, .06, 6), 0, 2.8, rgb('#d9d4e6'), rgb('#d9d4e6')); prism(M, [[x - .25, z - .03], [x + .25, z - .03], [x + .25, z + .03], [x - .25, z + .03]], 2.3, 2.8, rgb('#1f6fd1'), rgb('#1f6fd1')); }
-      else if (k === 'postbox') prism(M, circ(x, z, .28, 10), 0, 1.5, rgb('#d81e1e'), rgb('#1a1a1a'));
-      else if (k === 'phone') prism(M, [[x - .5, z - .5], [x + .5, z - .5], [x + .5, z + .5], [x - .5, z + .5]], 0, 2.5, rgb('#d81e1e'), rgb('#b01818'));
+      else if (k === 'busstop') {   // bus stop pole and flag, turned to face the street
+        const d = roadDir(x, z), F = (u, v) => [x + d[0] * u - d[1] * v, z + d[1] * u + d[0] * v];
+        prism(M, circ(x, z, .05, 6), 0, 3.1, rgb('#cfd2d8'), rgb('#cfd2d8'));
+        prism(M, [F(-.04, .05), F(.04, .05), F(.04, .55), F(-.04, .55)], 2.45, 3.0, rgb('#f4f4f2'), rgb('#e2e2e2'));
+        prism(M, [F(-.05, .2), F(.05, .2), F(.05, .42), F(-.05, .42)], 2.62, 2.84, rgb('#d4202c'), rgb('#d4202c'));
+        prism(M, [F(-.06, -.08), F(.06, -.08), F(.06, .08), F(-.06, .08)], 1.3, 1.75, rgb('#ffd23f'), rgb('#ffd23f'));
+      }
+      else if (k === 'postbox') {   // Royal Mail pillar box
+        prism(M, circ(x, z, .3, 12), 0, .12, rgb('#1a1a1a'), rgb('#1a1a1a')); prism(M, circ(x, z, .27, 12), .12, 1.38, rgb('#d6202a'), rgb('#d6202a'));
+        prism(M, circ(x, z, .32, 12), 1.38, 1.48, rgb('#c01c25'), rgb('#c01c25')); prism(M, circ(x, z, .2, 12), 1.48, 1.58, rgb('#c01c25'), rgb('#b01a22'));
+        const d = roadDir(x, z); prism(M, [[x - d[1] * .27 - d[0] * .1, z + d[0] * .27 - d[1] * .1], [x - d[1] * .27 + d[0] * .1, z + d[0] * .27 + d[1] * .1], [x - d[1] * .29 + d[0] * .1, z + d[0] * .29 + d[1] * .1], [x - d[1] * .29 - d[0] * .1, z + d[0] * .29 - d[1] * .1]], 1.12, 1.16, rgb('#111'), rgb('#111'));
+      }
+      else if (k === 'phone') {   // red K6-style kiosk: frame, glazing bars, illuminated TELEPHONE fascia, domed roof
+        const d = roadDir(x, z), F = (u, v) => [x + d[0] * u - d[1] * v, z + d[1] * u + d[0] * v], sq = (h, y0, y1, c, c2) => prism(M, [F(-h, -h), F(h, -h), F(h, h), F(-h, h)], y0, y1, c, c2 || c);
+        const RED = rgb('#c8102e');
+        sq(.5, 0, .14, rgb('#8c8c8c')); sq(.46, .14, 2.25, RED); sq(.5, 2.25, 2.42, RED); sq(.42, 2.42, 2.55, rgb('#b00d27'));
+        for (let k2 = 0; k2 < 4; k2++) { const r = k2 * Math.PI / 2, c = Math.cos(r), sn = Math.sin(r), Q = (u, y) => { const p = F(u * c - .465 * sn, u * sn + .465 * c); return [p[0], y, p[1]]; }, out = (() => { const p = F(-sn, c), q = F(0, 0); return [p[0] - q[0], 0, p[1] - q[1]]; })();
+          for (let r2 = 0; r2 < 6; r2++) for (let c2 = 0; c2 < 3; c2++) quad(M, Q(-.33 + c2 * .23, .62 + r2 * .22), Q(-.33 + c2 * .23 + .19, .62 + r2 * .22), Q(-.33 + c2 * .23 + .19, .8 + r2 * .22), Q(-.33 + c2 * .23, .8 + r2 * .22), rgb('#9db8c8', .9), out);
+          quad(G, Q(-.3, 2.06), Q(.3, 2.06), Q(.3, 2.2), Q(-.3, 2.2), rgb('#fff6dc', 1.6), out); }
+        prism(M, circ(x, z, .36, 8).map(p => p), 2.55, 2.7, RED, rgb('#b00d27'));
+      }
+      else if (k === 'bollard') { prism(M, circ(x, z, .1, 8), 0, .95, rgb('#1d1d22'), rgb('#1d1d22')); prism(M, circ(x, z, .105, 8), .78, .86, rgb('#e8e3d8'), rgb('#e8e3d8')); }
+      else if (k === 'bike') {   // Sheffield cycle stands, square to the street
+        const d = roadDir(x, z), F = (u, v) => [x + d[0] * u - d[1] * v, z + d[1] * u + d[0] * v], col = rgb('#3b3d45');
+        for (const u of [-1, 0, 1]) { for (const v of [-.35, .35]) prism(M, circ(...F(u, v), .03, 6), 0, .82, col, col); prism(M, [F(u - .03, -.38), F(u + .03, -.38), F(u + .03, .38), F(u - .03, .38)], .78, .84, col, col); }
+      }
+      else if (k === 'parkent') { prism(M, circ(x, z, .05, 6), 0, 2.4, rgb('#cfd2d8'), rgb('#cfd2d8')); const d = roadDir(x, z); SIGNS.push({ text: 'P', k: 'p', x: x - d[1] * .03, z: z + d[0] * .03, nx: -d[1], nz: d[0], w: 1.2, y: 1.95 }); SIGNS.push({ text: 'P', k: 'p', x: x + d[1] * .03, z: z - d[0] * .03, nx: d[1], nz: -d[0], w: 1.2, y: 1.95 }); }
+      else if (k === 'tramstop') {   // Promenade tram platform along the tracks; a shelter unless the named stop already has one
+        const d = roadDir(x, z), F = (u, v) => [x + d[0] * u - d[1] * v, z + d[1] * u + d[0] * v];
+        prism(M, [F(-14, -1.3), F(14, -1.3), F(14, 1.3), F(-14, 1.3)], 0, .35, rgb('#bdb8b0'), rgb('#d8d3ca'));
+        const F3 = (u, v) => { const p = F(u, v); return [p[0], .36, p[1]]; };
+        for (const v of [-1.22, 1.22]) quad(M, F3(-14, v - .08), F3(14, v - .08), F3(14, v + .08), F3(-14, v + .08), rgb('#ffd23f'), [0, 1, 0]);
+        if (!(Wd.p || []).some(q => q[2] === 't' && Math.hypot(q[0] - x, q[1] - z) < 25)) {
+          const glass = rgb('#bfe9ff', .9), frame = rgb('#2a1d4a'), roof = rgb('#ff2e88');
+          prism(M, [F(-3, .55), F(3, .55), F(3, .65), F(-3, .65)], .35, 2.8, glass, glass);
+          for (const u of [-3, 3]) prism(M, [F(u - .06, -.2), F(u + .06, -.2), F(u + .06, .65), F(u - .06, .65)], .35, 2.9, frame, frame);
+          prism(M, [F(-3.3, -.4), F(3.3, -.4), F(3.3, .9), F(-3.3, .9)], 2.9, 3.05, roof, roof);
+        }
+      }
     }
     // areas
     for (const a of Wd.a) {
@@ -1410,5 +1461,5 @@
     box.classList.add('ready');
     if (new URLSearchParams(location.search).has('go')) begin();
   }).catch(e => { console.error(e); goCap.textContent = 'Could not load the map. Please refresh.'; });
-  window.__xp = { st, cam, R, S, begin, signs: () => SIGNS.length, loose: () => W.loose.length, tier: n => setTier(n), gpu: GPU, sim: secs => { for (let i = 0; i < secs * 120; i++) physics(STEP); }, skip: () => { intro = 1; snap = 1; }, settle: () => { mood.t = mood.target; snap = 1; }, view: (d, p) => { camS.dist = d; camS.pitch = p; snap = 1; }, goPin: s => goPin(PINS.find(p => p.slug === s)), night: v => { mood.target = v ? 1 : 0; } };
+  window.__xp = { st, cam, R, S, begin, signs: () => SIGNS.length, nums: () => NUMS.length, loose: () => W.loose.length, tier: n => setTier(n), gpu: GPU, sim: secs => { for (let i = 0; i < secs * 120; i++) physics(STEP); }, skip: () => { intro = 1; snap = 1; }, settle: () => { mood.t = mood.target; snap = 1; }, view: (d, p) => { camS.dist = d; camS.pitch = p; snap = 1; }, goPin: s => goPin(PINS.find(p => p.slug === s)), night: v => { mood.target = v ? 1 : 0; } };
 })();

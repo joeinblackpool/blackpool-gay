@@ -1,6 +1,9 @@
 """Build source/data/world.json for the 3D drive from real open data.
 
-Inputs (both in source/data/):
+Inputs (in source/data/):
+  osm-extra.json - a fresh OpenStreetMap API extract: furniture 'f' [kind, x, z], addresses 'addr' [number, street, x, z],
+                   named businesses 'shops' [name, type, x, z]; merged in below (deduped against osm-full within 2 m)
+  osm-pois.txt   - the older list of 545 named businesses 'x|z|kind|name' (kind g/s/f/b, t = tram stop)
   osm-full.json  - OpenStreetMap (ODbL) buildings, highways, areas and street furniture for the Rainbow Quarter,
                    plus Microsoft Global ML Building Footprints (ODbL) for buildings OpenStreetMap does not have yet
                    and measured heights where they overlap. Coordinates are metres east (x) and south (z) of 53.8228, -3.0525.
@@ -20,11 +23,14 @@ Output keys:
   x   crossings  [x, z, kind, angle] kind: zebra | signals | rainbow
   f   furniture  [kind, x, z]  lamp | tree | bench | signals | busstop | postbox | phone
   a   areas      kept areas plus parking, grass, walls, fences, tram lines
+  p   businesses [x, z, kind, name] kind g stay, b pub/bar/club, f food/drink, s shop/other, t tram stop
+  ad  house numbers [number, x, z]
 """
 import json, math, os
 D = os.path.join(os.path.dirname(__file__), '..', 'source', 'data')
 src = json.load(open(os.path.join(D, 'osm-full.json')))
 old = json.load(open(os.path.join(D, 'world.json')))
+ext = json.load(open(os.path.join(D, 'osm-extra.json'))) if os.path.exists(os.path.join(D, 'osm-extra.json')) else {'f': [], 'addr': [], 'shops': []}
 X0, X1, Z0, Z1 = -560, 600, -690, 880
 inb = lambda p: X0 - 40 <= p[0] <= X1 + 40 and Z0 - 40 <= p[1] <= Z1 + 40
 
@@ -142,10 +148,40 @@ for h in src['highways']:
                 dx, dz = pts[j][0] - q[0], pts[j][1] - q[1]; L = math.hypot(dx, dz) or 1; ang = math.atan2(dz, dx)
                 if all(abs(math.remainder(ang - a2, 2 * math.pi)) > .5 for a2 in arms):
                     arms.append(ang); rain.append([round(jx[0] + dx / L * 8, 1), round(jx[1] + dz / L * 8, 1), 'rainbowlights', round(ang, 3)])
+# crossings from the fresh extract (kind:crossing:crossing_ref), deduped against the ones we have within 2 m
+for k, x, z in ext['f']:
+    if not k.startswith('crossing') or not inb((x, z)): continue
+    parts = k.split(':')
+    kind = 'zebra' if 'zebra' in parts else 'signals' if ('traffic_signals' in parts or 'puffin' in parts or 'toucan' in parts) else 'marked' if 'marked' in parts else ''
+    if not kind or any(math.hypot(c[0] - x, c[1] - z) < 2 for c in xs): continue
+    d, ang = road_angle(x, z)
+    if d < 8: xs.append([round(x, 1), round(z, 1), kind, round(ang, 3)])
 xs = [c for c in xs if all(math.hypot(c[0] - q[0], c[1] - q[1]) > 6 for q in rain)] + rain
 
 # ---------------------------------------------------------------- furniture
 F = [[k, round(x, 1), round(z, 1)] for k, x, z in src['furniture'] if not k.startswith('crossing') and inb((x, z))]
+for k, x, z in ext['f']:
+    if k.startswith('crossing') or not inb((x, z)): continue
+    near = 8 if k == 'tramstop' else 2          # a tram stop is mapped as several nodes (stop, platform): keep one per stop side
+    if any(f[0] == k and math.hypot(f[1] - x, f[2] - z) < near for f in F): continue
+    F.append([k, round(x, 1), round(z, 1)])
+
+# ---------------------------------------------------------------- businesses and house numbers
+KIND = lambda t: ('g' if t in ('guest_house', 'hotel', 'apartment', 'hostel', 'motel', 'chalet') else
+                  'b' if t in ('pub', 'bar', 'nightclub', 'biergarten', 'casino') else
+                  'f' if t in ('fast_food', 'cafe', 'restaurant', 'ice_cream', 'food_court') else 's')
+P = []
+for x, z, k, name in (l.rstrip('\n').split('|', 3) for l in open(os.path.join(D, 'osm-pois.txt')) if l.count('|') >= 3):
+    P.append([round(float(x), 1), round(float(z), 1), k, name])
+for name, t, x, z in ext['shops']:
+    if not name or t == 'parking' or not inb((x, z)): continue
+    hit = [q for q in P if q[3] == name and math.hypot(q[0] - x, q[1] - z) < 20]
+    if hit: hit[0][0], hit[0][1] = round(x, 1), round(z, 1); continue    # same business: take the fresher position
+    P.append([round(x, 1), round(z, 1), KIND(t), name])
+P = [q for q in P if inb((q[0], q[1]))]
+AD = []
+for num, street, x, z in ext['addr']:
+    if num and inb((x, z)) and not any(a[0] == num and math.hypot(a[1] - x, a[2] - z) < 2 for a in AD): AD.append([str(num)[:9], round(x, 1), round(z, 1)])
 
 # ---------------------------------------------------------------- areas
 A = [a for a in old['a'] if a[0] in ('coast', 'beach', 'park', 'park0', 'plat', 'rail', 'pier')]
@@ -157,7 +193,7 @@ for a in src['areas']:
 _seen = set(); A = [a for a in A if not (json.dumps(a) in _seen or _seen.add(json.dumps(a)))]   # re-running must not duplicate kept areas
 
 W = dict(old)
-W.update({'b': b, 'bm': bm, 'r': r, 'rw': rw, 'o': ow, 'sw': ''.join(sw), 'ln': ''.join(ln), 'ms': ms, 'x': xs, 'f': F, 'a': A})
+W.update({'p': P, 'ad': AD, 'b': b, 'bm': bm, 'r': r, 'rw': rw, 'o': ow, 'sw': ''.join(sw), 'ln': ''.join(ln), 'ms': ms, 'x': xs, 'f': F, 'a': A})
 json.dump(W, open(os.path.join(D, 'world.json'), 'w'), separators=(',', ':'))
-print('buildings', len(b), 'with height', sum(1 for x in b if x[0] > 0), 'streets', len(r), 'crossings', len(xs), 'rainbow', len(rain), 'furniture', len(F), 'areas', len(A),
+print('businesses', len(P), 'house numbers', len(AD), 'buildings', len(b), 'with height', sum(1 for x in b if x[0] > 0), 'streets', len(r), 'crossings', len(xs), 'rainbow', len(rain), 'furniture', len(F), 'areas', len(A),
       'kb', os.path.getsize(os.path.join(D, 'world.json')) // 1024)
