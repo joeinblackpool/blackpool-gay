@@ -1,0 +1,1380 @@
+[
+ {
+  "slug": "funny-girls",
+  "name": "Funny Girls",
+  "section": "bars",
+  "alsoIn": [
+   "drag"
+  ],
+  "cid": "12028741685158688415",
+  "kind": "Drag cabaret show bar",
+  "schemaType": "NightClub",
+  "address": "5 Dickson Road, Blackpool",
+  "postcode": "FY1 2AX",
+  "area": "dickson-road",
+  "geo": [
+   53.821342,
+   -3.05168
+  ],
+  "phone": "01253 649150",
+  "website": "https://www.funnygirlsshow.co.uk/",
+  "hours": {
+   "mon": "",
+   "tue": "",
+   "wed": "19:00-23:30",
+   "thu": "19:00-23:30",
+   "fri": "19:00-23:30",
+   "sat": "19:00-23:30",
+   "sun": "19:00-23:30"
+  },
+  "hoursText": "Show nights Wednesday to Sunday: doors 7pm, host and DJ from 8pm, show 8:30pm to about 11:30pm. Box office Monday to Friday, 9:30am to 5:30pm.",
+  "price": "Standing from about £10, seats about £17 to £35 depending on the night",
+  "tags": [
+   "drag",
+   "cabaret",
+   "food",
+   "18+",
+   "shows"
+  ],
+  "title": "Funny Girls Blackpool: drag cabaret shows, prices and tips",
+  "metaDescription": "Funny Girls on Dickson Road: Blackpool's famous drag cabaret in a 1939 art deco Odeon. Current shows, ticket prices, dinner and show, and tips for booking.",
+  "summary": "Blackpool's best-known drag cabaret, staging big themed revues in a restored 1939 art deco cinema two minutes from Blackpool North.",
+  "body": "Funny Girls is the show most people mean when they talk about a night out in LGBTQ+ Blackpool. It opened in July 1994 in a small corner unit on Queen Street, outgrew it almost immediately, and since 2002 has played in the old Odeon on Dickson Road, a Grade II listed art deco cinema that first opened in May 1939.\n\nExpect a full theatrical production rather than a pub drag act: a company of queens, big costumes, high kicks, comedy hosting and a new themed show for each season. It has appeared at the Royal Variety Performance and in the TV drama *Blackpool*, and it is strictly 18+.\n\n## A new chapter, same show\n\nIn 2026 the venue changed hands after more than thirty years. The new team have added a bigger stage and a runway that brings the cast closer to the audience, and fan favourite Miss Scarlett has returned. They say they want to keep everything that made Funny Girls famous while making the show feel more modern.\n\n## Dinner and show\n\nA three-course pre-show dinner (£29.85 per person) is served from 6pm in the art deco restaurant, with menu choices due about 48 hours ahead. Dinner-and-show bundles usually save money, except on Saturdays and New Year's Eve.\n\n## After the show\n\nOscars, the late bar in the same building, picks up the after-show party with karaoke and live music.",
+  "tips": [
+   "Book ahead for Friday and Saturday, which sell out first.",
+   "Some shows use pyrotechnics and loud bangs.",
+   "Phone the box office about access needs before you book.",
+   "You are welcome to decorate your table or bring a cake for a celebration.",
+   "There is a taxi rank outside, and Blackpool North station is about two minutes away on foot."
+  ],
+  "access": "Phone ahead about access needs.",
+  "since": "1994"
+ },
+ {
+  "slug": "oscars",
+  "name": "Oscars",
+  "section": "bars",
+  "alsoIn": [],
+  "cid": "6913277890867028843",
+  "kind": "Late lounge bar",
+  "schemaType": "BarOrPub",
+  "address": "5 Dickson Road, Blackpool",
+  "postcode": "FY1 2AX",
+  "area": "dickson-road",
+  "geo": [
+   53.821411,
+   -3.051487
+  ],
+  "phone": "01253 649150",
+  "website": "",
+  "hours": {
+   "mon": "",
+   "tue": "",
+   "wed": "23:00-01:00",
+   "thu": "23:00-02:00",
+   "fri": "21:00-02:00",
+   "sat": "21:00-02:00",
+   "sun": ""
+  },
+  "hoursText": "Wednesday 11pm to 1am, Thursday 11pm to 2am, Friday and Saturday 9pm to 2am. Closed Sunday to Tuesday.",
+  "price": "",
+  "tags": [
+   "karaoke",
+   "late",
+   "music"
+  ],
+  "title": "Oscars Blackpool: the Funny Girls after-show bar",
+  "metaDescription": "Oscars is the late lounge bar inside the Funny Girls building on Dickson Road, with karaoke, live music and the after-show party. Opening hours and tips.",
+  "summary": "The late lounge bar in the Funny Girls building, where the after-show party carries on with karaoke and live music.",
+  "body": "When the curtain comes down at Funny Girls, the night does not have to end. Oscars is the lounge bar in the same art deco building on Dickson Road, and it is where the after-show crowd heads for karaoke, live music and a last drink or three.\n\nIt suits anyone who wants to stay close to the show rather than walk on to Queen Street, and on Friday and Saturday it opens earlier, from 9pm, so you can also use it as a pre-show meeting point.\n\n## Good to know\n\nOscars keeps shorter, show-led hours than the big Queen Street bars, so it is closed on Sundays, Mondays and Tuesdays. Bookings for groups go through the venue's email, and the Funny Girls box office line can help with general questions.",
+  "tips": [
+   "Wednesday and Thursday it opens late, after the show finishes.",
+   "For a later finish at weekends, Queen Street is a two-minute walk away."
+  ],
+  "access": ""
+ },
+ {
+  "slug": "the-flying-handbag",
+  "name": "The Flying Handbag",
+  "section": "bars",
+  "alsoIn": [
+   "drag",
+   "food"
+  ],
+  "cid": "17954934948374222629",
+  "kind": "LGBTQ+ bar and club",
+  "schemaType": "BarOrPub",
+  "address": "44 Queen Street, Blackpool",
+  "postcode": "FY1 2AY",
+  "area": "queen-street",
+  "geo": [
+   53.821157,
+   -3.050821
+  ],
+  "phone": "01253 207773",
+  "website": "https://flyinghandbagblackpool.co.uk/",
+  "hours": {
+   "mon": "12:00-03:00",
+   "tue": "12:00-03:00",
+   "wed": "12:00-03:00",
+   "thu": "12:00-03:00",
+   "fri": "12:00-04:00",
+   "sat": "12:00-04:00",
+   "sun": "12:00-03:00"
+  },
+  "hoursText": "Open every day from noon until 3am, and until 4am on Friday and Saturday. Food Monday to Thursday 1pm to 12:30am, Friday and Saturday 1pm to 1:30am, Sunday noon to 5pm.",
+  "price": "",
+  "tags": [
+   "drag",
+   "karaoke",
+   "quiz",
+   "food",
+   "sunday-roast",
+   "late",
+   "terrace",
+   "accessible",
+   "18+"
+  ],
+  "title": "The Flying Handbag Blackpool: what's on, hours and food",
+  "metaDescription": "The Flying Handbag on Queen Street: Blackpool's purpose-built LGBTQ+ bar with drag hosts, karaoke, quizzes, food and Sunday lunch. Weekly line-up and hours.",
+  "summary": "A big, purpose-built LGBTQ+ bar and club on Queen Street, open from noon every day with drag hosts, karaoke, food and a sun terrace.",
+  "body": "The Flying Handbag is the anchor of Queen Street and one of the busiest LGBTQ+ venues in the north of England. Its name goes back to the original Handbag on Talbot Road, below the old Flamingo club. When that building was bought for redevelopment, the bar moved in January 2006 to a purpose-built home on the corner of Queen Street and Lord Street, with a horseshoe bar, cabaret stage, conservatory and roof terrace.\n\nA £500,000 refit in early 2020 gave it a new stage, sound, lighting, bar and toilets, and it reopened that February. Today it is bright, inclusive and busy from lunchtime to the small hours.\n\n## The weekly line-up\n\n- **Monday:** Monday Mayhem from 8pm, plus karaoke.\n- **Wednesday:** QuizMania, a comedy quiz with drag host Miss Amber, 4pm to 8pm, then karaoke.\n- **Thursday:** a game-show night (Take It or Leave It), Thirsty Thursday with Miss Amber, and karaoke.\n- **Friday:** TFI Friday with Miss Amber and resident DJs.\n- **Sunday:** Sunday lunch from noon to 5pm, with occasional afternoon shows.\n\n## Food and facilities\n\nFood is served daily, with cocktails, a sun terrace, a heated smoking area, free wifi and wheelchair access. Booths can be booked for birthdays and parties, and a cold buffet can be added if you book about two weeks ahead.",
+  "tips": [
+   "It is 18+ and asks for ID, so bring it.",
+   "Book a booth for a big group on Friday or Saturday.",
+   "Sunday lunch is a good, calmer way to see the place."
+  ],
+  "access": "Wheelchair access.",
+  "since": "2006"
+ },
+ {
+  "slug": "garlands",
+  "name": "Garlands",
+  "section": "bars",
+  "alsoIn": [
+   "drag",
+   "free-entry"
+  ],
+  "cid": "15507761117125442124",
+  "kind": "Drag bar",
+  "schemaType": "BarOrPub",
+  "address": "69-71 Talbot Road, Blackpool",
+  "postcode": "FY1 1LL",
+  "area": "talbot-road",
+  "geo": [
+   53.820167,
+   -3.051502
+  ],
+  "phone": "01253 365246",
+  "website": "https://garlandsblackpool.co.uk/",
+  "hours": {
+   "mon": "12:00-02:00",
+   "tue": "12:00-02:00",
+   "wed": "12:00-02:00",
+   "thu": "12:00-03:00",
+   "fri": "12:00-03:00",
+   "sat": "12:00-03:00",
+   "sun": "12:00-02:00"
+  },
+  "hoursText": "Monday to Wednesday noon to 2am, Thursday to Saturday noon to 3am, Sunday noon to 2am.",
+  "price": "Free entry",
+  "tags": [
+   "drag",
+   "cabaret",
+   "free-entry",
+   "late"
+  ],
+  "title": "Garlands Blackpool: daily drag on Talbot Road, free entry",
+  "metaDescription": "Garlands on Talbot Road puts on drag every day with resident queens and guest cabaret, free entry and late opening. The weekly line-up and what to expect.",
+  "summary": "A camp, free-entry drag pub near Blackpool North where resident queens are on from mid-afternoon every single day.",
+  "body": "If you want drag without buying a ticket, Garlands is the place. This small, recently renovated bar on Talbot Road, a few steps from Blackpool North station, has resident queens on stage from mid-afternoon every day, guest cabaret acts through the week, live vocals and DJs, and no cover charge.\n\nTalbot Road is where Blackpool's modern LGBTQ+ scene began. The original Flamingo club and Flying Handbag stood at the station end of the street, and Garlands is one of the venues that keeps that end of town on the scene map.\n\n## A typical week\n\nEach night has its own pairing of resident and guest queens, with singalongs, camp game shows and comedy drag. Recent weekly line-ups have included Shazza and Bonnie la Blue early in the week, guest cabaret with Bunny Hopps and Missie Jay midweek, Aariella Galore, Dragalicious and Campy Galore towards the weekend, and a Sunday guest cabaret plus a comedy drag show. Line-ups change, so check the venue's own listings for this week.\n\n## Bank holidays\n\nThemed parties, such as tiki and luau beach parties, liven up bank holiday Sundays, and some of them raise money for Blackpool Pride.",
+  "tips": [
+   "It gets crowded on cabaret nights, so arrive early for a seat.",
+   "Handy for a first drink straight off the train."
+  ],
+  "access": ""
+ },
+ {
+  "slug": "peek-a-booze",
+  "name": "Peek-a-Booze",
+  "section": "bars",
+  "alsoIn": [
+   "hotels",
+   "drag"
+  ],
+  "cid": "7482135886723735022",
+  "kind": "Cabaret bar and hotel",
+  "schemaType": "BarOrPub",
+  "address": "72-74 Dickson Road, Blackpool",
+  "postcode": "FY1 2AW",
+  "area": "dickson-road",
+  "geo": [
+   53.822839,
+   -3.053462
+  ],
+  "phone": "01253 625048",
+  "website": "https://peekaboozehotelbar.co.uk/",
+  "hours": {
+   "mon": "09:00-00:00",
+   "tue": "09:00-00:00",
+   "wed": "09:00-00:00",
+   "thu": "09:00-00:00",
+   "fri": "09:00-01:00",
+   "sat": "09:00-01:00",
+   "sun": "09:00-01:00"
+  },
+  "hoursText": "Monday to Thursday 9am to midnight, Friday to Sunday 9am to 1am. Food daily 9am to 7pm.",
+  "price": "",
+  "tags": [
+   "drag",
+   "karaoke",
+   "bingo",
+   "food",
+   "rooms",
+   "terrace",
+   "adults-only"
+  ],
+  "title": "Peek-a-Booze Blackpool: cabaret bar and budget rooms",
+  "metaDescription": "Peek-a-Booze on Dickson Road: a cabaret bar with adults-only budget rooms, cheap drinks, bingo, karaoke and drag most nights. This week's line-up and hours.",
+  "summary": "A friendly Dickson Road cabaret bar with budget adults-only rooms upstairs, cheap drinks and something on most nights.",
+  "body": "Peek-a-Booze follows the classic Blackpool formula: a lively bar downstairs and budget rooms upstairs, so you can stay where you drink. It sits on Dickson Road, the same street as Funny Girls and Man Bar, and serves food from breakfast until early evening.\n\nThe entertainment runs all week. A recent week looked like this: bingo and Blankety Blank with Wayne on Monday, karaoke with DJ Keiron on Tuesday, free bingo and Play Your Cards Right on Wednesday, karaoke on Thursday, then guest singers and drag at the weekend, with names such as Ben Jarman, Tasha C and Sheela Vim. There is also an outdoor terrace.\n\n## Staying here\n\nThe rooms are adults-only and priced at the budget end. There is no lift, so upper floors are reached by stairs.",
+  "tips": [
+   "Free bingo on Wednesday evenings is a good cheap night.",
+   "Ask about room-and-show deals if you are staying for Funny Girls up the road."
+  ],
+  "access": "No lift; upper floors by stairs only."
+ },
+ {
+  "slug": "mardi-gras",
+  "name": "Mardi Gras",
+  "section": "bars",
+  "alsoIn": [
+   "hotels",
+   "food",
+   "drag"
+  ],
+  "cid": "7684085173186131889",
+  "kind": "Public bar and hotel",
+  "schemaType": "BarOrPub",
+  "address": "41-43 Lord Street, Blackpool",
+  "postcode": "FY1 2BD",
+  "area": "lord-street",
+  "geo": [
+   53.822475,
+   -3.051465
+  ],
+  "phone": "01253 283633",
+  "website": "",
+  "hours": {
+   "mon": "12:00-00:00",
+   "tue": "12:00-00:00",
+   "wed": "12:00-00:00",
+   "thu": "12:00-00:00",
+   "fri": "12:00-03:00",
+   "sat": "10:00-03:00",
+   "sun": "10:00-03:00"
+  },
+  "hoursText": "Monday to Thursday noon to midnight, Friday noon to 3am, Saturday and Sunday 10am to 3am. Bank holidays noon to midnight.",
+  "price": "",
+  "tags": [
+   "cabaret",
+   "karaoke",
+   "food",
+   "sunday-roast",
+   "pool",
+   "rooms",
+   "late"
+  ],
+  "title": "Mardi Gras Blackpool: LGBTQ+ bar and hotel on Lord Street",
+  "metaDescription": "Mardi Gras on Lord Street: an LGBTQ+ public bar and hotel with cabaret, a quiet lounge, pool table, hot food, Sunday roasts and late weekend opening.",
+  "summary": "An LGBTQ+ public bar and hotel on Lord Street with three areas, cabaret, hot food, Sunday roasts and keen drink prices.",
+  "body": "Mardi Gras calls itself the hub of the scene, and on a busy Saturday it is easy to see why. The bar is split into three areas: a cabaret and live-music space with a dancefloor, a lively main bar, and a no-music chesterfield lounge with a pool table for when you want to hear yourself think.\n\nIt is known for cheap drinks, hot food and Sunday roasts served from 1:30pm, and it has hosted free community days during Pride. Comedians and cabaret acts play regularly, and it stays open until 3am at weekends.\n\n## Rooms\n\nUpstairs are en-suite rooms from singles to premier rooms, with free wifi and a sun terrace. Its sister guest house, Q Accommodation, is a few doors away at 27 Lord Street, and bookings for both go through Mardi Gras.",
+  "tips": [
+   "Book ahead for Sunday lunch on a busy weekend.",
+   "The chesterfield lounge is the quiet corner if you want a chat."
+  ],
+  "access": "No lift; upper floors by stairs only, with handrails."
+ },
+ {
+  "slug": "man-bar-growlr-club",
+  "name": "Man Bar and Growlr Club",
+  "section": "bars",
+  "alsoIn": [
+   "men-only",
+   "bears"
+  ],
+  "kind": "LGBTQ+ bar and men-only cruise club",
+  "schemaType": "BarOrPub",
+  "address": "25 Dickson Road, Blackpool",
+  "postcode": "FY1 2AT",
+  "area": "dickson-road",
+  "geo": [
+   53.821621,
+   -3.051987
+  ],
+  "phone": "07538 684086",
+  "website": "https://manbarblackpool.com/",
+  "hours": {
+   "mon": "",
+   "tue": "",
+   "wed": "",
+   "thu": "",
+   "fri": "20:00-02:00",
+   "sat": "20:00-02:00",
+   "sun": "20:00-02:00"
+  },
+  "hoursText": "Man Bar: Friday to Sunday from 8pm. Growlr Club upstairs: Friday and Saturday, about 9pm to 2am.",
+  "price": "Growlr Club entry by wristband from the bar",
+  "tags": [
+   "men-only",
+   "bears",
+   "cruise",
+   "pool",
+   "18+"
+  ],
+  "title": "Man Bar and Growlr Club Blackpool: bears and men-only club",
+  "metaDescription": "Man Bar on Dickson Road is a traditional LGBTQ+ bar with a pool table, and upstairs Growlr Club is a men-only cruise space for bears, cubs and daddies. Hours.",
+  "summary": "A no-frills LGBTQ+ bar with a pool table on Dickson Road, with the men-only Growlr cruise club upstairs.",
+  "body": "Man Bar is a traditional LGBTQ+ bar a few doors along Dickson Road from Funny Girls: pool table, drinks offers and a down-to-earth crowd. It opens at weekends only, from Friday to Sunday.\n\nUpstairs is **Growlr Club**, a men-only cruise space entered with a wristband bought at the bar. It has a locker room and a smoking terrace and leans towards the bear community, with bears, cubs, chasers and daddies the core crowd. Themed parties run through the year, including visiting bear and jock nights.\n\nA major refurbishment in 2025 and 2026 gave the club a brighter, more modern look. Next door on Springfield Road, Gin & Bear It is the calmer gin lounge in the same complex.",
+  "tips": [
+   "Growlr Club is men only and 18+.",
+   "Keep valuables in a locker upstairs."
+  ],
+  "access": ""
+ },
+ {
+  "slug": "gin-and-bear-it",
+  "name": "Gin & Bear It",
+  "section": "bars",
+  "alsoIn": [
+   "bears"
+  ],
+  "cid": "8648390886617061904",
+  "kind": "Gin lounge",
+  "schemaType": "BarOrPub",
+  "address": "34A Springfield Road, Blackpool",
+  "postcode": "FY1 2AU",
+  "area": "dickson-road",
+  "geo": [
+   53.821673,
+   -3.051884
+  ],
+  "phone": "07538 684086",
+  "website": "https://manbarblackpool.com/",
+  "hours": {
+   "mon": "",
+   "tue": "",
+   "wed": "",
+   "thu": "",
+   "fri": "20:00-02:00",
+   "sat": "20:00-02:00",
+   "sun": "20:00-02:00"
+  },
+  "hoursText": "Friday, Saturday and Sunday from 8pm until late.",
+  "price": "",
+  "tags": [
+   "cocktails",
+   "quiet"
+  ],
+  "title": "Gin & Bear It Blackpool: gin lounge by Man Bar",
+  "metaDescription": "Gin & Bear It on Springfield Road is a cosy gin lounge in the Man Bar complex, with a long gin list and tonics matched to your taste. Weekend opening hours.",
+  "summary": "A cosy weekend gin lounge in the Man Bar complex, with a long gin list and a calmer feel than the club next door.",
+  "body": "Gin & Bear It is the quiet room of the Man Bar and Growlr Club complex, with its own door on Springfield Road. The draw is the gin list, which runs to a couple of hundred bottles, and the bar will match a tonic and garnish to what you like.\n\nIt is a cosier, slower space than the dancefloor next door, which makes it a good place to start the night or to talk. Visitors often describe it as inclusive and as a safe space to be yourself.\n\n## Opening\n\nIt keeps the same weekend pattern as Man Bar: Friday, Saturday and Sunday from 8pm until late.",
+  "tips": [
+   "Ask at the bar for a recommendation if the list looks daunting."
+  ],
+  "access": ""
+ },
+ {
+  "slug": "trades",
+  "name": "Trades Hotel and Bar",
+  "section": "bars",
+  "alsoIn": [
+   "hotels",
+   "men-only"
+  ],
+  "cid": "11838219911403433110",
+  "kind": "Men-only bar and hotel",
+  "schemaType": "Hotel",
+  "address": "51-55 Lord Street, Blackpool",
+  "postcode": "FY1 2BJ",
+  "area": "lord-street",
+  "geo": [
+   53.823002,
+   -3.051831
+  ],
+  "phone": "01253 626401",
+  "website": "https://www.tradeshotelblackpool.co.uk/",
+  "hours": {
+   "mon": "11:00-03:00",
+   "tue": "11:00-03:00",
+   "wed": "11:00-03:00",
+   "thu": "11:00-03:00",
+   "fri": "11:00-03:00",
+   "sat": "11:00-03:00",
+   "sun": "11:00-03:00"
+  },
+  "hoursText": "Bar open daily 11am to 3am.",
+  "price": "",
+  "tags": [
+   "men-only",
+   "rooms",
+   "late",
+   "18+"
+  ],
+  "title": "Trades Hotel Blackpool: men-only LGBTQ+ hotel and bar",
+  "metaDescription": "Trades on Lord Street is a men-only members' hotel and bar for men aged 18 and over, with about 60 rooms and a bar open until 3am every day.",
+  "summary": "A men-only members' hotel and late bar, spread across several joined townhouses on Lord Street.",
+  "body": "Trades is one of the last of a once-common breed: the cheap, sociable, men-only LGBTQ+ hotel of the British seaside. It spans several joined townhouses on Lord Street with about 60 rooms, and guests become members for the length of their stay.\n\nThe residents' bar opens from 11am and keeps going until 3am every day, which makes it a relaxed place for men to meet. The hotel was refurbished in 2026.\n\nThe name also belongs to scene history: there was once a separate Trades Bar on Queen Street, and that building later became Kaos.",
+  "tips": [
+   "Men only and 18+.",
+   "Lord Street puts you within a few minutes of every bar in the quarter."
+  ],
+  "access": ""
+ },
+ {
+  "slug": "neon-bar",
+  "name": "Neon Bar and Hotel Neon",
+  "section": "bars",
+  "alsoIn": [
+   "hotels"
+  ],
+  "cid": "874224462065643811",
+  "kind": "Cocktail bar and adults-only hotel",
+  "schemaType": "BarOrPub",
+  "address": "15 Yates Street, Blackpool",
+  "postcode": "FY1 2DB",
+  "area": "lord-street",
+  "geo": [
+   53.823944,
+   -3.052565
+  ],
+  "phone": "01253 441940",
+  "website": "",
+  "hours": null,
+  "hoursText": "Bar usually open Thursday to Sunday. Times are not published, so check before you go.",
+  "price": "",
+  "tags": [
+   "cocktails",
+   "garden",
+   "rooms",
+   "adults-only"
+  ],
+  "title": "Neon Bar Blackpool: cocktail bar and hotel off Lord Street",
+  "metaDescription": "Neon Bar on Yates Street is an intimate cocktail bar with a back garden, attached to the adults-only Hotel Neon on the corner of Lord Street. A good pre-drinks spot.",
+  "summary": "An intimate cocktail bar with a garden, attached to the modern, adults-only Hotel Neon on the corner of Lord Street.",
+  "body": "Neon is a small, smart cocktail bar on the corner of Yates Street and Lord Street, with premium spirits and a back garden. It is attached to Hotel Neon, a refurbished, adults-only hotel right in the middle of the guest-house streets.\n\nIt is a natural first stop: quieter than the big Queen Street bars, good for a proper cocktail, and only a minute or two from Mardi Gras, Trades and the rest of Lord Street.\n\n## Opening\n\nThe bar usually opens from Thursday to Sunday. Exact times are not published, so check before you set out, especially midweek or in winter.",
+  "tips": [
+   "Use it for pre-drinks before Lord Street gets busy."
+  ],
+  "access": ""
+ },
+ {
+  "slug": "rendezvous",
+  "name": "Rendezvous Bar and Rooms",
+  "section": "bars",
+  "alsoIn": [
+   "hotels"
+  ],
+  "cid": "14320120066572748113",
+  "kind": "Bar with rooms",
+  "schemaType": "BarOrPub",
+  "address": "15-17 Lord Street, Blackpool",
+  "postcode": "FY1 2AZ",
+  "area": "lord-street",
+  "geo": [
+   53.821668,
+   -3.050802
+  ],
+  "phone": "01253 424008",
+  "website": "",
+  "hours": {
+   "mon": "",
+   "tue": "",
+   "wed": null,
+   "thu": "17:00-22:00",
+   "fri": "14:00-22:00",
+   "sat": "14:00-22:30",
+   "sun": "15:00-22:00"
+  },
+  "hoursText": "Thursday 5pm to 10pm, Friday 2pm to 10pm, Saturday 2pm to 10:30pm, Sunday 3pm to 10pm. Closed Monday and Tuesday; check Wednesday.",
+  "price": "",
+  "tags": [
+   "drag",
+   "early-evening",
+   "rooms"
+  ],
+  "title": "Rendezvous Bar Blackpool: afternoon drinks on Lord Street",
+  "metaDescription": "Rendezvous on Lord Street is a small, friendly bar with rooms and entertainment most afternoons and evenings from Thursday to Sunday. Hours and what's on.",
+  "summary": "A small, friendly bar with rooms at the station end of Lord Street, with something on most afternoons from Thursday to Sunday.",
+  "body": "Rendezvous is a compact, cheerful bar near the station end of Lord Street. It opens in the afternoon from Thursday to Sunday and closes relatively early, so it works best as a relaxed start to the night before the late bars fill up.\n\nThere is entertainment on most of its opening days, from singers to drag sets. Marigold Addams, for example, has played here with a Jane McDonald tribute. Rooms upstairs mean you can stay right on the main bar street.",
+  "tips": [
+   "Go in the afternoon or early evening; it closes around 10pm."
+  ],
+  "access": ""
+ },
+ {
+  "slug": "mcgraths",
+  "name": "McGraths Bar and Hotel",
+  "section": "bars",
+  "alsoIn": [
+   "hotels",
+   "drag"
+  ],
+  "cid": "7205467278887028637",
+  "kind": "Bar, cabaret and guest house",
+  "schemaType": "BarOrPub",
+  "address": "87 Lord Street, Blackpool",
+  "postcode": "FY1 2DG",
+  "area": "lord-street",
+  "geo": [
+   53.824379,
+   -3.052983
+  ],
+  "phone": "01253 468022",
+  "website": "",
+  "hours": null,
+  "hoursText": "Opening hours are not published; there is entertainment most evenings, including Sundays.",
+  "price": "",
+  "tags": [
+   "drag",
+   "cabaret",
+   "rooms",
+   "adults-only"
+  ],
+  "title": "McGraths Blackpool: bar, drag and rooms on Lord Street",
+  "metaDescription": "McGraths at 87 Lord Street is an adults-only guest house with its own public bar, resident drag queens and singers, and a \"leave your labels at the door\" feel.",
+  "summary": "An adults-only guest house with a lively public bar at the seaward end of Lord Street, known for resident drag and singers.",
+  "body": "McGraths sits near the far end of Lord Street and does two jobs well. Downstairs is a bar and lounge with cocktails, resident drag queens, singers and visiting cabaret acts, under a \"leave your labels at the door\" attitude. Upstairs is an adults-only guest house that guests rate very highly for its hosts, cleanliness and breakfast.\n\nIt was a finalist in a local hospitality award in 2024, and themed nights such as a Halloween drag takeover keep regulars coming back.\n\n## Staying here\n\nThe rooms are reached by stairs, with no lift. Blackpool North station and the Queen Street and Dickson Road bars are a few minutes' walk away.",
+  "tips": [
+   "Look out for its themed drag nights around Halloween and Christmas."
+  ],
+  "access": "Upper floors by stairs only. Adults only (18+)."
+ },
+ {
+  "slug": "evanescent",
+  "name": "Evanescent Bar and Rooms",
+  "section": "bars",
+  "alsoIn": [
+   "hotels"
+  ],
+  "cid": "7445386461993956007",
+  "kind": "Bar with rooms",
+  "schemaType": "BarOrPub",
+  "address": "18 Cocker Street, Blackpool",
+  "postcode": "FY1 2BY",
+  "area": "lord-street",
+  "geo": [
+   53.82327,
+   -3.052776
+  ],
+  "phone": "07393 320002",
+  "website": "",
+  "hours": null,
+  "hoursText": "Opening hours are not published.",
+  "price": "",
+  "tags": [
+   "karaoke",
+   "rooms",
+   "adults-only"
+  ],
+  "title": "Evanescent Blackpool: bar and rooms on Cocker Street",
+  "metaDescription": "Evanescent on Cocker Street is a small bar with budget adults-only rooms in the Rainbow Quarter, with cheap drinks, a DJ who takes requests, karaoke and live acts.",
+  "summary": "A small, laid-back bar with budget adults-only rooms on Cocker Street, popular as a pre-party stop.",
+  "body": "Evanescent is a little bar with rooms on Cocker Street, the side street that runs off Lord Street in the middle of the quarter. Visitors like the cheap drinks, a DJ who takes requests, karaoke and live acts, which make it a popular warm-up before the bigger bars.\n\nThe en-suite rooms upstairs are at the budget end and adults-only. It is a two-minute walk to Lord Street and about five to Queen Street.",
+  "tips": [
+   "Pair it with the other Cocker Street stops before heading back to Lord Street."
+  ],
+  "access": "No accessibility information is published."
+ },
+ {
+  "slug": "sherlocks",
+  "name": "Sherlock's",
+  "status": "closed",
+  "section": "bars",
+  "alsoIn": [],
+  "cid": "17846276807778363706",
+  "kind": "LGBTQ+ bar (closed)",
+  "schemaType": "BarOrPub",
+  "address": "23 Queen Street, Blackpool",
+  "postcode": "FY1 1NL",
+  "area": "queen-street",
+  "geo": [
+   53.819894,
+   -3.053896
+  ],
+  "geoPostcode": "FY1 1NL",
+  "phone": "",
+  "website": "",
+  "hours": null,
+  "hoursText": "Reported as closed.",
+  "closedWhen": "Reported as closed in 2026",
+  "price": "",
+  "tags": [],
+  "title": "Sherlock's Blackpool: Queen Street bar, reported as closed",
+  "metaDescription": "Is Sherlock's on Queen Street, Blackpool still open? It has been reported as closed. The story of 23 Queen Street, from Roxy's to Sherlock's, and where to go instead.",
+  "summary": "A Queen Street LGBTQ+ bar with a balcony, opened in 2021 in the old Roxy's building. It has been reported as closed.",
+  "body": "**Sherlock's has been reported as closed.** We keep this page as a record of the building's place in Queen Street's story.\n\nSherlock's occupied a three-storey building on Queen Street that has worn several names over the years: Faye's Cafe Bar in the 1990s, then Roxy's, famous for drag cabaret, then the Whippet Inn. After changing hands, it reopened as Sherlock's on 5 November 2021, with Danny Beard (later a Drag Race UK winner) on the opening bill. Its balcony over Queen Street was one of the best spots in town to watch the night go by, and it hosted the after-party for the *Queering Blackpool* documentary premiere in 2025.\n\n## Where to go instead\n\nThe [Flying Handbag](/gay-bars-blackpool/the-flying-handbag/) at the top of Queen Street runs until 4am at weekends. See [late-night bars](/guides/late-night-bars-blackpool/) and [what's open tonight](/tonight/).",
+  "tips": [],
+  "access": "",
+  "since": "2021"
+ },
+ {
+  "slug": "kaos",
+  "name": "Kaos",
+  "status": "closed",
+  "section": "bars",
+  "alsoIn": [],
+  "cid": "17635797924761323788",
+  "kind": "Bar and late club (closed)",
+  "schemaType": "NightClub",
+  "address": "38-42 Queen Street, Blackpool",
+  "postcode": "FY1 2AY",
+  "area": "queen-street",
+  "geo": [
+   53.820991,
+   -3.051277
+  ],
+  "phone": "",
+  "website": "",
+  "hours": null,
+  "hoursText": "Reported as closed.",
+  "closedWhen": "Reported as closed in autumn 2026",
+  "price": "",
+  "tags": [],
+  "title": "Kaos Blackpool: Queen Street bar, reported as closed",
+  "metaDescription": "Is Kaos on Queen Street, Blackpool still open? It has been reported as closed. Its story, from the Trades Bar to the 2026 refit, and where to go late instead.",
+  "summary": "A Queen Street bar and late club, in the old Trades Bar building, that has been reported as closed after its 2026 relaunch.",
+  "body": "**Kaos has been reported as closed.** We keep this page as a record of the venue's place in Queen Street's story.\n\nKaos was a long-running Queen Street bar and late club in the building that was once the Trades Bar. It was known for an industrial look, a metal dancefloor and music from the 1980s onwards.\n\nAfter a spell closed and a change of hands, it shut in April 2026 for 12 weeks of work on the floors, toilets, bars and drainage, adding glitterballs and neon rainbows. It reopened on 11 July 2026, and Drag Race UK's Zahirah Zapanta headlined on 25 July. It has since been reported as closed again.\n\n## Where to go late instead\n\nThe [Flying Handbag](/gay-bars-blackpool/the-flying-handbag/) next door keeps Queen Street going into the small hours at weekends. See [late-night bars](/guides/late-night-bars-blackpool/) and [what's open tonight](/tonight/).",
+  "tips": [],
+  "access": ""
+ },
+ {
+  "slug": "churchills",
+  "name": "Churchills",
+  "section": "bars",
+  "alsoIn": [],
+  "cid": "4553414820815405973",
+  "kind": "LGBTQ+ friendly pub",
+  "schemaType": "BarOrPub",
+  "address": "83-85 Topping Street, Blackpool",
+  "postcode": "FY1 3AF",
+  "area": "talbot-road",
+  "geo": [
+   53.818834,
+   -3.049953
+  ],
+  "phone": "01253 466423",
+  "website": "",
+  "hours": {
+   "mon": "10:00-23:00",
+   "tue": "10:00-23:00",
+   "wed": "10:00-23:00",
+   "thu": "10:00-23:00",
+   "fri": "10:00-01:00",
+   "sat": "10:00-01:00",
+   "sun": "11:00-01:00"
+  },
+  "hoursText": "Monday to Thursday 10am to 11pm, Friday and Saturday 10am to 1am, Sunday 11am to 1am.",
+  "price": "",
+  "tags": [
+   "karaoke",
+   "bingo",
+   "real-ale",
+   "daytime"
+  ],
+  "title": "Churchills Blackpool: friendly pub on Topping Street",
+  "metaDescription": "Churchills on Topping Street is a traditional town-centre pub with cask ales, karaoke, bingo and poker nights and a mixed, LGBTQ+ friendly crowd. Opening hours.",
+  "summary": "A traditional town-centre pub with cask ales, karaoke, bingo and poker nights, popular with a mixed, LGBTQ+ friendly crowd.",
+  "body": "Churchills is a proper pub in the former Criterion Hotel on Topping Street, just south of the quarter in the town centre. It has long been known for its cask ales, and it draws a mixed, LGBTQ+ friendly crowd, often a little older than the Queen Street bars.\n\nRegular karaoke, bingo and poker nights keep it busy, and it opens from 10am, so it is a good daytime option when many scene bars have not opened yet. Aunty Social, the arts venue that hosts heritage events, is on the same street.",
+  "tips": [
+   "A good daytime pint before the quarter wakes up."
+  ],
+  "access": ""
+ },
+ {
+  "slug": "the-blackpool-north",
+  "name": "The Blackpool North",
+  "section": "bars",
+  "alsoIn": [],
+  "cid": "17383752186066803172",
+  "kind": "LGBTQ+ friendly public bar and grill",
+  "schemaType": "BarOrPub",
+  "address": "41-43 Banks Street, Blackpool",
+  "postcode": "FY1 2AR",
+  "area": "lord-street",
+  "geo": [
+   53.822588,
+   -3.051903
+  ],
+  "phone": "01253 532030",
+  "website": "https://www.blackpoolnorth.co.uk/",
+  "hours": null,
+  "hoursText": "Public bar open from midday until late.",
+  "price": "",
+  "tags": [
+   "rooms",
+   "food",
+   "daytime",
+   "lgbtq-friendly"
+  ],
+  "title": "The Blackpool North: bar and grill on Lord St and Banks St",
+  "metaDescription": "The Blackpool North, on the corner of Lord Street and Banks Street, is an LGBTQ+ friendly public bar and grill with rooms, open from midday until late.",
+  "summary": "An LGBTQ+ friendly public bar and grill with rooms, on the corner of Lord Street and Banks Street, open from midday until late.",
+  "body": "<figure class=\"street-photo\"><img src=\"/img/the-blackpool-north.jpg\" width=\"1000\" height=\"838\" alt=\"The Blackpool North on the corner of Lord Street and Banks Street, decorated with Pride and Progress Pride flags and rainbow bunting\" loading=\"lazy\"></figure>\n\nThe Blackpool North is a public bar and grill with rooms and suites on the **corner of Lord Street and Banks Street**, bang in the middle of the Rainbow Quarter. Lord Street's guest houses and bars are on the doorstep, Dickson Road and Funny Girls are a minute away, and Blackpool North station is just up the street.\n\nIt is LGBTQ+ friendly and everyone is welcome, which is exactly what the quarter is about. The windows fly Pride and Progress Pride flags, and it has been proud to take part in the Lord Street party during Pride. The crowd is a relaxed mix of hotel guests, locals and people on their way between the Lord Street bars and the Promenade.\n\n## Why go\n\n- **Open all afternoon.** The public bar opens from **midday until late**, so it is a good daytime stop before the bigger venues get going.\n- **Food.** It is a bar and grill, with home-made bar food such as BBQ ribs and nachos.\n- **Handy for the station.** If you are arriving by train, it is one of the closest bars to the platform, and a good first or last drink.\n- **Rooms upstairs.** It also has rooms and suites, so you can stay where you drink.\n\n## Nearby\n\nWelhorny's, the men-only guest house at 33 to 37 Banks Street, is a few doors along, and Banks Street car park, the biggest near the bars, is on the same street. See [Banks Street](/rainbow-quarter/streets/banks-street/) and [Lord Street](/rainbow-quarter/lord-street/).",
+  "tips": [
+   "The public bar opens from midday until late.",
+   "A handy first stop if you arrive by train."
+  ],
+  "access": ""
+ },
+ {
+  "slug": "pinkies",
+  "name": "Pinkies",
+  "status": "closed",
+  "section": "bars",
+  "alsoIn": [],
+  "cid": "2233179320951394170",
+  "kind": "LGBTQ+ bar (closed)",
+  "schemaType": "BarOrPub",
+  "address": "14 Dickson Road, Blackpool",
+  "postcode": "FY1 2AE",
+  "area": "dickson-road",
+  "geo": [
+   53.821029,
+   -3.051869
+  ],
+  "phone": "",
+  "website": "",
+  "hours": null,
+  "hoursText": "Reported as closed.",
+  "closedWhen": "Reported as closed in 2026",
+  "price": "",
+  "tags": [],
+  "title": "Pinkies Blackpool: Dickson Road bar, reported as closed",
+  "metaDescription": "Is Pinkies on Dickson Road, Blackpool still open? It has been reported as closed. What it was like, and where to find karaoke and cheap drinks in the quarter instead.",
+  "summary": "A small, no-frills LGBTQ+ bar at the town end of Dickson Road, known for karaoke and cheap drinks. It has been reported as closed.",
+  "body": "**Pinkies has been reported as closed.** We keep this page so nobody makes a wasted trip.\n\nPinkies was a little bar at the Talbot Road end of Dickson Road, a short walk from Funny Girls: small, unpretentious, with karaoke, DJ nights, cheap drinks and a welcome that visitors described as warm.\n\n## Where to go instead\n\nFor karaoke and cheap drinks, try [Peek-a-Booze](/gay-bars-blackpool/peek-a-booze/) and [Lu-Lu's](/gay-bars-blackpool/lu-lus-cabaret-lounge/) further up Dickson Road, or [Oscars](/gay-bars-blackpool/oscars/) after the show at Funny Girls.",
+  "tips": [],
+  "access": ""
+ },
+ {
+  "slug": "the-dame-lane",
+  "name": "The Dame Lane",
+  "section": "bars",
+  "alsoIn": [
+   "hotels"
+  ],
+  "cid": "17655685309219437259",
+  "kind": "B&B with a bar",
+  "schemaType": "BedAndBreakfast",
+  "address": "4 Pleasant Street, Blackpool",
+  "postcode": "FY1 2JA",
+  "area": "lord-street",
+  "geo": [
+   53.825142,
+   -3.053857
+  ],
+  "phone": "",
+  "website": "",
+  "hours": null,
+  "hoursText": "Bar hours are not published.",
+  "price": "",
+  "tags": [
+   "bingo",
+   "rooms",
+   "dog-friendly"
+  ],
+  "title": "The Dame Lane Blackpool: B&B and bar on Pleasant Street",
+  "metaDescription": "The Dame Lane on Pleasant Street is a B&B with its own bar on the northern edge of the Rainbow Quarter, with bingo afternoons, DJs and live singers.",
+  "summary": "A B&B with its own bar on Pleasant Street, on the northern edge of the quarter, with bingo afternoons, DJs and singers.",
+  "body": "The Dame Lane is a bed and breakfast with its own licensed bar on Pleasant Street, just off Lord Street at the northern edge of the quarter. It was previously The Grampian House.\n\nRecent guests praise the welcome, a full breakfast and freshly updated rooms, and the bar puts on bingo afternoons, DJ nights and live singers. It welcomes dogs and families, so everyone is welcome.",
+  "tips": [
+   "Good if you are travelling with a dog.",
+   "There is no on-site parking and street parking nearby is limited."
+  ],
+  "access": "No lift."
+ },
+ {
+  "slug": "lu-lus-cabaret-lounge",
+  "name": "Lu-Lu's Cabaret Lounge",
+  "section": "bars",
+  "alsoIn": [
+   "hotels",
+   "drag",
+   "cash-only"
+  ],
+  "cid": "3677111585664224468",
+  "kind": "Cabaret bar and hotel",
+  "schemaType": "BarOrPub",
+  "address": "78b-82 Dickson Road, Blackpool",
+  "postcode": "FY1 2BU",
+  "area": "dickson-road",
+  "geo": [
+   53.823448,
+   -3.05392
+  ],
+  "phone": "07376 678140",
+  "website": "http://lulusloungeblackpool.co.uk/",
+  "hours": {
+   "mon": "",
+   "tue": "",
+   "wed": "",
+   "thu": "",
+   "fri": "19:00-",
+   "sat": "19:00-",
+   "sun": "19:00-"
+  },
+  "hoursText": "Cabaret bar Friday to Sunday from 7pm; Sailor Al's lounge Saturday and Sunday from 7pm. Times can change, so check first.",
+  "price": "",
+  "tags": [
+   "drag",
+   "cabaret",
+   "rooms",
+   "cash-only"
+  ],
+  "title": "Lu-Lu's Cabaret Lounge Blackpool: cabaret and rooms",
+  "metaDescription": "Lu-Lu's on Dickson Road is a budget LGBTQ+ cabaret bar with drag acts, a resident DJ, a quieter lounge and about 26 en-suite rooms. Cash only. Hours and tips.",
+  "summary": "A friendly, budget LGBTQ+ cabaret bar on Dickson Road with two bars side by side and about 26 en-suite rooms.",
+  "body": "Lu-Lu's is two bars and a hotel at the northern end of the Dickson Road strip. The cabaret bar has drag and cabaret acts, a resident DJ and a small dancefloor at weekends from 7pm, and Sunday evenings have had a hosted cocktail night with Crystal Candyfloss. Next door, Sailor Al's is a quieter lounge for a calmer drink.\n\nUpstairs there are about 26 en-suite rooms, priced at the budget end. It is cash only.",
+  "tips": [
+   "Bring cash.",
+   "There are steps at the entrance; help has been given to wheelchair users over them, but phone ahead."
+  ],
+  "access": "Steps at the entrance; no formal accessibility information."
+ },
+ {
+  "slug": "pride-lodge",
+  "name": "Pride Lodge",
+  "section": "hotels",
+  "alsoIn": [],
+  "cid": "7504573576697346720",
+  "kind": "LGBTQ+ guest house",
+  "schemaType": "BedAndBreakfast",
+  "address": "12 High Street, Blackpool",
+  "postcode": "FY1 2BL",
+  "area": "lord-street",
+  "geo": [
+   53.821716,
+   -3.050124
+  ],
+  "phone": "07359 163631",
+  "website": "https://www.pridelodge.com/",
+  "hours": null,
+  "hoursText": "Reception 10am to 7pm Monday to Saturday and 11am to 5pm Sunday, with WhatsApp out of hours.",
+  "price": "",
+  "tags": [
+   "LGBTQ+",
+   "sauna",
+   "hot-tub",
+   "gym"
+  ],
+  "title": "Pride Lodge Blackpool: LGBTQ+ guest house with sauna",
+  "metaDescription": "Pride Lodge on High Street is an LGBTQ+ guest house with a guest sauna, gym, sunbed and seasonal hot tub, within 100 metres of the main bars.",
+  "summary": "An LGBTQ+ guest house on High Street with its own sauna, gym and seasonal hot tub, a minute from the bars.",
+  "body": "Pride Lodge is a small, LGBTQ+ guest house on High Street, in the old guest-house streets between Blackpool North station and Dickson Road. The Flying Handbag and Funny Girls are both within about 100 metres, and everyone is welcome: it describes itself as mixed rather than men-only.\n\nRooms come with a smart TV, a fridge and a light in-room breakfast. Guests also get a sauna, sunbed and multi-gym, plus a garden hot tub in season (roughly April to early October).\n\n## Extras\n\nGuests get a discount card for local venues and standing tickets for Funny Girls, and reception sells discounted passes for the Banks Street car park. There is a three-night minimum on event weekends and money off Sunday-to-Thursday stays of two nights or more.",
+  "tips": [
+   "Book early for Pride and Illuminations weekends.",
+   "Buy your parking pass at reception before you park."
+  ],
+  "access": ""
+ },
+ {
+  "slug": "delovely",
+  "name": "De-Lovely Hotel",
+  "section": "hotels",
+  "alsoIn": [
+   "food",
+   "bars"
+  ],
+  "cid": "15055811416556686744",
+  "kind": "LGBTQ+ guest house and bar",
+  "schemaType": "BedAndBreakfast",
+  "address": "82 Lord Street, Blackpool",
+  "postcode": "FY1 2DG",
+  "area": "lord-street",
+  "geo": [
+   53.824258,
+   -3.053516
+  ],
+  "phone": "01253 317943",
+  "website": "https://www.delovelyhotel.co.uk/",
+  "hours": null,
+  "hoursText": "The bar is open to non-residents; hours vary by season.",
+  "price": "",
+  "tags": [
+   "LGBTQ+",
+   "food",
+   "sunday-roast",
+   "cocktails"
+  ],
+  "title": "De-Lovely Hotel Blackpool: themed rooms and cocktail bar",
+  "metaDescription": "De-Lovely on Lord Street is an LGBTQ+ guest house with individually themed rooms, a well-rated breakfast and a cocktail bar open to everyone, plus Sunday roasts.",
+  "summary": "An LGBTQ+ guest house on Lord Street with quirky themed rooms, a highly rated breakfast and a cocktail bar open to all.",
+  "body": "De-Lovely is an LGBTQ+ guest house towards the seaward end of Lord Street, known for individually themed en-suite rooms and a breakfast that guests rate highly.\n\nIts bar is open to everyone, not only residents, with cocktail deals, weekend happy hours, food and cocktails served in teapots. On Sundays it serves roasts, but you need to book.",
+  "tips": [
+   "Book Sunday lunch in advance.",
+   "Some rooms are up a very steep staircase, so ask if that matters."
+  ],
+  "access": "Some rooms are up a steep staircase."
+ },
+ {
+  "slug": "westfield-house",
+  "name": "Westfield House",
+  "section": "hotels",
+  "alsoIn": [],
+  "cid": "16134508076108290718",
+  "kind": "LGBTQ+, adults-only guest house",
+  "schemaType": "BedAndBreakfast",
+  "address": "78 Lord Street, Blackpool",
+  "postcode": "FY1 2DG",
+  "area": "lord-street",
+  "geo": [
+   53.824176,
+   -3.053456
+  ],
+  "phone": "01253 621992",
+  "website": "https://westfieldhousehotel.com/",
+  "hours": null,
+  "hoursText": "",
+  "price": "",
+  "tags": [
+   "LGBTQ+",
+   "adults-only",
+   "quiet"
+  ],
+  "title": "Westfield House Blackpool: LGBTQ+ adults-only guest house",
+  "metaDescription": "Westfield House on Lord Street is a small, LGBTQ+, adults-only Edwardian guest house with a four-star rating, en-suite rooms and a full breakfast.",
+  "summary": "A small, LGBTQ+, adults-only Edwardian guest house with a four-star rating on Lord Street.",
+  "body": "Westfield House is a small Edwardian guest house on Lord Street, LGBTQ+ and adults only, with a VisitEngland four-star rating. Rooms are en-suite with quality linen and Fairtrade drinks trays, there is a full breakfast, and a lounge bar area for a nightcap.\n\nIt does not take group, stag or hen bookings, which keeps it calm: a good choice if you want to be close to the bars but sleep somewhere quiet.",
+  "tips": [
+   "Discounted parking vouchers are available.",
+   "All rooms are non-smoking."
+  ],
+  "access": "No property-specific accessibility information is published."
+ },
+ {
+  "slug": "chaps-hotel",
+  "name": "Chaps Hotel",
+  "section": "hotels",
+  "alsoIn": [],
+  "cid": "10926784503503373653",
+  "kind": "LGBTQ+ hotel",
+  "schemaType": "Hotel",
+  "address": "9-11 Cocker Street, Blackpool",
+  "postcode": "FY1 1SF",
+  "area": "lord-street",
+  "geo": [
+   53.823175,
+   -3.053934
+  ],
+  "phone": "01253 620541",
+  "website": "https://www.chapshotel.co.uk/",
+  "hours": null,
+  "hoursText": "",
+  "price": "",
+  "tags": [
+   "adults-only",
+   "themed-rooms",
+   "bar"
+  ],
+  "title": "Chaps Hotel Blackpool: LGBTQ+ hotel on Cocker Street",
+  "metaDescription": "Chaps on Cocker Street calls itself Blackpool's premier LGBTQ+ hotel, with themed en-suite rooms, breakfast, a bar and a pay-for-five, stay-seven weekly offer.",
+  "summary": "A long-standing adults-only LGBTQ+ hotel near the seafront end of Cocker Street, with themed rooms, breakfast and a bar.",
+  "body": "Chaps is an LGBTQ+ hotel at the seafront end of Cocker Street, a short walk from Lord Street and Queen Street. It has themed en-suite rooms, breakfast and its own bar and lounge with home cooking, and it is adults only.\n\nIt is good value, especially for longer stays: its weekly offer lets you pay for five nights and stay for seven.",
+  "tips": [
+   "Ask about the weekly offer if you are staying a week."
+  ],
+  "access": ""
+ },
+ {
+  "slug": "lawrence-house",
+  "name": "Lawrence House",
+  "section": "hotels",
+  "alsoIn": [],
+  "cid": "5548892911167749171",
+  "kind": "LGBTQ+ guest house",
+  "schemaType": "BedAndBreakfast",
+  "address": "33 General Street, Blackpool",
+  "postcode": "FY1 1SG",
+  "area": "lord-street",
+  "geo": [
+   53.822259,
+   -3.054496
+  ],
+  "phone": "01253 310502",
+  "website": "https://lawrencehouseblackpool.co.uk/",
+  "hours": null,
+  "hoursText": "Check-in 2pm to 10pm.",
+  "price": "Rooms from about £50 with breakfast",
+  "tags": [
+   "LGBTQ+",
+   "adults-only",
+   "evening-meals",
+   "roof-terrace"
+  ],
+  "title": "Lawrence House Blackpool: LGBTQ+ four-star guest house",
+  "metaDescription": "Lawrence House on General Street is a four-star, adults-only guest house for LGBTQ+ guests and friends, with evening meals and a roof terrace.",
+  "summary": "A four-star, adults-only guest house for LGBTQ+ guests and their friends, on a quiet street near the quarter.",
+  "body": "Lawrence House is for LGBTQ+ guests and their friends (straight guests are welcome too). It sits on General Street, a quiet road a few minutes' walk from the bars, and carries a four-star rating.\n\nAll rooms are en-suite, breakfast is cooked, and the bar and dining room open every night, with home-cooked evening meals served from 6:30pm to 8:30pm. There is also a roof terrace. Rooms start at around £50 with breakfast.",
+  "tips": [
+   "There is no on-site parking, so plan for a nearby car park.",
+   "Evening meals are a good option on a quiet midweek night."
+  ],
+  "access": "An access statement is published on the hotel's website."
+ },
+ {
+  "slug": "belvedere",
+  "name": "The Belvedere",
+  "section": "hotels",
+  "alsoIn": [],
+  "kind": "Adults-only guest house",
+  "schemaType": "BedAndBreakfast",
+  "address": "77 Dickson Road, Blackpool",
+  "postcode": "FY1 2BU",
+  "area": "dickson-road",
+  "geo": [
+   53.823977,
+   -3.05394
+  ],
+  "geoPostcode": "FY1 2BU",
+  "phone": "01253 624733",
+  "website": "https://belvedereblackpool.com/",
+  "hours": null,
+  "hoursText": "",
+  "price": "",
+  "tags": [
+   "adults-only",
+   "bar"
+  ],
+  "title": "The Belvedere, Blackpool: adults-only guest house",
+  "metaDescription": "The Belvedere on Dickson Road is an adults-only guest house long popular with LGBTQ+ visitors. It is for sale, and its bar closes at the end of 2026.",
+  "summary": "An adults-only Victorian guest house on Dickson Road, long popular with LGBTQ+ visitors, now up for sale.",
+  "body": "The Belvedere has been one of the best-known LGBTQ+-friendly guest houses on Dickson Road for years, with a full English breakfast and a weekend bar.\n\nIn June 2026 it was put up for sale. They are still taking bookings for now and may switch to room-only opening for special weekends if it does not sell quickly. Its bar will close for good at the end of 2026.",
+  "tips": [
+   "Check availability directly, as opening may change while it is for sale."
+  ],
+  "access": "Reported to have no disabled access."
+ },
+ {
+  "slug": "prince-albert-hotel",
+  "name": "The Prince Albert Hotel",
+  "section": "hotels",
+  "alsoIn": [
+   "men-only"
+  ],
+  "cid": "1609623323674729740",
+  "kind": "Men-only hotel",
+  "schemaType": "Hotel",
+  "address": "11 Yates Street, Blackpool",
+  "postcode": "FY1 2DE",
+  "area": "lord-street",
+  "geo": [
+   53.823755,
+   -3.053119
+  ],
+  "phone": "07976 400896",
+  "website": "https://www.tpah.uk/",
+  "hours": null,
+  "hoursText": "The guest bar and lounge is open through the day and evening.",
+  "price": "",
+  "tags": [
+   "men-only",
+   "themed-weekends",
+   "18+"
+  ],
+  "title": "Prince Albert Hotel Blackpool: discreet men-only LGBTQ+ hotel",
+  "metaDescription": "The Prince Albert on Yates Street is a discreet, four-star, men-only hotel, with a guest bar and themed weekends through the year.",
+  "summary": "A discreet, four-star, men-only hotel on Yates Street, with no street signage and themed weekends.",
+  "body": "The Prince Albert is a discreet, men-only hotel on Yates Street, just off Lord Street. There is no sign outside, which suits guests who value privacy.\n\nIt holds a four-star rating and has refurbished en-suite rooms, some fitted for play, and a guest bar and lounge where you settle your tab when you leave. Themed weekends run through the year, including clothing-optional and kink weekends, with tickets sold in advance.",
+  "tips": [
+   "Men only and adults only.",
+   "Mention any special needs when you book; no accessibility features are listed."
+  ],
+  "access": "No accessibility features listed."
+ },
+ {
+  "slug": "the-dragonfly",
+  "name": "The Dragonfly",
+  "section": "hotels",
+  "alsoIn": [],
+  "cid": "7719404676703069751",
+  "kind": "Adults-only B&B",
+  "schemaType": "BedAndBreakfast",
+  "address": "75 Lord Street, Blackpool",
+  "postcode": "FY1 2DA",
+  "area": "lord-street",
+  "geo": [
+   53.82387,
+   -3.052672
+  ],
+  "geoPostcode": "FY1 2DG",
+  "phone": "",
+  "website": "",
+  "hours": null,
+  "hoursText": "",
+  "price": "",
+  "tags": [
+   "adults-only",
+   "bar"
+  ],
+  "title": "The Dragonfly Blackpool: adults-only B&B on Lord Street",
+  "metaDescription": "The Dragonfly at 75 Lord Street is an adults-only B&B-style hotel with an in-house bar and breakfast included, close to North Pier and the Rainbow Quarter bars.",
+  "summary": "An adults-only B&B-style hotel with its own bar on Lord Street, close to North Pier and the quarter.",
+  "body": "The Dragonfly is an adults-only hotel run on B&B lines at 75 Lord Street, in the stretch of guest houses between the station and the sea. Breakfast is included and there is an in-house bar for guests.\n\nIt is a short walk to North Pier and the Promenade one way and to Mardi Gras, Trades and the Lord Street bars the other. It has changed hands in recent years, so check the current offer when you book.",
+  "tips": [
+   "Confirm what is included when you book, as it has changed hands recently."
+  ],
+  "access": ""
+ },
+ {
+  "slug": "welhornys",
+  "name": "Welhorny's",
+  "section": "hotels",
+  "alsoIn": [
+   "men-only",
+   "bears"
+  ],
+  "cid": "4673182330246237673",
+  "kind": "Men-only naturist guest house",
+  "schemaType": "BedAndBreakfast",
+  "address": "33-37 Banks Street, Blackpool",
+  "postcode": "FY1 2AR",
+  "area": "dickson-road",
+  "geo": [
+   53.822402,
+   -3.052259
+  ],
+  "phone": "01253 759711",
+  "website": "https://welhornys.com/",
+  "hours": null,
+  "hoursText": "",
+  "price": "",
+  "tags": [
+   "men-only",
+   "naturist",
+   "bar",
+   "themed-weekends",
+   "18+"
+  ],
+  "title": "Welhorny's Blackpool: men-only naturist guest house",
+  "metaDescription": "Welhorny's on Banks Street is a private members', men-only naturist guest house and bar, with breakfast, party nights and themed weekends.",
+  "summary": "A private members', men-only naturist guest house and bar on Banks Street, just off Dickson Road.",
+  "body": "Welhorny's is a men-only naturist guest house and bar run as a private members' club, on Banks Street just off Dickson Road. Breakfast is included, and the bar runs party nights and themed weekends, including bear and pup weekends.\n\nIt is aimed squarely at gay men who want a clothing-optional, sociable stay, and it is a few minutes' walk from Funny Girls and Queen Street.",
+  "tips": [
+   "Men only, adults only, members' rules apply."
+  ],
+  "access": ""
+ },
+ {
+  "slug": "q-accommodation",
+  "name": "Q Accommodation",
+  "section": "hotels",
+  "alsoIn": [],
+  "cid": "7695756214052256449",
+  "kind": "Boutique adults-only guest house",
+  "schemaType": "BedAndBreakfast",
+  "address": "27 Lord Street, Blackpool",
+  "postcode": "FY1 2BD",
+  "area": "lord-street",
+  "geo": [
+   53.822158,
+   -3.051207
+  ],
+  "phone": "01253 283633",
+  "website": "",
+  "hours": null,
+  "hoursText": "",
+  "price": "",
+  "tags": [
+   "adults-only",
+   "room-only",
+   "suites"
+  ],
+  "title": "Q Accommodation Blackpool: boutique suites on Lord Street",
+  "metaDescription": "Q Accommodation at 27 Lord Street is a boutique, adults-only, room-only guest house with seven suites, run as the sister of Mardi Gras, which handles bookings.",
+  "summary": "A boutique, adults-only, room-only guest house with seven suites, the sister of Mardi Gras a few doors away.",
+  "body": "Q Accommodation is a renovated 19th-century house on Lord Street with seven suites, from a double up to a penthouse. It is room only and adults only, and it is run as the sister property of Mardi Gras, a few doors along, which handles bookings. It used to be the Seacroft guest house.\n\nGuests rate it close to perfect, and it puts you right on the main bar street without having to sleep above a bar.",
+  "tips": [
+   "Book through Mardi Gras.",
+   "There are two steps at the entrance and no lift."
+  ],
+  "access": "Two steps to the entrance, no lift, high-pile carpet."
+ },
+ {
+  "slug": "the-b-and-b-blackpool",
+  "name": "The B&B Blackpool",
+  "section": "hotels",
+  "alsoIn": [],
+  "cid": "10685873025008906724",
+  "kind": "Budget B&B",
+  "schemaType": "BedAndBreakfast",
+  "address": "19 Cocker Street, Blackpool",
+  "postcode": "FY1 2BY",
+  "area": "lord-street",
+  "geo": [
+   53.823465,
+   -3.052967
+  ],
+  "phone": "01253 224860",
+  "website": "http://www.thebandbblackpool.co.uk/",
+  "hours": null,
+  "hoursText": "",
+  "price": "",
+  "tags": [
+   "budget",
+   "bar",
+   "pets"
+  ],
+  "title": "The B&B Blackpool: budget rooms on Cocker Street",
+  "metaDescription": "The B&B Blackpool on Cocker Street is a simple, budget B&B with a small bar, a short walk from the Rainbow Quarter bars and the Winter Gardens. Pets accepted.",
+  "summary": "A simple, budget B&B with a small bar on Cocker Street, a short walk from the bars and the Winter Gardens.",
+  "body": "The B&B Blackpool is a straightforward budget option on Cocker Street, in the middle of the quarter's guest-house streets. It has a small bar, and breakfast and evening meals are served at a sister hotel a minute away, using a voucher you get at check-in.\n\nPets are accepted for a fee. It is popular with visitors to the LGBTQ+ scene and is a few minutes' walk from Lord Street and the Winter Gardens.",
+  "tips": [
+   "Pre-book the £5 parking if you are driving.",
+   "The two attic singles have limited headroom."
+  ],
+  "access": "No lift."
+ },
+ {
+  "slug": "legends-hotel",
+  "name": "Legends Hotel",
+  "status": "closed",
+  "section": "hotels",
+  "alsoIn": [],
+  "kind": "Adults-only guest house (closed)",
+  "schemaType": "Hotel",
+  "address": "45 Lord Street, Blackpool",
+  "postcode": "FY1 2BD",
+  "area": "lord-street",
+  "geo": [
+   53.822621,
+   -3.05156
+  ],
+  "phone": "",
+  "website": "",
+  "hours": null,
+  "hoursText": "Reported as closed.",
+  "price": "",
+  "tags": [],
+  "closedWhen": "Reported as closed in autumn 2026; the building is becoming a Zen Buddhism and wellbeing hub",
+  "title": "Legends Hotel Blackpool: reported as closed",
+  "metaDescription": "Is Legends Hotel on Lord Street, Blackpool still open? It has been reported as closed and the building is now a different business. Where to stay nearby instead.",
+  "summary": "A former adults-only guest house at 45 Lord Street. It has been reported as closed, and the building is now a different business.",
+  "body": "**Legends Hotel has been reported as closed.** The building at 45 Lord Street is no longer a guest house; it is being turned into a Zen Buddhism and wellbeing hub. We keep this page so nobody turns up expecting to check in.\n\nFor years Legends was one of the quarter's best-known adults-only guest houses, with eleven rooms, a licensed bar and its own parking, a few doors from Mardi Gras and Trades.\n\n## Where to stay nearby instead\n\n[Mardi Gras](/gay-bars-blackpool/mardi-gras/) and [Q Accommodation](/gay-hotels-blackpool/q-accommodation/) are a few doors along Lord Street, and [Trades](/gay-bars-blackpool/trades/) is a little further north. See all [LGBTQ+ hotels in Blackpool](/gay-hotels-blackpool/).",
+  "tips": [],
+  "access": ""
+ },
+ {
+  "slug": "acqua-sauna",
+  "name": "Acqua Sauna",
+  "section": "saunas",
+  "alsoIn": [
+   "men-only",
+   "bears"
+  ],
+  "cid": "11418339857539514467",
+  "kind": "Men's sauna for men",
+  "schemaType": "HealthClub",
+  "address": "25-27 Springfield Road, Blackpool",
+  "postcode": "FY1 1QW",
+  "area": "dickson-road",
+  "geo": [
+   53.820605,
+   -3.05431
+  ],
+  "phone": "01253 294610",
+  "website": "https://www.acquasaunas.com/",
+  "hours": null,
+  "hoursText": "Open seven days, with late nights until 6am on Friday and Saturday. Check the sauna's own site for today's times.",
+  "price": "Entry from £10, including towel, locker and hot drinks",
+  "tags": [
+   "men-only",
+   "sauna",
+   "steam",
+   "hot-tub",
+   "late",
+   "18+"
+  ],
+  "title": "Acqua Sauna Blackpool: men's sauna near North station",
+  "metaDescription": "Acqua on Springfield Road is a men's sauna for men two minutes from Blackpool North, with a dry sauna, steam room, hot tub, cabins and cafe lounge. Prices and hours.",
+  "summary": "A men's men's sauna two minutes from Blackpool North, with a dry sauna, steam room, large hot tub, cabins and a cafe lounge.",
+  "body": "Acqua is just behind the Grand Metropole Hotel on Springfield Road and bills itself as the North West's longest-running men's sauna. It is spread over several floors with a dry sauna, steam room, a large hot tub, private cabins, video rooms and a lounge cafe.\n\nMost sessions are for men only, with occasional mixed events advertised in advance. Entry starts at around £10 and includes a towel, locker, hot drinks and wifi, and it has run midweek deals such as a £10 Wednesday.\n\n## Events\n\nAcqua hosts regular GROWL afternoons for bears, cubs, chasers and admirers. It stays open all night on Friday and Saturday.",
+  "tips": [
+   "Men only and 18+, with a Challenge 25 ID policy.",
+   "Some listings give a Lewtas Street address; the door is on Springfield Road."
+  ],
+  "access": ""
+ },
+ {
+  "slug": "w3-complex",
+  "name": "W3 Complex",
+  "section": "saunas",
+  "alsoIn": [
+   "men-only"
+  ],
+  "cid": "16353537812889905067",
+  "kind": "Men's sauna for men",
+  "schemaType": "HealthClub",
+  "address": "1-3 Charles Street, Blackpool",
+  "postcode": "FY1 3EG",
+  "area": "talbot-road",
+  "geo": [
+   53.819106,
+   -3.048381
+  ],
+  "phone": "01253 751199",
+  "website": "https://www.w3sauna.co.uk/",
+  "hours": null,
+  "hoursText": "Opens daily from late morning, with later hours on some nights and weekends. Times vary, so check before you go.",
+  "price": "Entry about £10",
+  "tags": [
+   "men-only",
+   "sauna",
+   "steam",
+   "hot-tub",
+   "terrace",
+   "sexual-health",
+   "18+"
+  ],
+  "title": "W3 Complex Blackpool: men's sauna with hot tub and terrace",
+  "metaDescription": "W3 on Charles Street is an adults-only men's sauna for gay, bi and curious men with a steam room, outdoor hot tub, sun terrace, theme nights and a monthly test clinic.",
+  "summary": "An adults-only men's sauna over several floors on Charles Street, with an outdoor hot tub, sun terrace and weekly theme nights.",
+  "body": "W3, formerly known as WetWetWet, has been open since 2007 and is one of Blackpool's two men's saunas. It is spread over several floors on Charles Street, a short walk south-east of Blackpool North station.\n\nThe ground floor has a dry sauna, a large steam room, an outdoor hot tub and a sun terrace, with cabins and play areas upstairs, plus a lounge serving snacks and drinks. Entry is around £10.\n\n## Theme nights and health\n\nWeekly theme nights include Naked Thursdays, Underwear Fridays and late Saturdays, and weekends are busiest. W3 also hosts a monthly sexual-health testing clinic, part of Blackpool's wider work to end new HIV transmissions.",
+  "tips": [
+   "Men only and 18+.",
+   "Only the lower level is reported to suit disabled visitors."
+  ],
+  "access": "Only the lower level is reported to be suitable for disabled visitors.",
+  "since": "2007"
+ },
+ {
+  "slug": "antinous",
+  "name": "Antinous Lounge & Bistro",
+  "section": "bars",
+  "alsoIn": [
+   "food"
+  ],
+  "kind": "Lounge and bistro",
+  "schemaType": "BarOrPub",
+  "address": "42 Banks Street, Blackpool",
+  "postcode": "FY1 2BE",
+  "area": "lord-street",
+  "geo": [
+   53.822887,
+   -3.051708
+  ],
+  "phone": "",
+  "website": "",
+  "hours": null,
+  "hoursText": "Opening hours are not published. Check before you travel, especially for food.",
+  "price": "",
+  "tags": [
+   "food"
+  ],
+  "title": "Antinous Lounge & Bistro Blackpool: food, drinks and events",
+  "metaDescription": "Antinous Lounge & Bistro near North Pier: a relaxed LGBTQ+ friendly lounge serving food and drinks, with community events such as charity coffee mornings.",
+  "summary": "A relaxed lounge and bistro on the Lord Street side of the quarter, serving food as well as drinks and hosting community events.",
+  "body": "Antinous is a lounge and bistro at 42 Banks Street, just off Lord Street in the Rainbow Quarter, a couple of minutes from North Pier. It is linked to a guest house, so it keeps a calmer pace than the late bars on Queen Street: somewhere to eat, have a drink and talk.\n\n## Food and drink\n\nUnlike most bars in the quarter, Antinous serves food as well as drinks, which makes it a useful first stop before a night out or a quieter option for lunch.\n\n## Community events\n\nIt hosts community events such as charity coffee mornings. Details are usually announced close to the date.\n\n## Nearby\n\n[Trades](/gay-bars-blackpool/trades/) and [Mardi Gras](/gay-bars-blackpool/mardi-gras/) are a short walk away on Lord Street. For more places to eat, see [Sunday roasts in the Rainbow Quarter](/guides/sunday-roasts-rainbow-quarter/)."
+ }
+]

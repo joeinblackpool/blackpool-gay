@@ -1,0 +1,249 @@
+#!/usr/bin/env python3
+"""Build blackpool.gay into one Cloudflare Worker (src/index.js).
+Data: source/data/*.json (facts from the owner's rainbowquarter data + verified research; copy written fresh for this site).
+"""
+import json, re, html, os, glob, datetime, hashlib, base64, math
+B = os.path.dirname(os.path.abspath(__file__)); D = os.path.join(B, '..', 'data'); ROOT = os.path.join(B, '..', '..')
+SITE = 'https://blackpool.gay'; NAME = 'Blackpool.gay'
+TODAY = datetime.date.today().isoformat(); UPDATED = datetime.date.today().strftime('%-d %B %Y')
+E = lambda s: html.escape(str(s), quote=True)
+J = lambda f, d=None: json.load(open(os.path.join(D, f))) if os.path.exists(os.path.join(D, f)) else d
+
+VEN = [v for v in J('venues.json') if 'closed' not in v['kind'].lower()]
+VBY = {v['slug']: v for v in VEN}
+EXTRA = [x for x in J('more-stays.json', []) if x.get('status') == 'open']
+POST = J('postcodes.json', {})
+WALK = J('walk.json', {})
+EVENTS = J('events.json', [])
+STAYS = J('copy-stays.json', {})
+TYPES = J('copy-types-plan.json', {})
+NIGHT = J('copy-nightlife.json', {})
+CORE = J('copy-core.json', {})
+def _norm(d):
+    for v in (d.values() if isinstance(d, dict) else []):
+        if isinstance(v, dict):
+            if 'body' in v and 'body_html' not in v: v['body_html'] = v['body']
+            _norm(v)
+for _d in (STAYS, TYPES, NIGHT, CORE): _norm(_d)
+CARDS = NIGHT.get('cards', {})
+BLURB = NIGHT.get('event_blurbs', {})
+
+# extra stays found by research: place them using the owner's postcode file
+def pc_geo(pc):
+    g = POST.get((pc or '').upper().strip())
+    return [g[0], g[1]] if isinstance(g, (list, tuple)) and len(g) >= 2 else (g and [g.get('lat'), g.get('lng') or g.get('lon')])
+for x in EXTRA:
+    if x['slug'] in VBY: continue
+    g = pc_geo(x.get('postcode'))
+    if not g or not g[0]: continue
+    VBY[x['slug']] = {'slug': x['slug'], 'name': x['name'], 'section': 'hotels', 'kind': {'men-only': 'Men-only hotel', 'adults-only': 'Adults-only guest house'}.get(x.get('policy'), 'LGBTQ+-friendly stay'),
+                      'address': x['address'], 'postcode': x['postcode'], 'geo': g, 'phone': x.get('phone'), 'website': x.get('website'), 'price': x.get('price'), 'tags': x.get('features', []), 'extra': x}
+STAY_SLUGS = [s for s, v in VBY.items() if v['section'] == 'hotels' or s in ('peek-a-booze', 'mardi-gras', 'trades', 'neon-bar', 'lu-lus-cabaret-lounge')]
+BAR_SLUGS = [s for s, v in VBY.items() if v['section'] in ('bars', 'saunas')]
+
+def walk(a, b):
+    if a in WALK and b in WALK[a]['to']: return WALK[a]['to'][b]
+    va, vb = VBY.get(a), VBY.get(b)
+    if not (va and vb and va.get('geo') and vb.get('geo')): return None
+    la1, lo1, la2, lo2 = map(math.radians, (*va['geo'], *vb['geo']))
+    d = 2 * 6371000 * math.asin(math.sqrt(math.sin((la2 - la1) / 2) ** 2 + math.cos(la1) * math.cos(la2) * math.sin((lo2 - lo1) / 2) ** 2)) * 1.3
+    return max(1, round(d / 80))
+
+def maplinks(v):
+    q = E(f"{v['name']}, {v['address']} {v.get('postcode') or ''}".strip())
+    lat, lng = v['geo']
+    return (f'<div class="mapbtns"><a href="https://www.google.com/maps/search/?api=1&amp;query={lat},{lng}" target="_blank" rel="noopener">Google Maps</a>'
+            f'<a href="https://maps.apple.com/?ll={lat},{lng}&amp;q={q}" target="_blank" rel="noopener">Apple Maps</a>'
+            f'<a href="https://waze.com/ul?ll={lat},{lng}&amp;navigate=yes" target="_blank" rel="noopener">Waze</a></div>')
+
+def pin(v, kind):
+    url = ('/stays/' if kind == 'stay' else '/nightlife/') + v['slug'] + '/'
+    lat, lng = v['geo']
+    return {'n': v['name'], 'u': url, 'k': kind, 'a': v['address'], 'p': [lat, lng],
+            'g': f'https://www.google.com/maps/search/?api=1&query={lat},{lng}', 'ap': f'https://maps.apple.com/?ll={lat},{lng}&q=' + v['name'], 'w': f'https://waze.com/ul?ll={lat},{lng}&navigate=yes'}
+ALLPINS = [pin(VBY[s], 'stay') for s in STAY_SLUGS if VBY[s].get('geo')] + [pin(VBY[s], 'bar') for s in BAR_SLUGS if VBY[s].get('geo')]
+def mapblock(pins, center=None, zoom=16, h=380):
+    data = json.dumps({'pins': pins, 'c': center or [53.8228, -3.0525], 'z': zoom}, separators=(',', ':')).replace('</', '<\\/')
+    return f'<div class="map" style="height:{h}px" role="region" aria-label="Map"><script type="application/json" class="mapdata">{data}</script></div><p class="maplegend"><span class="dot stay"></span> Stays <span class="dot bar"></span> Bars and clubs · Map data © OpenStreetMap contributors</p>'
+
+# ---------------------------------------------------------------- page shell
+CSS = open(os.path.join(B, 'site.css')).read()
+NAV = [('/stays/', 'Where to stay'), ('/nightlife/', 'Nightlife'), ('/open-tonight/', 'Open tonight'), ('/whats-on/', "What's on"), ('/pride/', 'Pride'), ('/forum/', 'Forum')]
+BEACON = os.environ.get('CF_BEACON', '')
+def shell(path, title, desc, h1, intro, body, crumbs=None, ld=None, noindex=False, wide=False, maps=False, script=''):
+    crumb_html = ''
+    if crumbs:
+        crumb_html = '<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a>' + ''.join(f' › <a href="{u}">{E(n)}</a>' if u else f' › <span>{E(n)}</span>' for n, u in crumbs) + '</nav>'
+    ldnodes = [{'@type': 'Organization', '@id': SITE + '/#org', 'name': NAME, 'url': SITE + '/', 'logo': SITE + '/apple-touch-icon.png', 'email': 'hello@blackpool.gay', 'sameAs': ['https://rainbowquarter.co.uk/']},
+               {'@type': 'WebSite', '@id': SITE + '/#website', 'name': NAME, 'url': SITE + '/', 'inLanguage': 'en-GB', 'publisher': {'@id': SITE + '/#org'}}] + (ld or [])
+    if crumbs: ldnodes.append({'@type': 'BreadcrumbList', 'itemListElement': [{'@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': SITE + '/'}] + [{'@type': 'ListItem', 'position': i + 2, 'name': n, 'item': SITE + (u or path)} for i, (n, u) in enumerate(crumbs)]})
+    if not any(n.get('@type') in ('WebPage', 'Hotel', 'LodgingBusiness', 'BarOrPub', 'NightClub', 'CollectionPage', 'Article', 'Event', 'ItemList') for n in (ld or [])):
+        ldnodes.append({'@type': 'WebPage', '@id': SITE + path, 'url': SITE + path, 'name': title, 'description': desc, 'isPartOf': {'@id': SITE + '/#website'}, 'inLanguage': 'en-GB', 'dateModified': TODAY})
+    ldtxt = json.dumps({'@context': 'https://schema.org', '@graph': ldnodes}, ensure_ascii=False, separators=(',', ':')).replace('</', '<\\/')
+    head = (f'<!doctype html><html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
+            f'<title>{E(title)}</title><meta name="description" content="{E(desc)}">' + ('<meta name="robots" content="noindex">' if noindex else f'<link rel="canonical" href="{SITE}{path}">') +
+            f'<meta name="theme-color" content="#750787"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="manifest" href="/manifest.webmanifest">'
+            f'<meta property="og:type" content="website"><meta property="og:site_name" content="{NAME}"><meta property="og:locale" content="en_GB"><meta property="og:title" content="{E(title)}"><meta property="og:description" content="{E(desc)}"><meta property="og:url" content="{SITE}{path}"><meta property="og:image" content="{SITE}/og.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image">'
+            + ('<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">' if maps else '') +
+            f'<style>{CSS}</style><script type="application/ld+json">{ldtxt}</script></head>')
+    navh = ''.join(f'<a href="{u}">{n}</a>' for u, n in NAV)
+    body_html = (f'<body><div class="flag" aria-hidden="true"></div><header class="top"><div class="wrap topin"><a class="logo" href="/">Blackpool<b>.gay</b></a><nav class="nav" aria-label="Main">{navh}</nav></div></header>'
+                 f'<main class="wrap{" wide" if wide else ""}">{crumb_html}<h1>{E(h1)}</h1>' + (f'<p class="lede">{E(intro)}</p>' if intro else '') + body + '</main>'
+                 f'<footer class="foot"><div class="wrap"><div class="fgrid"><div><a class="logo" href="/">Blackpool<b>.gay</b></a><p>Independent stay-first guide to LGBTQ+ Blackpool. Facts checked, never paid placements.</p></div>'
+                 f'<div><h2>Stay</h2><a href="/stays/">All stays</a><a href="/stays/men-only-hotels/">Men-only hotels</a><a href="/stays/adults-only-guest-houses/">Adults-only guest houses</a><a href="/stays/near-queen-street/">Near Queen Street</a><a href="/stays/pride-weekend-hotels/">Pride weekend</a></div>'
+                 f'<div><h2>Go out</h2><a href="/nightlife/">Nightlife</a><a href="/open-tonight/">Open tonight</a><a href="/whats-on/">What\'s on</a><a href="/map/">Map</a><a href="/safety/">Getting home safely</a></div>'
+                 f'<div><h2>About</h2><a href="/about/">About &amp; corrections</a><a href="/forum/">Community forum</a><a href="https://rainbowquarter.co.uk/" rel="noopener">Venue history: Rainbow Quarter</a></div></div>'
+                 f'<p class="small">Last updated {UPDATED} · Opening hours and prices are as listed by venues; always check before you travel.</p></div></footer>'
+                 + (('<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script><script src="/assets/map.js" defer></script>') if maps else '') + script +
+                 (f'<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon=\'{{"token": "{BEACON}"}}\'></script>' if BEACON else '') + '</body></html>')
+    return head + body_html
+
+PAGES = {}
+def add(path, page): PAGES[path] = page
+
+# ---------------------------------------------------------------- stays
+def stay_page(s):
+    v = VBY[s]; c = STAYS.get(s) or {}
+    near = sorted([(walk(s, b), b) for b in BAR_SLUGS if b != s and walk(s, b)], key=lambda x: x[0])[:6]
+    rows = ''.join(f'<tr><td><a href="/nightlife/{b}/">{E(VBY[b]["name"])}</a></td><td>{m} min</td></tr>' for m, b in near)
+    fixed = ''.join(f'<tr><td>{n}</td><td>{WALK.get(s, {}).get("to", {}).get(k, "—")} min</td></tr>' for k, n in (('blackpool-north-station', 'Blackpool North station'), ('north-pier', 'North Pier and the Prom'), ('blackpool-tower', 'Blackpool Tower')) if WALK.get(s, {}).get('to', {}).get(k))
+    facts = '<ul class="facts">' + f'<li><strong>Address:</strong> {E(v["address"])}{", " + E(v["postcode"]) if v.get("postcode") else ""}</li>' + (f'<li><strong>Type:</strong> {E(v["kind"])}</li>') + (f'<li><strong>Price guide:</strong> {E(v["price"])}</li>' if v.get('price') else '') + (f'<li><strong>Phone:</strong> <a href="tel:{E(re.sub(r"[^0-9+]", "", v["phone"]))}">{E(v["phone"])}</a></li>' if v.get('phone') else '') + (f'<li><strong>Website:</strong> <a href="{E(v["website"])}" rel="noopener nofollow" target="_blank">{E(re.sub(r"^https?://(www\.)?", "", v["website"]).rstrip("/"))}</a></li>' if v.get('website') else '') + '</ul>'
+    body = (f'<div class="staybox">{facts}{maplinks(v)}</div>' + mapblock([p for p in ALLPINS if p['u'] == f'/stays/{s}/'] + [p for p in ALLPINS if p['k'] == 'bar' and p['u'].split('/')[2] in [b for _, b in near]], center=v['geo'], zoom=17, h=320) +
+            (c.get('body_html') or f'<p>{E(v["name"])} is a {E(v["kind"].lower())} at {E(v["address"])}.</p>') +
+            f'<h2>Walking times from {E(v["name"])}</h2><table class="walk"><thead><tr><th>Place</th><th>On foot</th></tr></thead><tbody>{fixed}{rows}</tbody></table><p class="small">Walking times are estimates from map positions.</p>')
+    title = c.get('title') or f'{v["name"]} Blackpool | {NAME}'
+    desc = c.get('description') or f'{v["name"]}, {v["kind"].lower()} at {v["address"]}: location, who it suits, walking times to Queen Street bars and booking tips.'
+    ld = [{'@type': 'Hotel' if 'hotel' in v['kind'].lower() else 'LodgingBusiness', '@id': SITE + f'/stays/{s}/#place', 'name': v['name'], 'url': SITE + f'/stays/{s}/', 'description': desc,
+           'address': {'@type': 'PostalAddress', 'streetAddress': v['address'].replace(', Blackpool', ''), 'addressLocality': 'Blackpool', 'postalCode': v.get('postcode') or None, 'addressCountry': 'GB'},
+           'geo': {'@type': 'GeoCoordinates', 'latitude': v['geo'][0], 'longitude': v['geo'][1]}, **({'telephone': v['phone']} if v.get('phone') else {}), **({'sameAs': [v['website']]} if v.get('website') else {})}]
+    add(f'/stays/{s}/', shell(f'/stays/{s}/', title, desc, c.get('h1') or v['name'], c.get('intro', ''), body, [('Where to stay', '/stays/'), (v['name'], None)], ld, maps=True))
+for s in STAY_SLUGS:
+    if VBY[s].get('geo'): stay_page(s)
+
+TYPE_ORDER = ['men-only-hotels', 'adults-only-guest-houses', 'gay-owned-guest-houses', 'hotels-with-a-bar', 'near-queen-street', 'near-blackpool-north-station', 'budget-stays', 'pride-weekend-hotels', 'illuminations-breaks', 'quiet-midweek-breaks']
+def card(s):
+    v = VBY[s]; c = STAYS.get(s, {}); q = walk(s, 'the-flying-handbag')
+    return (f'<a class="card" href="/stays/{s}/"><strong>{E(v["name"])}</strong><span class="k">{E(v["kind"])}</span><span>{E(c.get("intro") or v["address"])}</span>'
+            + (f'<span class="walkchip">{q} min walk to Queen Street</span>' if q else '') + '</a>')
+for t in TYPE_ORDER:
+    c = TYPES.get(t)
+    if not c: continue
+    listed = [s for s in c.get('listed', []) if s in VBY and f'/stays/{s}/' in PAGES]
+    body = c['body_html'] + ('<h2>Stays on this list</h2><div class="cards">' + ''.join(card(s) for s in listed) + '</div>' if listed else '') + mapblock([p for p in ALLPINS if p['k'] == 'stay' and p['u'].split('/')[2] in listed] + [p for p in ALLPINS if p['k'] == 'bar'], zoom=16)
+    add(f'/stays/{t}/', shell(f'/stays/{t}/', c['title'], c['description'], c['h1'], c.get('intro', ''), body, [('Where to stay', '/stays/'), (c['h1'], None)],
+        [{'@type': 'ItemList', 'name': c['h1'], 'numberOfItems': len(listed), 'itemListElement': [{'@type': 'ListItem', 'position': i + 1, 'url': SITE + f'/stays/{s}/'} for i, s in enumerate(listed)]}], maps=True))
+hub = CORE.get('stays_hub', {})
+types_html = '<h2>Find the right stay</h2><div class="chips">' + ''.join(f'<a href="/stays/{t}/">{E(TYPES[t]["h1"])}</a>' for t in TYPE_ORDER if t in TYPES) + '</div>'
+allstays = [s for s in STAY_SLUGS if f'/stays/{s}/' in PAGES]
+allstays.sort(key=lambda s: (walk(s, 'the-flying-handbag') or 99, VBY[s]['name']))
+add('/stays/', shell('/stays/', hub.get('title', f'Gay Hotels in Blackpool: Every Stay | {NAME}'), hub.get('description', 'Every gay, men-only, adults-only and LGBTQ+-friendly hotel and guest house in Blackpool, with maps and walking times to Queen Street.'),
+    hub.get('h1', 'Where to stay in Blackpool'), hub.get('intro', ''), mapblock([p for p in ALLPINS if p['k'] == 'stay'] + [p for p in ALLPINS if p['k'] == 'bar'], zoom=16, h=420) + hub.get('body_html', '') + types_html +
+    f'<h2>All {len(allstays)} stays, nearest Queen Street first</h2><div class="cards">' + ''.join(card(s) for s in allstays) + '</div>', [('Where to stay', None)],
+    [{'@type': 'ItemList', 'name': 'LGBTQ+ stays in Blackpool', 'numberOfItems': len(allstays), 'itemListElement': [{'@type': 'ListItem', 'position': i + 1, 'url': SITE + f'/stays/{s}/'} for i, s in enumerate(allstays)]}], maps=True))
+
+# ---------------------------------------------------------------- nightlife
+DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
+HOURS = {s: VBY[s].get('hours') for s in BAR_SLUGS if isinstance(VBY[s].get('hours'), dict)}
+def hours_table(v):
+    h = v.get('hours') if isinstance(v.get('hours'), dict) else None
+    if not h: return f'<p>{E(v.get("hoursText") or "Opening hours are not published; check with the venue.")}</p>'
+    return '<table class="hours"><tbody>' + ''.join(f'<tr><th>{d.capitalize()}</th><td>{E(h.get(d) or "Closed")}</td></tr>' for d in DAYS) + '</tbody></table>' + (f'<p class="small">{E(v["hoursText"])}</p>' if v.get('hoursText') else '') + '<p class="small">Listed hours. Check with the venue before you go.</p>'
+for s in BAR_SLUGS:
+    v = VBY[s]; c = CARDS.get(s)
+    if not c or not v.get('geo'): continue
+    near = sorted([(walk(s, h), h) for h in STAY_SLUGS if h != s and walk(s, h) and f'/stays/{h}/' in PAGES], key=lambda x: x[0])[:5]
+    body = (f'<div class="staybox"><ul class="facts"><li><strong>Address:</strong> {E(v["address"])}{", " + E(v["postcode"]) if v.get("postcode") else ""}</li><li><strong>Type:</strong> {E(v["kind"])}</li>' + (f'<li><strong>Prices:</strong> {E(v["price"])}</li>' if v.get('price') else '') + '</ul>' + maplinks(v) + '</div>' + c['body_html'] +
+            '<h2>Opening hours</h2>' + hours_table(v) + ('<h2>Closest places to stay</h2><ul>' + ''.join(f'<li><a href="/stays/{h}/">{E(VBY[h]["name"])}</a>, {m} min walk</li>' for m, h in near) + '</ul>' if near else '') +
+            mapblock([p for p in ALLPINS if p['u'] == f'/nightlife/{s}/'] + [p for p in ALLPINS if p['k'] == 'stay' and p['u'].split('/')[2] in [h for _, h in near]], center=v['geo'], zoom=17, h=300))
+    typ = v.get('schemaType') or ('NightClub' if 'club' in v['kind'].lower() else 'BarOrPub')
+    ld = [{'@type': typ, 'name': v['name'], 'url': SITE + f'/nightlife/{s}/', 'address': {'@type': 'PostalAddress', 'streetAddress': v['address'].replace(', Blackpool', ''), 'addressLocality': 'Blackpool', 'postalCode': v.get('postcode'), 'addressCountry': 'GB'}, 'geo': {'@type': 'GeoCoordinates', 'latitude': v['geo'][0], 'longitude': v['geo'][1]}, **({'telephone': v['phone']} if v.get('phone') else {})}]
+    add(f'/nightlife/{s}/', shell(f'/nightlife/{s}/', c['title'], c['description'], c['h1'], c.get('intro', ''), body, [('Nightlife', '/nightlife/'), (v['name'], None)], ld, maps=True))
+nh = NIGHT.get('nightlife_hub', {})
+bars = [s for s in BAR_SLUGS if f'/nightlife/{s}/' in PAGES]
+add('/nightlife/', shell('/nightlife/', nh.get('title', f'Gay Bars Near Your Hotel in Blackpool | {NAME}'), nh.get('description', 'Gay bars, cabaret and clubs near the Rainbow Quarter hotels, with maps, listed hours and walking times.'), nh.get('h1', 'Nightlife near your hotel'), nh.get('intro', ''),
+    mapblock(ALLPINS, zoom=16, h=420) + nh.get('body_html', '') + '<h2>Every bar, club and sauna</h2><div class="cards">' + ''.join(f'<a class="card" href="/nightlife/{s}/"><strong>{E(VBY[s]["name"])}</strong><span class="k">{E(VBY[s]["kind"])}</span><span>{E(CARDS[s].get("intro", ""))}</span></a>' for s in bars) + '</div>', [('Nightlife', None)], maps=True))
+add('/map/', shell('/map/', f'Rainbow Quarter Map: Gay Hotels and Bars | {NAME}', 'Interactive map of every gay and gay-friendly hotel, bar, club and sauna in Blackpool, with Google Maps, Apple Maps and Waze links for each.', 'Map of gay Blackpool',
+    'Every stay and bar on one map. Tap a pin for directions.', mapblock(ALLPINS, zoom=16, h=620) + '<h2>Stays</h2><ul>' + ''.join(f'<li><a href="/stays/{s}/">{E(VBY[s]["name"])}</a>, {E(VBY[s]["address"])}</li>' for s in allstays) + '</ul><h2>Bars and clubs</h2><ul>' + ''.join(f'<li><a href="/nightlife/{s}/">{E(VBY[s]["name"])}</a>, {E(VBY[s]["address"])}</li>' for s in bars) + '</ul>', [('Map', None)], maps=True, wide=True))
+
+# open tonight (client-side, Europe/London time) from listed hours
+ot = {s: {'n': VBY[s]['name'], 'u': f'/nightlife/{s}/', 'h': HOURS[s], 'k': VBY[s]['kind']} for s in bars if s in HOURS}
+otjs = '<script type="application/json" id="otdata">' + json.dumps(ot, separators=(',', ':')).replace('</', '<\\/') + '</script><script src="/assets/tonight.js" defer></script>'
+add('/open-tonight/', shell('/open-tonight/', f'Gay Bars Open Tonight in Blackpool | {NAME}', 'Which Blackpool gay bars and clubs are open right now and later tonight, from each venue\'s listed hours, with walking times from the hotels.', 'Open tonight in Blackpool',
+    '', NIGHT.get('open_tonight_intro', '') + '<div id="tonight" class="tonight" aria-live="polite"><p>Loading tonight\'s list…</p></div><noscript><p>Turn on JavaScript to see what is open now, or browse <a href="/nightlife/">all bars</a>.</p></noscript>', [('Open tonight', None)], script=otjs))
+
+# what's on: upcoming dated events + recurring
+def ev_date(e): return e.get('startDate') or '9999'
+up = [e for e in EVENTS if (e.get('endDate') or e.get('startDate') or '9999') >= TODAY or e.get('type') == 'recurring']
+up.sort(key=lambda e: (e['type'] == 'recurring', ev_date(e)))
+def fmt(d):
+    try: return datetime.date.fromisoformat(d).strftime('%a %-d %b %Y')
+    except Exception: return ''
+rows = ''
+evld = []
+for e in up:
+    when = e.get('recurrenceText') or (fmt(e['startDate']) + (' to ' + fmt(e['endDate']) if e.get('endDate') and e['endDate'] != e['startDate'] else ''))
+    venue = f'<a href="/nightlife/{e["venueSlug"]}/">{E(e.get("venueName"))}</a>' if e.get('venueSlug') and f'/nightlife/{e["venueSlug"]}/' in PAGES else E(e.get('venueName') or '')
+    rows += f'<div class="ev"><div class="when">{E(when)}{" · " + E(e["startTime"]) if e.get("startTime") else ""}</div><h3>{E(e["name"])}</h3><p>{venue}{" · " + E(e["price"]) if e.get("price") else ""}</p><p>{E(BLURB.get(e["slug"], ""))}</p>' + (f'<p><a href="{E(e["ticketUrl"])}" target="_blank" rel="noopener nofollow">Tickets and details</a></p>' if e.get('ticketUrl') else '') + '</div>'
+    if e.get('type') == 'dated' and e.get('startDate'):
+        evld.append({'@type': 'Event', 'name': e['name'], 'startDate': e['startDate'] + (('T' + e['startTime']) if e.get('startTime') and re.match(r'^\d\d:\d\d$', e['startTime']) else ''), **({'endDate': e['endDate']} if e.get('endDate') else {}),
+                     'eventStatus': 'https://schema.org/EventScheduled', 'eventAttendanceMode': 'https://schema.org/OfflineEventAttendanceMode', 'location': {'@type': 'Place', 'name': e.get('venueName') or 'Blackpool', 'address': {'@type': 'PostalAddress', 'streetAddress': e.get('venueAddress') or '', 'addressLocality': 'Blackpool', 'addressCountry': 'GB'}}, 'description': BLURB.get(e['slug'], e['name'])})
+add('/whats-on/', shell('/whats-on/', f"What's On: Gay Blackpool Events and Shows | {NAME}", 'Drag shows, cabaret, Pride and LGBTQ+ events in Blackpool, with dates, venues and the nearest places to stay.', "What's on in gay Blackpool", '', NIGHT.get('whats_on_intro', '') + '<div class="events">' + rows + '</div>', [("What's on", None)], evld[:40]))
+
+# plan + core pages
+for s, c in TYPES.items():
+    if c.get('section') == 'plan':
+        add(f'/plan/{s}/', shell(f'/plan/{s}/', c['title'], c['description'], c['h1'], c.get('intro', ''), c['body_html'], [('Plan your trip', '/plan/'), (c['h1'], None)], [{'@type': 'Article', 'headline': c['h1'], 'description': c['description'], 'url': SITE + f'/plan/{s}/', 'datePublished': TODAY, 'dateModified': TODAY, 'author': {'@id': SITE + '/#org'}, 'publisher': {'@id': SITE + '/#org'}, 'inLanguage': 'en-GB'}]))
+plans = [(s, c) for s, c in TYPES.items() if c.get('section') == 'plan']
+add('/plan/', shell('/plan/', f'Plan a Gay Weekend in Blackpool | {NAME}', 'Practical guides for a gay weekend in Blackpool: first-timer plan, getting home late, drag nights, groups and where to eat.', 'Plan your Blackpool trip', 'Practical guides for your stay.', '<div class="cards">' + ''.join(f'<a class="card" href="/plan/{s}/"><strong>{E(c["h1"])}</strong><span>{E(c.get("intro", ""))}</span></a>' for s, c in plans) + '</div>', [('Plan your trip', None)]))
+for key, path, crumb in (('pride', '/pride/', 'Pride'), ('safety', '/safety/', 'Safety'), ('about', '/about/', 'About')):
+    c = CORE.get(key)
+    if c: add(path, shell(path, c['title'], c['description'], c['h1'], c.get('intro', ''), c['body_html'], [(crumb, None)]))
+fc = CORE.get('forum', {})
+topics = fc.get('forum_topics', [])
+forum_body = fc.get('body_html', '') + '<div class="topics">' + ''.join(f'<section class="topic" id="{E(t["slug"])}"><h2>{E(t["title"])}</h2><p>{E(t["desc"])}</p><div class="posts" data-topic="{E(t["slug"])}"></div><form class="postform" data-topic="{E(t["slug"])}"><label>Your name or nickname<input name="name" maxlength="40" required></label><label>Your post<textarea name="body" maxlength="1500" rows="4" required></textarea></label><button type="submit">Send for approval</button><p class="status" role="status"></p></form></section>' for t in topics) + '</div>'
+add('/forum/', shell('/forum/', fc.get('title', f'Blackpool Gay Forum: Ask Before You Go | {NAME}'), fc.get('description', 'A friendly, moderated forum for visitors to gay Blackpool: where to stay, quiet nights, eating out and getting home late.'), fc.get('h1', 'Community forum'), fc.get('intro', ''), forum_body, [('Forum', None)], script='<script src="/assets/forum.js" defer></script>'))
+hc = CORE.get('home', {})
+home_body = (mapblock(ALLPINS, zoom=16, h=400) + '<div class="chips big">' + ''.join(f'<a href="/stays/{t}/">{E(TYPES[t]["h1"])}</a>' for t in TYPE_ORDER if t in TYPES) + '</div>' + hc.get('body_html', '') +
+             '<h2>Stays nearest the Rainbow Quarter</h2><div class="cards">' + ''.join(card(s) for s in allstays[:8]) + '</div><p><a class="btn" href="/stays/">See every stay</a> <a class="btn alt" href="/open-tonight/">What\'s open tonight</a></p>')
+add('/', shell('/', hc.get('title', f'Gay Hotels in Blackpool & Weekend Breaks | {NAME}'), hc.get('description', 'Gay, men-only and adults-only hotels in Blackpool, with maps and walking times to Queen Street bars, what\'s on and what\'s open tonight.'), hc.get('h1', 'Gay hotels and weekend breaks in Blackpool'), hc.get('intro', ''), home_body, None, maps=True))
+NOTFOUND = shell('/404/', f'Page not found | {NAME}', 'This page does not exist.', 'That page has checked out', 'Try one of these instead.', '<ul><li><a href="/stays/">Where to stay</a></li><li><a href="/nightlife/">Nightlife</a></li><li><a href="/open-tonight/">Open tonight</a></li><li><a href="/map/">Map</a></li></ul>', noindex=True)
+
+# ---------------------------------------------------------------- fix internal links that point to pages we did not build
+FIXED = {}
+def _fix(m):
+    href, inner = m.group(1), m.group(2)
+    if href in PAGES or not href.startswith('/') or href.startswith('/api/'): return m.group(0)
+    for alt in (href.replace('/stays/', '/nightlife/'), href.replace('/nightlife/', '/stays/')):
+        if alt in PAGES: FIXED[href] = alt; return m.group(0).replace(f'href="{href}"', f'href="{alt}"')
+    FIXED[href] = None; return inner
+for _p in list(PAGES): PAGES[_p] = re.sub(r'<a href="(/[^"#?]*)"[^>]*>([\s\S]*?)</a>', _fix, PAGES[_p])
+if FIXED: print('link fixes:', {k: v for k, v in sorted(FIXED.items())})
+
+# ---------------------------------------------------------------- CSP per page
+def csp(t):
+    hs = sorted({"'sha256-" + base64.b64encode(hashlib.sha256(m.encode()).digest()).decode() + "'" for m in re.findall(r'<script>([\s\S]*?)</script>', t)})
+    return ("default-src 'self'; script-src 'self' " + ' '.join(hs) + " https://unpkg.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://unpkg.com; img-src 'self' data: https://*.tile.openstreetmap.org https://unpkg.com; connect-src 'self' https://cloudflareinsights.com; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests")
+CSPS = {p: csp(t) for p, t in PAGES.items()}; CSPS['/404/'] = csp(NOTFOUND)
+
+URLS = sorted(PAGES, key=lambda u: (u != '/', u.count('/'), u))
+SITEMAP = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' + ''.join(f'<url><loc>{SITE}{u}</loc><lastmod>{TODAY}</lastmod></url>' for u in URLS) + '</urlset>'
+ROBOTS = f'User-agent: *\nAllow: /\nDisallow: /api/\n\nSitemap: {SITE}/sitemap.xml\n'
+LLMS = (f'# {NAME}\n\n> Independent stay-first guide to LGBTQ+ Blackpool: gay, men-only and adults-only hotels and guest houses near the Rainbow Quarter, with walking times, maps, nightlife near each stay, events and safety. Venue history and support services live on the sister site https://rainbowquarter.co.uk/.\n\n## Stays\n'
+        + ''.join(f'- [{VBY[s]["name"]}]({SITE}/stays/{s}/): {VBY[s]["kind"]}, {VBY[s]["address"]}\n' for s in allstays) + '\n## Stay by type\n' + ''.join(f'- [{TYPES[t]["h1"]}]({SITE}/stays/{t}/)\n' for t in TYPE_ORDER if t in TYPES)
+        + '\n## Nightlife\n' + ''.join(f'- [{VBY[s]["name"]}]({SITE}/nightlife/{s}/)\n' for s in bars) + f'\n## More\n- [Open tonight]({SITE}/open-tonight/)\n- [What\'s on]({SITE}/whats-on/)\n- [Map]({SITE}/map/)\n- [Pride]({SITE}/pride/)\n- [Safety]({SITE}/safety/)\n')
+FORUM_TOPICS = [t['slug'] for t in topics]
+INDEXNOW = hashlib.sha256(b'blackpool.gay-indexnow').hexdigest()[:32]
+
+def js(o): return json.dumps(o, ensure_ascii=False, separators=(',', ':')).replace('\u2028', '\\u2028').replace('\u2029', '\\u2029')
+def chunk(s, n=8000): return '[' + ',\n'.join(js(s[i:i + n]) for i in range(0, len(s), n)) + "].join('')"
+A = lambda f: open(os.path.join(B, f)).read()
+out = ['// blackpool.gay Worker. Generated by source/build/build.py: edit the source, not this file.',
+       f'const SITE={js(SITE)};const BUILT={js(TODAY)};const INDEXNOW={js(INDEXNOW)};const FORUM_TOPICS={js(FORUM_TOPICS)};', 'const PAGES={']
+for p in URLS: out.append(f'{js(p)}:{chunk(PAGES[p])},')
+out += ['};', f'const NOTFOUND={chunk(NOTFOUND)};', f'const CSP={js(CSPS)};', f'const URLS={js(URLS)};',
+        f'const SITEMAP={chunk(SITEMAP)};const ROBOTS={js(ROBOTS)};const LLMS={chunk(LLMS)};',
+        f'const ASSETS={js({"/assets/map.js": A("map.js"), "/assets/tonight.js": A("tonight.js"), "/assets/forum.js": A("forum.js"), "/favicon.svg": A("favicon.svg")})};',
+        f'const BIN={js({k: base64.b64encode(open(os.path.join(B, f), "rb").read()).decode() for k, f in (("/og.png", "og.png"), ("/apple-touch-icon.png", "icon.png"))})};',
+        A('router.js')]
+open(os.path.join(ROOT, 'src', 'index.js'), 'w').write('\n'.join(out))
+print('pages', len(PAGES), 'stays', len(allstays), 'bars', len(bars), 'events', len(up), 'bytes', os.path.getsize(os.path.join(ROOT, 'src', 'index.js')))

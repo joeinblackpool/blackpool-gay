@@ -1,6 +1,14 @@
 {
   "name": "blackpool-gay",
-  "main": "src/worker.js",
+  "main": "src/index.js",
   "compatibility_date": "2026-10-01",
-  "rules": [{ "type": "Text", "globs": ["**/*.html"], "fallthrough": true }]
+  "workers_dev": true,
+  "routes": [
+    { "pattern": "blackpool.gay", "custom_domain": true }
+  ],
+  "kv_namespaces": [
+    { "binding": "FORUM", "id": "66d7f58c8e20431dae0eb15974ace955" }
+  ],
+  "triggers": { "crons": ["23 */6 * * *"] },
+  "observability": { "enabled": true }
 }
