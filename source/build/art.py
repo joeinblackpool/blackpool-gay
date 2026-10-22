@@ -12,7 +12,7 @@ def car(p='c', beam=True):
     wheel = lambda x: (f'<g transform="translate({x} 96)"><g class="wheel"><circle r="27" fill="#1d1b22"/><circle r="22" fill="none" stroke="#2c2934" stroke-width="3"/>'
                        f'<circle r="15" fill="#f1ecf5"/>{bolts}<circle r="4" fill="#9c95a8"/><rect x="-1.5" y="-15" width="3" height="7" fill="#d9d2e2"/></g></g>')
     stripes = ''.join(f'<rect x="60" y="{33 + i * 3.2:.1f}" width="44" height="3.2" fill="{c}"/>' for i, c in enumerate(RAINBOW))
-    curls = ''.join(f'<circle cx="{x}" cy="{y}" r="5.4" fill="#1e1612"/>' for x, y in [(99, 4), (102, -2), (108, -5), (115, -5), (121, -1), (123, 5), (110, -1), (104, 1)])
+    curls = ''.join(f'<circle cx="{x}" cy="{y}" r="{r}" fill="#1e1612"/>' for x, y, r in [(98, 5, 5.2), (100, -1, 5.6), (105, -6, 5.8), (112, -8, 5.8), (119, -6, 5.4), (124, -1, 4.6), (110, -2, 5), (103, 3, 4.4), (97, 11, 3.6)])
     return (f'<defs><linearGradient id="{p}pk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff7dbd"/><stop offset=".45" stop-color="#ff3d9a"/><stop offset="1" stop-color="#cf1a73"/></linearGradient>'
             f'<linearGradient id="{p}bm" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff2c8" stop-opacity=".75"/><stop offset="1" stop-color="#fff2c8" stop-opacity="0"/></linearGradient>'
             f'<clipPath id="{p}tc"><path d="M64 52 Q64 28 82 26 Q100 28 100 52Z"/></clipPath></defs>'
@@ -22,16 +22,24 @@ def car(p='c', beam=True):
             '<rect x="-9" y="36" width="17" height="52" rx="8" fill="#1d1b22"/><rect x="-6" y="52" width="11" height="20" rx="4" fill="#ff3d9a"/>'
             '<rect x="10" y="31" width="46" height="22" rx="11" fill="#2b2036"/><path d="M14 36 Q32 30 52 36" stroke="#3d3050" stroke-width="2" fill="none"/>'
             '<path d="M46 53 L51 5 L58 5 L56 53Z" fill="#1d1b22"/><rect x="50" y="3" width="70" height="5" rx="2.5" fill="#1d1b22" opacity=".0"/>'
-            # Jay (driving, far side): white vest, dark curls, shades pushed up
-            '<path d="M92 53 Q92 27 110 25 Q128 27 128 53Z" fill="#f6f3ec"/><path d="M118 36 L147 41" stroke="#9b6440" stroke-width="7.5" stroke-linecap="round"/>'
-            '<rect x="106" y="20" width="8" height="7" fill="#8a5737"/><circle cx="110" cy="11" r="13.5" fill="#9b6440"/>' + curls +
-            '<rect x="102" y="-1" width="16" height="3.4" rx="1.7" fill="#111"/><circle cx="115" cy="12" r="1.6" fill="#1b1420"/><path d="M112 17 Q116 19 119 16" stroke="#5a2a2a" stroke-width="1.6" fill="none" stroke-linecap="round"/>'
-            # Theo (near side, waving): bleached buzz cut, pink shades, rainbow tank
+            # Jay (driving, far side): white vest, dark curls, shades pushed up, warm brown skin
+            '<path d="M92 53 Q92 27 110 25 Q128 27 128 53Z" fill="#f6f3ec"/><path d="M104 28 Q110 34 117 28" stroke="#d9d3c8" stroke-width="1.6" fill="none"/>'
+            '<path d="M118 36 Q134 38 146 41" stroke="#8f5a38" stroke-width="7.5" stroke-linecap="round" fill="none"/><circle cx="147" cy="41" r="4.2" fill="#8f5a38"/>'
+            '<rect x="105.5" y="19" width="9" height="9" rx="3" fill="#7d4c2f"/>'
+            '<path d="M97 9 q0 -15 13 -15 q14 0 14 15 q0 7 -4 11 q-4 5 -10 5 q-9 0 -13 -8z" fill="#8f5a38"/><ellipse cx="99.5" cy="11" rx="2.6" ry="3.6" fill="#7d4c2f"/>'
+            + curls +
+            '<rect x="102" y="-3" width="17" height="3.6" rx="1.8" fill="#111"/><path d="M113 6.5 q3 -1.6 7 0" stroke="#1e1612" stroke-width="1.6" fill="none" stroke-linecap="round"/>'
+            '<ellipse cx="117" cy="10.5" rx="1.5" ry="1.9" fill="#1b1420"/><path d="M122 11 q2.4 3 -.6 4.4" stroke="#6e4228" stroke-width="1.4" fill="none" stroke-linecap="round"/>'
+            '<path d="M113.5 18.5 q3.5 2.4 7 -1" stroke="#4a1f1f" stroke-width="1.6" fill="none" stroke-linecap="round"/>'
+            # Theo (near side, waving): bleached crop, heart shades, earring, rainbow tank
             f'<path d="M64 53 Q64 28 82 26 Q100 28 100 53Z" fill="#232029"/><g clip-path="url(#{p}tc)">{stripes}</g>'
-            '<rect x="78" y="21" width="8" height="7" fill="#e3b18e"/><circle cx="82" cy="12" r="13.5" fill="#f1c7a3"/>'
-            '<path d="M68.6 10.5 A13.5 13.5 0 0 1 95.4 10.5 Q82 3.5 68.6 10.5Z" fill="#f3e3a0"/><rect x="76" y="9.5" width="17" height="5" rx="2.5" fill="#ff3d9a"/>'
-            '<path d="M84 18 Q88 21 92 18" stroke="#8a3a3a" stroke-width="1.6" fill="none" stroke-linecap="round"/>'
-            '<g class="wave"><path d="M94 35 L106 4" stroke="#f1c7a3" stroke-width="8" stroke-linecap="round"/><circle cx="107" cy="0" r="6" fill="#f1c7a3"/></g>'
+            '<rect x="77.5" y="20" width="9" height="9" rx="3" fill="#e2b08c"/>'
+            '<path d="M69 11 q0 -15 13 -15 q14 0 14 15 q0 7 -4 11 q-4 5 -10 5 q-9 0 -13 -8z" fill="#f1c7a3"/><ellipse cx="71.5" cy="13" rx="2.6" ry="3.6" fill="#e2b08c"/><circle cx="71.5" cy="17.6" r="1.5" fill="#ffc93c"/>'
+            '<path d="M68.6 9 q.6 -15 13.6 -15 q12.6 0 14.4 10.6 q-6 -3.8 -13.4 -3.6 q-8.6 .2 -14.6 8z" fill="#f3e3a0"/><path d="M70 7 q6 -6 14 -6" stroke="#e6cf7a" stroke-width="1" fill="none"/>'
+            '<path d="M85 6.4 q3 -1.6 7 0" stroke="#b8963c" stroke-width="1.6" fill="none" stroke-linecap="round"/><ellipse cx="89" cy="10.5" rx="1.5" ry="1.9" fill="#1b1420"/>'
+            '<path d="M94 11 q2.4 3 -.6 4.4" stroke="#d29a76" stroke-width="1.4" fill="none" stroke-linecap="round"/><ellipse cx="91.5" cy="14.5" rx="2.4" ry="1.2" fill="#ff9fb0" opacity=".5"/>'
+            '<path d="M84.6 17 q4 3.6 8.4 0 q-4 1.4 -8.4 0z" fill="#fff" stroke="#8a3a3a" stroke-width="1.3" stroke-linejoin="round"/>'
+            '<g class="wave"><path d="M69 36 Q63 20 60 6" stroke="#f1c7a3" stroke-width="8" stroke-linecap="round" fill="none"/><path d="M55 7 q-3.4 -8.6 2.8 -10.8 q6.4 -1.4 7.6 6.4 l.6 5.6 q-5.4 3 -11 -1.2z" fill="#f1c7a3"/><path d="M56.5 1.5 l-4.6 -3.2" stroke="#f1c7a3" stroke-width="3.4" stroke-linecap="round"/></g>'
             '<ellipse cx="149" cy="40" rx="4" ry="11.5" fill="#1d1b22"/>'
             '<path d="M150 51 L140 4 L146.5 4 L157.5 51Z" fill="#1d1b22"/><path d="M147 7 L157 49 L163 49 L154 9Z" fill="#cfe8ff" opacity=".4"/>'
             # body
@@ -298,6 +306,11 @@ def hero_scene():
     cvx, cvy, cvw, cvh, cs, cxp, cyp = -14, -18, 590, 150, 1.32, 560, 655
     car_div = (f'<div class="ly ly-car" style="left:{pct(cxp + cvx * cs)};top:{pct(cyp + cvy * cs, 900)};width:{pct(cvw * cs)};height:{pct(cvh * cs, 900)}"><div class="carsettle">'
                f'<svg viewBox="{cvx} {cvy} {cvw} {cvh}" aria-hidden="true" focusable="false"><defs><radialGradient id="hpool"><stop offset="0" stop-color="#fff2c8" stop-opacity=".32"/><stop offset="1" stop-color="#fff2c8" stop-opacity="0"/></radialGradient></defs><ellipse cx="417" cy="110" rx="174" ry="15" fill="url(#hpool)"/>{car("h")}</svg></div></div>')
+    # Prom walkers: they stroll the same way the car is going, so they drift slowly back as it overtakes them
+    groups = walkers(); spots = [250, 960, 1560]
+    ppl = ''.join(f'<g transform="translate({x + ox} 755) scale(1.02)">{g}</g>' for ox in (0, 1920) for x, (w, g) in zip(spots, groups))
+    people_div = (f'<div class="ly ly-people" style="left:0;top:0;width:240%;height:100%"><div class="rl rl-people"><svg viewBox="0 0 3840 900" preserveAspectRatio="none" aria-hidden="true" focusable="false">'
+                  f'<defs>{WALKER_DEFS}</defs>{ppl}</svg></div></div>')
     kerb = '<svg class="kerb" viewBox="0 0 1600 20" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M0 2 Q800 30 1600 2 V20 H0Z" fill="#fff8f3"/></svg>'
     return ('<div class="stage scene" aria-hidden="true">'
             + layer('ly-sky', 1600, sky)
@@ -307,7 +320,7 @@ def hero_scene():
             + layer('ly-road', 1600, road)
             + f'<div class="ly ly-dash" style="left:0;top:0;width:200%;height:100%"><div class="rl rl-dash"><svg viewBox="0 0 3200 900" preserveAspectRatio="none" aria-hidden="true" focusable="false">{dashes}</svg></div></div>'
             + f'<div class="ly ly-lamps" style="left:0;top:0;width:160%;height:100%"><div class="rl rl-lamps"><svg viewBox="0 0 2560 900" preserveAspectRatio="none" aria-hidden="true" focusable="false">{lamps}</svg></div></div>'
-            + car_div + kerb + '</div>')
+            + people_div + car_div + kerb + '</div>')
 
 
 SCENE_CSS = ('.twinkle{animation:tw 3s ease-in-out infinite}.twinkle:nth-child(3n){animation-delay:-1s}@keyframes tw{50%{opacity:.25}}'
@@ -347,11 +360,21 @@ def lost_svg():
 def hub_sil(kind):
     """Small silhouette for the inner-page marquee header (aria-hidden, decorative)."""
     ink, lit, pink = '#2a1d4a', '#ffc93c', '#ff2e88'
-    if kind == 'stays':   # a seafront guest house with a lit VACANCIES sign
-        win = ''.join(f'<rect x="{x}" y="{y}" width="16" height="20" rx="2" fill="{lit if (x + y) % 3 else "#3a2a5c"}"/>' for x in (34, 74, 114, 154) for y in (70, 112))
-        return (f'<svg class="sil" viewBox="0 0 220 250" aria-hidden="true" focusable="false"><path d="M14 250 V54 L110 6 L206 54 V250Z" fill="{ink}"/>{win}'
-                f'<rect x="20" y="150" width="180" height="34" rx="6" fill="#1a1033" stroke="{pink}" stroke-width="2"/><text x="110" y="173" text-anchor="middle" font-family="Monoton,sans-serif" font-size="15" fill="{pink}" style="filter:drop-shadow(0 0 4px {pink})">VACANCIES</text>'
-                f'<rect x="92" y="196" width="36" height="54" rx="18" fill="#3a2a5c"/><circle cx="110" cy="30" r="9" fill="{lit}"/></svg>')
+    if kind == 'stays':   # a seafront guest house with a lit VACANCIES sign, the LED-lit Tower rising behind it
+        half = lambda y: 4 + 40 * ((y - 40) / 230) ** 1.7
+        L = ' '.join(f'{150 - half(y):.1f},{y}' for y in range(40, 271, 10)); R = ' '.join(f'{150 + half(y):.1f},{y}' for y in range(40, 271, 10))
+        brace = ''.join(f'<path d="M{150 - half(y0):.1f} {y0} L{150 + half(y0 + 22):.1f} {y0 + 22} M{150 + half(y0):.1f} {y0} L{150 - half(y0 + 22):.1f} {y0 + 22}" stroke="{ink}" stroke-width="1.3"/>' for y0 in range(48, 250, 22))
+        tower = (f'<g transform="translate(0 -150)">{brace}<polyline points="{L}" fill="none" stroke="{ink}" stroke-width="4"/><polyline points="{R}" fill="none" stroke="{ink}" stroke-width="4"/>'
+                 f'<g fill="none" stroke="url(#sled)" stroke-linecap="round"><g stroke-width="7" opacity=".45" filter="url(#ssoft)"><polyline points="{L}"/><polyline points="{R}"/></g><g stroke-width="2"><polyline points="{L}"/><polyline points="{R}"/></g></g>'
+                 f'<rect x="136" y="28" width="28" height="13" rx="2" fill="{ink}"/><path d="M139 28 L150 8 L161 28" fill="{ink}" stroke="#5dff9b" stroke-width="1.8"/><path d="M150 8 V-6" stroke="#ffe45e" stroke-width="1.8"/>'
+                 + ''.join(f'<rect x="{140 + i * 6}" y="31" width="3" height="8" fill="#{c}"/>' for i, c in enumerate(['7df9ff', 'ffe45e', 'ff8bd1', '7df9ff'])) + '</g>')
+        win = ''.join(f'<rect x="{x}" y="{y}" width="16" height="20" rx="2" fill="{lit if (x + y) % 3 else "#3a2a5c"}"/>' for x in (34, 74, 114, 154) for y in (140, 182))
+        return (f'<svg class="sil" viewBox="0 -168 222 488" aria-hidden="true" focusable="false"><defs><filter id="ssoft" x="-50%" y="-10%" width="200%" height="120%"><feGaussianBlur stdDeviation="2.5"/></filter>'
+                f'<linearGradient id="sled" gradientUnits="userSpaceOnUse" x1="0" y1="40" x2="0" y2="200" spreadMethod="repeat">' + ''.join(f'<stop offset="{i / 6:.3f}" stop-color="{c}"/>' for i, c in enumerate(['#ff2d55', '#ff9f1c', '#ffe45e', '#2ee59d', '#2fb8ff', '#b56bff', '#ff2d55']))
+                + '<animateTransform attributeName="gradientTransform" type="translate" from="0 0" to="0 -160" dur="5s" repeatCount="indefinite"/></linearGradient></defs>'
+                f'{tower}<path d="M14 320 V124 L110 76 L206 124 V320Z" fill="{ink}" stroke="#1a1033" stroke-width="3"/>{win}'
+                f'<rect x="20" y="220" width="180" height="34" rx="6" fill="#1a1033" stroke="{pink}" stroke-width="2"/><text x="110" y="243" text-anchor="middle" font-family="Monoton,sans-serif" font-size="15" fill="{pink}" style="filter:drop-shadow(0 0 4px {pink})">VACANCIES</text>'
+                f'<rect x="92" y="266" width="36" height="54" rx="18" fill="#3a2a5c"/><circle cx="110" cy="100" r="9" fill="{lit}"/></svg>')
     if kind == 'nightlife':   # the Tower and a mirrorball
         half = lambda y: 6 + 30 * ((y - 30) / 190) ** 1.7
         legs = ' '.join(f'{110 - half(y):.1f},{y}' for y in range(30, 221, 10)) + ' ' + ' '.join(f'{110 + half(y):.1f},{y}' for y in range(220, 29, -10))
@@ -382,3 +405,62 @@ def novacancies_svg():
             '<text x="260" y="186" font-size="38" fill="#ff2e88">VACANCIES</text></g>'
             '<path d="M30 250 H490" stroke="#3a2a5c" stroke-width="6" stroke-linecap="round"/>'
             '<g transform="translate(120 238) scale(.9)">' + car('nv', beam=False) + '</g></svg>')
+
+
+# ---------------------------------------------------------------- Promenade walkers (side view, facing right, feet on y=0)
+def _walk(skin, top, legs, shoes, hair, face='', extra_front='', extra_back='', arm_back=None, arm_front=None, phase=0, h=1.0, sleeves=None, legs_bare=False, bob=True):
+    """One walking figure. arm_back/arm_front: None = swinging arm, or a fixed angle in degrees (for holding hands)."""
+    dur = '1.05s'; d = f'-{phase:.2f}s'
+    leg_fill = skin if legs_bare else legs
+    def leg(vals):
+        return (f'<g><path d="M-4.6 -50 h9.2 l-.8 46 h-7.6z" fill="{leg_fill}"/><path d="M-4.4 -5 h10.6 q4.6 0 4.6 5 h-15.2z" fill="{shoes}"/>'
+                f'<animateTransform attributeName="transform" type="rotate" values="{vals}" keyTimes="0;.5;1" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1" dur="{dur}" begin="{d}" repeatCount="indefinite"/></g>')
+    def arm(fixed, vals):
+        sl = sleeves or skin
+        body = f'<path d="M-3.4 -88 h6.8 l-.8 20 h-5.2z" fill="{sl}"/><path d="M-2.8 -69 h5.6 l-.6 15 h-4.4z" fill="{skin}"/><circle cx="0" cy="-53" r="3.6" fill="{skin}"/>'
+        if fixed is not None: return f'<g transform="rotate({fixed} 0 -88)">{body}</g>'
+        return (f'<g>{body}<animateTransform attributeName="transform" type="rotate" values="{vals}" keyTimes="0;.5;1" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1" dur="{dur}" begin="{d}" repeatCount="indefinite"/></g>')
+    fig = (arm(arm_back, '-20 0 -88;20 0 -88;-20 0 -88') + leg('20 0 -50;-20 0 -50;20 0 -50') + extra_back
+           + f'<path d="M-11 -88 q11 -7 22 0 l-1.6 40 h-18.8z" fill="{top}"/>'
+           + leg('-20 0 -50;20 0 -50;-20 0 -50')
+           + f'<rect x="-3.4" y="-97" width="7" height="9" rx="2.5" fill="{skin}"/><path d="M-10 -107 q0 -14 11 -14 q12 0 12 13 q0 6 -3.4 9.4 q-3.6 4 -8.6 4 q-8 0 -11 -7z" fill="{skin}"/>'
+           + hair + f'<ellipse cx="6.8" cy="-108" rx="1.3" ry="1.7" fill="#1b1420"/><path d="M4 -100.5 q2.8 1.8 5.6 -.6" stroke="#4a1f1f" stroke-width="1.3" fill="none" stroke-linecap="round"/>'
+           + face + extra_front + arm(arm_front, '20 0 -88;-20 0 -88;20 0 -88'))
+    if bob: fig = f'<g>{fig}<animateTransform attributeName="transform" type="translate" values="0 0;0 -1.6;0 0;0 -1.6;0 0" dur="{dur}" begin="{d}" repeatCount="indefinite"/></g>'
+    return f'<g transform="scale({h})">{fig}</g>'
+
+
+def walkers():
+    """Three groups strolling the Prom: two men hand in hand, two women hand in hand, a drag queen. Returns [(width, svg_group)]."""
+    # Kai and Ollie
+    kai = _walk('#8a5a3c', '#0fb5ae', '#2f4a7a', '#f6f1ea', '<path d="M-10 -110 q-1 -12 11 -13 q11 0 12.6 9 q-4 -2 -9 -2 l-2 -3 q-4 4 -12.6 9z" fill="#20140f"/>',
+                face='<path d="M-1 -100 q2 7 9 6 q4 -1 5 -6 q-3 3 -8 2.4 q-4 -.4 -6 -2.4z" fill="#20140f"/>', arm_front=-36, phase=0)
+    ollie = _walk('#f2c9a5', '#ff2e88', '#1a1033', '#1a1033', '<path d="M-11 -108 q-1 -15 13 -15 q9 0 12 6 q-6 -4 -11 0 q-3 -6 -14 9z" fill="#d9763a"/>',
+                  sleeves='#ff2e88', arm_back=36, phase=.12, h=.95, legs_bare=True,
+                  extra_front='<path d="M-9 -78 h18" stroke="#ffc93c" stroke-width="2.2"/>')
+    g1 = f'<g>{kai}</g><g transform="translate(44 0)">{ollie}</g>'
+    # Amara and Rue
+    amara_hair = '<circle cx="-1" cy="-114" r="15" fill="#1a1210"/><circle cx="-10" cy="-106" r="9" fill="#1a1210"/>'
+    amara = _walk('#6b3f2a', '#ffc93c', '#6b3f2a', '#ff2e88', amara_hair, arm_front=-36, phase=.4, legs_bare=True,
+                  extra_front='<path d="M-11 -62 l-5 26 h32 l-5 -26z" fill="#ffc93c"/><path d="M-12 -44 h28" stroke="#e8ad1f" stroke-width="1.4"/><circle cx="12.8" cy="-103" r="1.6" fill="#ffc93c"/>')
+    rue = _walk('#e8b48f', '#3d6db5', '#1a1033', '#f6f1ea', '<path d="M-11 -106 q-2 -16 12 -16 q13 0 13 10 l-6 -1 q-6 -3 -12 1 q-3 1 -7 6z" fill="#8b5cf6"/><path d="M-11 -106 q-1 4 1 8" stroke="#5b3aa8" stroke-width="2.4"/>',
+                sleeves='#3d6db5', arm_back=36, phase=.55, h=.97, extra_front='<path d="M-2 -88 l2 14 l2 -14" stroke="#f6f1ea" stroke-width="1.6" fill="none"/>')
+    g2 = f'<g>{amara}</g><g transform="translate(44 0)">{rue}</g>'
+    # the drag queen: beehive, sequin gown with a slit, feather boa, gold handbag, heels, a sashay
+    sequins = ''.join(f'<circle cx="{x}" cy="{y}" r="1.1" fill="#fff" opacity=".8"/>' for x, y in [(-6, -78), (4, -70), (-2, -60), (8, -48), (-8, -40), (2, -30), (-4, -18), (9, -12), (-10, -8), (6, -36)])
+    queen = (f'<g transform="scale(1.14)"><g>'
+             f'<g><path d="M2 -46 l6 -2 l1 42 l7 4 h-12 l-2 -4z" fill="#f1c7a3"/><path d="M4 -4 l12 1 l-1 4 h-12z" fill="#ff2e88"/><path d="M14 0 l1 4" stroke="#ff2e88" stroke-width="1.6"/>'
+             f'<animateTransform attributeName="transform" type="rotate" values="-8 4 -46;10 4 -46;-8 4 -46" dur="1.2s" repeatCount="indefinite"/></g>'
+             f'<path d="M-12 -86 q12 -7 24 0 l1 30 q9 38 7 56 h-17 l-4 -40 l-3 40 h-12 q-3 -18 3 -56z" fill="url(#qgown)"/>{sequins}'
+             f'<rect x="-3.4" y="-97" width="7" height="9" rx="2.5" fill="#c98f6d"/><path d="M-10 -107 q0 -14 11 -14 q12 0 12 13 q0 6 -3.4 9.4 q-3.6 4 -8.6 4 q-8 0 -11 -7z" fill="#c98f6d"/>'
+             f'<path d="M-15 -112 q-4 -34 14 -40 q18 -4 22 18 q2 14 -8 22 q4 -14 -6 -18 q-12 -2 -16 12z" fill="url(#qwig)"/><path d="M-6 -146 q8 -8 16 2" stroke="#ffd1f0" stroke-width="2" fill="none" opacity=".7"/>'
+             f'<path d="M3 -111 q4 -4 9 -1 M4 -107.5 l-1 -2.4 M6.5 -108.4 l-.6 -2.6 M9 -108.4 l.2 -2.6" stroke="#1b1420" stroke-width="1.3" fill="none" stroke-linecap="round"/><path d="M4.6 -101 q3 2.6 6.2 -.4 q-3 -1.2 -6.2 .4z" fill="#e0004d"/><circle cx="-6" cy="-102" r="2.4" fill="#ffc93c"/>'
+             + ''.join(f'<circle cx="{x}" cy="{y}" r="{r}" fill="#ff6fd0"/>' for x, y, r in [(-14, -86, 5.4), (-8, -90, 5.8), (0, -91, 5.6), (8, -90, 5.8), (14, -86, 5.4), (17, -78, 4.8), (18, -70, 4.4), (-17, -78, 4.8), (-18, -70, 4.4)])
+             + f'<g><path d="M8 -86 l12 18 l4 -2" stroke="#c98f6d" stroke-width="5.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 -66 h12 l-2 12 h-8z" fill="#ffc93c"/><path d="M22 -66 q4 -7 8 0" stroke="#ffc93c" stroke-width="1.6" fill="none"/>'
+             f'<animateTransform attributeName="transform" type="rotate" values="-4 8 -86;5 8 -86;-4 8 -86" dur="1.2s" repeatCount="indefinite"/></g>'
+             f'<animateTransform attributeName="transform" type="rotate" values="-2.5 0 0;2.5 0 0;-2.5 0 0" dur="1.2s" repeatCount="indefinite"/></g></g>')
+    return [(90, g1), (90, g2), (60, queen)]
+
+
+WALKER_DEFS = ('<linearGradient id="qgown" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b56bff"/><stop offset=".6" stop-color="#7b2cbf"/><stop offset="1" stop-color="#ff2e88"/></linearGradient>'
+               '<linearGradient id="qwig" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff9ed8"/><stop offset="1" stop-color="#c77dff"/></linearGradient>')

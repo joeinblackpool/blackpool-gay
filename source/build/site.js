@@ -13,6 +13,48 @@
     }, { passive: true });
   }
 
+  // a little rainbow glitter follows the pointer (mouse only, never on touch, off for reduced motion)
+  if (!reduce && matchMedia('(hover: hover) and (pointer: fine)').matches) (function () {
+    var cv = document.createElement('canvas'), cx2 = cv.getContext('2d'), ps = [], run = 0, dpr = Math.min(2, devicePixelRatio || 1), lx = -1, ly = -1, hue = 0;
+    cv.setAttribute('aria-hidden', 'true');
+    cv.style.cssText = 'position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:9999';
+    function size() { cv.width = innerWidth * dpr; cv.height = innerHeight * dpr; }
+    size(); addEventListener('resize', size, { passive: true });
+    document.body.appendChild(cv);
+    function star(x, y, r, a) {
+      cx2.beginPath();
+      for (var i = 0; i < 8; i++) { var k = i % 2 ? r * .38 : r, t = a + i * Math.PI / 4; cx2.lineTo(x + Math.cos(t) * k, y + Math.sin(t) * k); }
+      cx2.closePath(); cx2.fill();
+    }
+    function frame() {
+      cx2.clearRect(0, 0, cv.width, cv.height);
+      cx2.globalCompositeOperation = 'lighter';
+      for (var i = ps.length - 1; i >= 0; i--) {
+        var p = ps[i]; p.l -= 1; if (p.l <= 0) { ps.splice(i, 1); continue; }
+        p.vy += .045; p.vx *= .97; p.x += p.vx; p.y += p.vy; p.a += p.s;
+        var f = p.l / p.m, tw = .55 + .45 * Math.sin(p.l * .6 + p.h);
+        cx2.globalAlpha = f * tw;
+        cx2.fillStyle = 'hsl(' + p.h + ',100%,' + (62 + 20 * tw) + '%)';
+        star(p.x * dpr, p.y * dpr, p.r * dpr * (.6 + .4 * f), p.a);
+      }
+      cx2.globalAlpha = 1;
+      run = ps.length ? requestAnimationFrame(frame) : 0;
+      if (!run) cx2.clearRect(0, 0, cv.width, cv.height);
+    }
+    document.addEventListener('pointermove', function (e) {
+      if (e.pointerType !== 'mouse') return;
+      var dx = e.clientX - lx, dy = e.clientY - ly, d = Math.sqrt(dx * dx + dy * dy); lx = e.clientX; ly = e.clientY;
+      if (d < 4 || ps.length > 90) return;
+      var n = Math.min(3, 1 + (d / 18 | 0));
+      for (var i = 0; i < n; i++) {
+        hue = (hue + 23) % 360;
+        ps.push({ x: e.clientX + (Math.random() - .5) * 8, y: e.clientY + (Math.random() - .5) * 8, vx: (Math.random() - .5) * 1.4 - dx * .02, vy: (Math.random() - .7) * 1.2, r: 2.2 + Math.random() * 3.2, a: Math.random() * 6, s: (Math.random() - .5) * .2, h: hue, l: 0, m: 0 });
+        var q = ps[ps.length - 1]; q.l = q.m = 34 + (Math.random() * 22 | 0);
+      }
+      if (!run) run = requestAnimationFrame(frame);
+    }, { passive: true });
+  })();
+
   var hero = document.querySelector('.hero'); if (!hero) return;
   var stage = hero.querySelector('.stage'), svgs = [].slice.call(hero.querySelectorAll('.stage svg'));
   // the stage always covers the hero at 16:9, anchored to the road

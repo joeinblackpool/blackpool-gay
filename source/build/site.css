@@ -50,7 +50,7 @@ h1,h2,h3,.display{font-family:var(--display);font-weight:800;text-wrap:balance}
 .phead .lede{color:rgba(255,246,236,.78);font-size:clamp(17px,1.5vw,20px);max-width:58ch;margin:0}
 .phead .crumbs{color:rgba(255,246,236,.6)}.phead .crumbs a{color:rgba(255,246,236,.75);background:none}.phead .crumbs a:hover{color:var(--gold)}
 .phead .eyebrow{color:var(--gold)}
-.phead .sil{position:absolute;right:max(16px,calc(50% - 640px));bottom:0;height:78%;max-height:250px;width:auto;opacity:.95;z-index:0;pointer-events:none}
+.phead .sil{position:absolute;right:max(16px,calc(50% - 640px));bottom:0;height:100%;max-height:420px;width:auto;opacity:.95;z-index:0;pointer-events:none}
 .eyebrow{display:block;font:700 12px/1 var(--font);letter-spacing:.18em;text-transform:uppercase;color:var(--tealText);margin:0 0 10px}
 /* main */
 main{padding:30px 22px 64px;counter-reset:sec}.crumbs{font-size:13.5px;color:var(--muted);margin:0 0 4px}.crumbs a{color:var(--muted)}
@@ -193,14 +193,14 @@ a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible,te
 .stage .ly{position:absolute;inset:0}.stage svg{display:block;width:100%;height:100%;overflow:visible}
 .stage .rl{position:relative;width:100%;height:100%;will-change:transform}
 .stage .rl-sky{animation:rlHalf 48s linear infinite}.stage .rl-far{animation:rlHalf 110s linear infinite}
-.stage .rl-dash{animation:rlDash .65s linear infinite}.stage .rl-lamps{animation:rlLamps 10.4s linear infinite}
+.stage .rl-dash{animation:rlDash .65s linear infinite}.stage .rl-people{animation:rlHalf 60s linear infinite}.stage .rl-lamps{animation:rlLamps 10.4s linear infinite}
 @keyframes rlHalf{to{transform:translateX(-50%)}}@keyframes rlDash{to{transform:translateX(-2.5%)}}@keyframes rlLamps{to{transform:translateX(-37.5%)}}
 .stage .ov{position:absolute}.stage .ov-wheel{animation:turn 48s linear infinite;will-change:transform}@keyframes turn{to{transform:rotate(360deg)}}
 .stage .kerb{position:absolute;left:0;bottom:-1px;width:100%;height:2.4%}
 .scene .wheel{animation:turn 1.82s linear infinite;transform-box:fill-box;transform-origin:center}
 .scene .carbob{transform-box:fill-box;transform-origin:50% 100%;animation:ride 1.9s cubic-bezier(.45,0,.55,1) infinite}
 @keyframes ride{0%,100%{transform:none}18%{transform:translateY(-1.6px) rotate(-.25deg)}35%{transform:translateY(.4px) rotate(.1deg)}52%{transform:translateY(-.8px) rotate(.2deg)}70%{transform:translateY(-2px) rotate(-.15deg)}}
-.scene .wave{transform-box:fill-box;transform-origin:10% 95%;animation:wave4 4s ease-in-out infinite}
+.scene .wave{transform-box:fill-box;transform-origin:85% 95%;animation:wave4 4s ease-in-out infinite}
 @keyframes wave4{0%{transform:rotate(-5deg)}7%{transform:rotate(-20deg)}15%{transform:rotate(14deg)}23%{transform:rotate(-20deg)}31%{transform:rotate(14deg)}39%{transform:rotate(-18deg)}45%,100%{transform:rotate(-5deg)}}
 .scene .flagw{animation:flag 1.4s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:0 50%}@keyframes flag{to{transform:skewY(-8deg) scaleX(.92)}}
 .scene .heartbeat{animation:heart 1.6s ease-in-out infinite}@keyframes heart{0%,100%{transform:scale(1)}15%{transform:scale(1.14)}30%{transform:scale(.98)}45%{transform:scale(1.08)}}
@@ -212,7 +212,7 @@ a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible,te
 @keyframes fadeUp{from{opacity:0}}@keyframes riseIn{from{opacity:0;transform:translateY(3%)}}
 .hero .ly-car{animation:driveIn 1.5s cubic-bezier(.16,1,.3,1) .5s both}@keyframes driveIn{from{transform:translateX(-140%)}}
 .hero .carsettle{transform-origin:70% 100%;animation:settle .5s ease-out 1.95s both}@keyframes settle{35%{transform:rotate(1.2deg)}70%{transform:rotate(-.4deg)}100%{transform:none}}
-.hero .ly-lamps{animation:switchOn .4s linear 1.2s both}.hero .ov-tower{animation:switchOn .35s linear 1.4s both}
+.hero .ly-lamps{animation:switchOn .4s linear 1.2s both}.hero .ly-people{animation:fadeUp .8s ease 1s both}.hero .ov-tower{animation:switchOn .35s linear 1.4s both}
 @keyframes switchOn{0%{opacity:0}35%{opacity:1}55%{opacity:.3}100%{opacity:1}}
 .hero .rise{animation:rise .6s var(--ease) both}.hero .rise:nth-child(1){animation-delay:.35s}.hero .rise:nth-child(2){animation-delay:.42s}.hero .rise:nth-child(3){animation-delay:.49s}.hero .rise:nth-child(4){animation-delay:.56s}
 @keyframes rise{from{opacity:0;transform:translateY(18px)}}
