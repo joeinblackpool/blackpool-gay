@@ -307,6 +307,7 @@
     streetLabels(named);
 
     const PAL = ['#f7e6d4', '#f4d3c4', '#ead6f3', '#d8e4fb', '#fbe8b8', '#e3f1da', '#f9d6e6', '#ddd4f6', '#f3efe8', '#e6dccf', '#ffd9c2', '#cfe9f1'];
+    const filled = fillGaps(Wd, RW); for (const f of filled) Wd.b.push(f);
     const venueOf = new Map();
     for (const pin of PINS) { let best = null; for (let i = 0; i < Wd.b.length; i++) { const pts = ring(dec(Wd.b[i], 2)); if (pts.length > 2 && inside(pin.x, pin.z, pts)) { best = i; break; } } if (best != null && !venueOf.has(best)) venueOf.set(best, pin); else pin.free = true; }
     let towerXZ = null;
@@ -473,6 +474,51 @@
       }
     }
   }
+
+  // ------------------------------------------------------------------ no gaps: terraces along every street frontage OpenStreetMap leaves empty
+  function fillGaps(Wd, RW) {
+    const G = 2, X0 = W.bounds.x0, Z0 = W.bounds.z0, NX = Math.ceil((W.bounds.x1 - X0) / G), NZ = Math.ceil((W.bounds.z1 - Z0) / G), occ = new Uint8Array(NX * NZ);
+    const cell = (x, z) => { const i = Math.floor((x - X0) / G), j = Math.floor((z - Z0) / G); return (i < 0 || j < 0 || i >= NX || j >= NZ) ? -1 : j * NX + i; };
+    function markPoly(pts, pad) {
+      let x0 = 1e9, x1 = -1e9, z0 = 1e9, z1 = -1e9; for (const p of pts) { x0 = Math.min(x0, p[0]); x1 = Math.max(x1, p[0]); z0 = Math.min(z0, p[1]); z1 = Math.max(z1, p[1]); }
+      for (let x = x0 - pad; x <= x1 + pad; x += G) for (let z = z0 - pad; z <= z1 + pad; z += G) { const k = cell(x, z); if (k >= 0 && inside(x, z, pts)) occ[k] = 1; }
+    }
+    function markLine(pts, half) {
+      for (let i = 0; i < pts.length - 1; i++) { const a = pts[i], b = pts[i + 1], dx = b[0] - a[0], dz = b[1] - a[1], l2 = dx * dx + dz * dz || 1;
+        for (let x = Math.min(a[0], b[0]) - half; x <= Math.max(a[0], b[0]) + half; x += G) for (let z = Math.min(a[1], b[1]) - half; z <= Math.max(a[1], b[1]) + half; z += G) {
+          const t = clamp(((x - a[0]) * dx + (z - a[1]) * dz) / l2, 0, 1); if (Math.hypot(x - a[0] - dx * t, z - a[1] - dz * t) <= half) { const k = cell(x, z); if (k >= 0) occ[k] = 1; } } }
+    }
+    for (const b of Wd.b) { const pts = ring(dec(b, 2)); if (pts.length > 2) markPoly(pts, 1); }
+    for (const a of Wd.a) { const pts = ring(dec(a, 2)); if (a[0] === 'rail') markLine(dec(a, 2), 6); else if (a[0] !== 'coast' && pts.length > 2) markPoly(pts, 1); }
+    for (const r of W.roads) markLine(r.pts, RW[r.cls] / 2 + 2);
+    const free = (x, z) => { const k = cell(x, z); return k >= 0 && !occ[k] && (!W.coast.length || x > coastX(z) + 16); };
+    const out = [], P = 6, DEPTH = 10.5;
+    for (const r of W.roads) {
+      if (r.cls < 1 || r.cls > 3) continue;
+      const off = RW[r.cls] / 2 + 2.6;
+      for (const side of [-1, 1]) for (let i = 0; i < r.pts.length - 1; i++) {
+        const a = r.pts[i], b = r.pts[i + 1], dx = b[0] - a[0], dz = b[1] - a[1], L = Math.hypot(dx, dz); if (L < P + 2) continue;
+        const tx = dx / L, tz = dz / L, nx = -tz * side, nz = tx * side; let run = [];
+        const flush = () => {
+          if (run.length) {
+            const s0 = run[0] - P / 2, s1 = run[run.length - 1] + P / 2, F = s => [a[0] + tx * s + nx * off, a[1] + tz * s + nz * off], Bk = s => [a[0] + tx * s + nx * (off + DEPTH), a[1] + tz * s + nz * (off + DEPTH)];
+            const pts = [F(s0), F(s1), Bk(s1), Bk(s0)], h = 8.5 + hash(Math.round(pts[0][0]), Math.round(pts[0][1])) * 3.5;
+            const enc = [Math.round(h * 10) / 10, '', Math.round(pts[0][0] * 10) / 10, Math.round(pts[0][1] * 10) / 10]; for (let k = 1; k < 4; k++) enc.push(Math.round((pts[k][0] - pts[k - 1][0]) * 10) / 10, Math.round((pts[k][1] - pts[k - 1][1]) * 10) / 10);
+            out.push(enc);
+          }
+          run = [];
+        };
+        for (let s = P / 2 + 1; s < L - P / 2 - 1; s += P) {
+          let ok = true;
+          for (let u = -P / 2 + .5; u <= P / 2 - .5 && ok; u += 2.5) for (let v = .6; v <= DEPTH; v += 2.4) { const x = a[0] + tx * (s + u) + nx * (off + v), z = a[1] + tz * (s + u) + nz * (off + v); if (!free(x, z)) { ok = false; break; } }
+          if (ok) { run.push(s); for (let u = -P / 2; u <= P / 2; u += G) for (let v = 0; v <= DEPTH + 1; v += G) { const k = cell(a[0] + tx * (s + u) + nx * (off + v), a[1] + tz * (s + u) + nz * (off + v)); if (k >= 0) occ[k] = 1; } if (run.length >= 8) flush(); }
+          else flush();
+        }
+        flush();
+      }
+    }
+    return out;
+  }
   function addCollider(pts) { for (let i = 0; i < pts.length; i++) { const a = pts[i], b = pts[(i + 1) % pts.length], s = [a[0], a[1], b[0], b[1]]; const x0 = Math.floor(Math.min(a[0], b[0]) / 20), x1 = Math.floor(Math.max(a[0], b[0]) / 20), z0 = Math.floor(Math.min(a[1], b[1]) / 20), z1 = Math.floor(Math.max(a[1], b[1]) / 20); for (let x = x0; x <= x1; x++) for (let z = z0; z <= z1; z++) { const k = x + ',' + z; let c = W.cells.get(k); if (!c) W.cells.set(k, c = []); c.push(s); } } }
 
   // --- venues: glowing building, light beam, spinning gem, label
@@ -491,9 +537,36 @@
     const beam = new T.Mesh(new T.CylinderGeometry(1.4, 1.4, 90, 14, 1, true), new T.MeshBasicMaterial({ map: beamTex, color: col.clone().multiplyScalar(1.6), transparent: true, depthWrite: false, blending: T.AdditiveBlending, side: T.DoubleSide, fog: false }));
     beam.position.set(c[0], h + 45, c[1]); S.add(beam);
     const gem = new T.Mesh(new T.OctahedronGeometry(2.2, 0), new T.MeshStandardMaterial({ color: col, emissive: col, emissiveIntensity: 2.2, roughness: .15, metalness: .4, flatShading: true }));
-    gem.position.set(c[0], h + 7, c[1]); gem.castShadow = true; gem.userData.pin = pin; S.add(gem); venueMeshes.push(gem);
-    const lab = makeLabel(pin.n, pin.k === 'stay' ? '#ff4fa3' : '#33d1ff', pin.k === 'stay' ? 'Stay' : 'Bar'); lab.position.set(c[0], h + 12, c[1]); S.add(lab);
-    beacons.push({ beam, gem, lab, pin, base: h });
+    gem.position.set(c[0], h + 17, c[1]); gem.castShadow = true; gem.userData.pin = pin; S.add(gem); venueMeshes.push(gem);
+    const ban = makeBanner(pin.n, pin.k === 'stay'); ban.position.set(c[0], h + 3.5, c[1]); S.add(ban); banners.push(ban);
+    beacons.push({ beam, gem, lab: ban, pin, base: h });
+  }
+
+  // every venue gets a festival banner above it with its name: always shown, never hidden by other labels
+  const banners = [];
+  function makeBanner(text, stay) {
+    const cvs = document.createElement('canvas'), x = cvs.getContext('2d'), F = s => `800 ${s}px "Bricolage Grotesque", system-ui, sans-serif`;
+    let fs = 64; x.font = F(fs); while (x.measureText(text).width > 760 && fs > 30) { fs -= 2; x.font = F(fs); }
+    const tw = Math.ceil(x.measureText(text).width), W2 = Math.max(420, tw + 200), H2 = 150; cvs.width = W2; cvs.height = H2 + 40;
+    const col = stay ? '#ff2e88' : '#19c3e6';
+    // bunting string and flags along the top
+    x.strokeStyle = '#fff6ec'; x.lineWidth = 3; x.beginPath(); x.moveTo(0, 10); x.quadraticCurveTo(W2 / 2, 26, W2, 10); x.stroke();
+    const RB = ['#e40303', '#ff8c00', '#ffed00', '#008026', '#004dff', '#750787'];
+    for (let i = 0, n = Math.floor(W2 / 34); i < n; i++) { const fx = 12 + i * 34, fy = 10 + 16 * Math.sin(Math.PI * fx / W2) * .9; x.fillStyle = RB[i % 6]; x.beginPath(); x.moveTo(fx, fy); x.lineTo(fx + 24, fy); x.lineTo(fx + 12, fy + 22); x.fill(); }
+    // the board
+    const y0 = 36, r = 26; x.fillStyle = '#1a1033'; x.beginPath(); x.moveTo(r, y0); x.arcTo(W2, y0, W2, y0 + H2, r); x.arcTo(W2, y0 + H2, 0, y0 + H2, r); x.arcTo(0, y0 + H2, 0, y0, r); x.arcTo(0, y0, W2, y0, r); x.fill();
+    x.lineWidth = 6; x.strokeStyle = col; x.stroke();
+    const g = x.createLinearGradient(0, 0, W2, 0); RB.forEach((c, i) => g.addColorStop(i / 5, c)); x.fillStyle = g; x.fillRect(18, y0 + H2 - 18, W2 - 36, 7);
+    x.font = `800 26px Inter, system-ui, sans-serif`; x.fillStyle = col; x.textAlign = 'center'; x.fillText(stay ? 'STAY' : 'BAR', W2 / 2, y0 + 38);
+    x.font = F(fs); x.fillStyle = '#ffffff'; x.shadowColor = col; x.shadowBlur = 18; x.textBaseline = 'middle'; x.fillText(text, W2 / 2, y0 + 90); x.shadowBlur = 0;
+    const t = new T.CanvasTexture(cvs); t.colorSpace = T.SRGBColorSpace; t.anisotropy = 4;
+    const sp = new T.Sprite(new T.SpriteMaterial({ map: t, transparent: true, depthWrite: false, fog: false, toneMapped: false }));
+    const hgt = 5.6; sp.scale.set(hgt * cvs.width / cvs.height, hgt, 1); sp.center.set(.5, 0); sp.renderOrder = 9; sp.userData.base = [sp.scale.x, sp.scale.y];
+    return sp;
+  }
+  // keep far banners readable: grow gently with distance
+  function sizeBanners() {
+    for (const b of banners) { const d = b.position.distanceTo(cam.position), k = clamp(d / 140, 1, 3.2); b.scale.set(b.userData.base[0] * k, b.userData.base[1] * k, 1); }
   }
   function makeLabel(text, dot, tag, big) {
     const fs = big ? 40 : 34, pad = 22, F = s => `700 ${s}px system-ui,-apple-system,"Segoe UI",sans-serif`;
@@ -1000,11 +1073,11 @@
     for (const bc of beacons) {
       if (bc.far) { const d = Math.hypot(bc.lab.position.x - st.x, bc.lab.position.z - st.z); bc.lab.material.opacity = clamp(1.4 - d / 900, 0, 1); bc.lab.visible = bc.lab.material.opacity > .02; continue; }
       const d = Math.hypot(bc.gem.position.x - st.x, bc.gem.position.z - st.z);
-      bc.gem.rotation.y = time * 1.2; bc.gem.position.y = bc.base + 7 + (reduce ? 0 : Math.sin(time * 2 + bc.base) * .6);
+      bc.gem.rotation.y = time * 1.2; bc.gem.position.y = bc.base + 17 + (reduce ? 0 : Math.sin(time * 2 + bc.base) * .6);
       bc.beam.visible = d > 35; bc.beam.material.opacity = lerp(.5, 1, mood.t);
-      bc.lab.material.opacity = clamp(1.3 - d / 300, 0, 1); bc.lab.visible = bc.lab.material.opacity > .02 && started;
+      bc.lab.material.opacity = 1; bc.lab.visible = started;
     }
-    declutter();
+    declutter(); sizeBanners();
     if (tower) { const p = tower.flag.geometry.attributes.position, base = tower.base; for (let i = 0; i < p.count; i++) { const x = base[i * 3]; p.setZ(i, reduce ? 0 : Math.sin(x * 1.4 - time * 6) * x * .12); } p.needsUpdate = true; }
     for (const g of gulls) { const a = time * g.s + g.o; g.m.position.set(g.cx + Math.cos(a) * g.r, g.h + Math.sin(time * .6 + g.o) * 3, g.cz + Math.sin(a) * g.r); g.m.rotation.y = -a + (g.s > 0 ? 0 : Math.PI); const f = reduce ? .2 : Math.sin(time * 7 + g.o * 3) * .5; const p = g.m.geometry.attributes.position; p.setY(1, .15 + f); p.setY(4, .15 + f); p.needsUpdate = true; }
     if (conf) { conf.t += dt; const p = conf.p.geometry.attributes.position; for (let i = 0; i < conf.vel.length; i++) { const v = conf.vel[i]; v[1] -= 22 * dt; v[0] *= .99; v[2] *= .99; p.setXYZ(i, p.getX(i) + v[0] * dt, Math.max(.3, p.getY(i) + v[1] * dt), p.getZ(i) + v[2] * dt); } p.needsUpdate = true; conf.p.material.opacity = clamp(3 - conf.t, 0, 1); if (conf.t > 3) { S.remove(conf.p); conf.p.geometry.dispose(); conf.p.material.dispose(); conf = null; } }
