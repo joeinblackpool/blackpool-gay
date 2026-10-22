@@ -3,6 +3,7 @@
 Data: source/data/*.json (facts from the owner's rainbowquarter data + verified research; copy written fresh for this site).
 """
 import json, re, html, os, glob, datetime, hashlib, base64, math
+import art  # SVG illustrations (same folder)
 B = os.path.dirname(os.path.abspath(__file__)); D = os.path.join(B, '..', 'data'); ROOT = os.path.join(B, '..', '..')
 SITE = 'https://blackpool.gay'; NAME = 'Blackpool.gay'
 TODAY = datetime.date.today().isoformat(); UPDATED = datetime.date.today().strftime('%-d %B %Y')
@@ -54,7 +55,15 @@ def maplinks(v):
     lat, lng = v['geo']
     return (f'<div class="mapbtns"><a href="https://www.google.com/maps/search/?api=1&amp;query={lat},{lng}" target="_blank" rel="noopener">Google Maps</a>'
             f'<a href="https://maps.apple.com/?ll={lat},{lng}&amp;q={q}" target="_blank" rel="noopener">Apple Maps</a>'
-            f'<a href="https://waze.com/ul?ll={lat},{lng}&amp;navigate=yes" target="_blank" rel="noopener">Waze</a></div>')
+            f'<a href="https://waze.com/ul?ll={lat},{lng}&amp;navigate=yes" target="_blank" rel="noopener">Waze</a>'
+            + (f'<a class="go3d" href="/explore/?to={v["slug"]}">Drive there in 3D</a>' if v.get('slug') else '') + '</div>')
+
+def promo(slug=None, name=None):
+    href = f'/explore/?to={slug}' if slug else '/explore/'
+    head = f'Drive to {E(name)} in 3D' if name else 'Drive the Rainbow Quarter in 3D'
+    sub = ('Hop in the pink soft-top with Jay and Theo and let them drive you there through the real streets.' if name
+           else 'Real streets, the Tower, North Pier and the Illuminations. Pick a hotel or bar and the car takes you there.')
+    return (f'<a class="promo3d" href="{href}"><div class="pt"><span class="pk">New · 3D Blackpool</span><strong>{head}</strong><span>{sub}</span><br><span class="pg">Start the engine →</span></div>{art.promo_svg()}</a>')
 
 def pin(v, kind):
     url = ('/stays/' if kind == 'stay' else '/nightlife/') + v['slug'] + '/'
@@ -68,9 +77,9 @@ def mapblock(pins, center=None, zoom=16, h=380):
 
 # ---------------------------------------------------------------- page shell
 CSS = open(os.path.join(B, 'site.css')).read()
-NAV = [('/stays/', 'Where to stay'), ('/nightlife/', 'Nightlife'), ('/open-tonight/', 'Open tonight'), ('/whats-on/', "What's on"), ('/pride/', 'Pride'), ('/forum/', 'Forum')]
+NAV = [('/stays/', 'Where to stay'), ('/nightlife/', 'Nightlife'), ('/open-tonight/', 'Open tonight'), ('/whats-on/', "What's on"), ('/pride/', 'Pride'), ('/forum/', 'Forum'), ('/explore/', 'Drive in 3D')]
 BEACON = os.environ.get('CF_BEACON', '')
-def shell(path, title, desc, h1, intro, body, crumbs=None, ld=None, noindex=False, wide=False, maps=False, script=''):
+def shell(path, title, desc, h1, intro, body, crumbs=None, ld=None, noindex=False, wide=False, maps=False, script='', hero=None):
     crumb_html = ''
     if crumbs:
         crumb_html = '<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a>' + ''.join(f' › <a href="{u}">{E(n)}</a>' if u else f' › <span>{E(n)}</span>' for n, u in crumbs) + '</nav>'
@@ -86,15 +95,15 @@ def shell(path, title, desc, h1, intro, body, crumbs=None, ld=None, noindex=Fals
             f'<meta property="og:type" content="website"><meta property="og:site_name" content="{NAME}"><meta property="og:locale" content="en_GB"><meta property="og:title" content="{E(title)}"><meta property="og:description" content="{E(desc)}"><meta property="og:url" content="{SITE}{path}"><meta property="og:image" content="{SITE}/og.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image">'
             + ('<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">' if maps else '') +
             f'<style>{CSS}</style><script type="application/ld+json">{ldtxt}</script></head>')
-    navh = ''.join(f'<a href="{u}">{n}</a>' for u, n in NAV)
-    body_html = (f'<body><div class="flag" aria-hidden="true"></div><header class="top"><div class="wrap topin"><a class="logo" href="/">Blackpool<b>.gay</b></a><nav class="nav" aria-label="Main">{navh}</nav></div></header>'
-                 f'<main class="wrap{" wide" if wide else ""}">{crumb_html}<h1>{E(h1)}</h1>' + (f'<p class="lede">{E(intro)}</p>' if intro else '') + body + '</main>'
+    navh = ''.join(f'<a href="{u}"' + (' aria-current="page"' if path == u or (u != '/' and path.startswith(u)) else '') + (' class="nav3d"' if u == '/explore/' else '') + f'>{n}</a>' for u, n in NAV)
+    body_html = (f'<body><a class="skip" href="#main">Skip to content</a><div class="flag" aria-hidden="true"></div><header class="top"><div class="wrap topin"><a class="logo" href="/">Blackpool<b>.gay</b></a><nav class="nav" aria-label="Main">{navh}</nav></div></header>' +
+                 (hero or '') + f'<main id="main" class="wrap{" wide" if wide else ""}">{crumb_html}' + ('' if hero else f'<h1>{E(h1)}</h1>' + (f'<p class="lede">{E(intro)}</p>' if intro else '')) + body + '</main>'
                  f'<footer class="foot"><div class="wrap"><div class="fgrid"><div><a class="logo" href="/">Blackpool<b>.gay</b></a><p>Independent stay-first guide to LGBTQ+ Blackpool. Facts checked, never paid placements.</p></div>'
                  f'<div><h2>Stay</h2><a href="/stays/">All stays</a><a href="/stays/men-only-hotels/">Men-only hotels</a><a href="/stays/adults-only-guest-houses/">Adults-only guest houses</a><a href="/stays/near-queen-street/">Near Queen Street</a><a href="/stays/pride-weekend-hotels/">Pride weekend</a></div>'
                  f'<div><h2>Go out</h2><a href="/nightlife/">Nightlife</a><a href="/open-tonight/">Open tonight</a><a href="/whats-on/">What\'s on</a><a href="/map/">Map</a><a href="/explore/">Explore in 3D</a><a href="/safety/">Getting home safely</a></div>'
                  f'<div><h2>About</h2><a href="/about/">About &amp; corrections</a><a href="/forum/">Community forum</a><a href="https://rainbowquarter.co.uk/" rel="noopener">Venue history: Rainbow Quarter</a></div></div>'
                  f'<p class="small">Last updated {UPDATED} · Opening hours and prices are as listed by venues; always check before you travel.</p></div></footer>'
-                 + (('<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script><script src="/assets/map.js" defer></script>') if maps else '') + script +
+                 + (('<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script><script src="/assets/map.js" defer></script>') if maps else '') + script + '<script src="/assets/site.js" defer></script>' +
                  (f'<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon=\'{{"token": "{BEACON}"}}\'></script>' if BEACON else '') + '</body></html>')
     return head + body_html
 
@@ -110,7 +119,7 @@ def stay_page(s):
     facts = '<ul class="facts">' + f'<li><strong>Address:</strong> {E(v["address"])}{", " + E(v["postcode"]) if v.get("postcode") else ""}</li>' + (f'<li><strong>Type:</strong> {E(v["kind"])}</li>') + (f'<li><strong>Price guide:</strong> {E(v["price"])}</li>' if v.get('price') else '') + (f'<li><strong>Phone:</strong> <a href="tel:{E(re.sub(r"[^0-9+]", "", v["phone"]))}">{E(v["phone"])}</a></li>' if v.get('phone') else '') + (f'<li><strong>Website:</strong> <a href="{E(v["website"])}" rel="noopener nofollow" target="_blank">{E(re.sub(r"^https?://(www\.)?", "", v["website"]).rstrip("/"))}</a></li>' if v.get('website') else '') + '</ul>'
     body = (f'<div class="staybox">{facts}{maplinks(v)}</div>' + mapblock([p for p in ALLPINS if p['u'] == f'/stays/{s}/'] + [p for p in ALLPINS if p['k'] == 'bar' and p['u'].split('/')[2] in [b for _, b in near]], center=v['geo'], zoom=17, h=320) +
             (c.get('body_html') or f'<p>{E(v["name"])} is a {E(v["kind"].lower())} at {E(v["address"])}.</p>') +
-            f'<h2>Walking times from {E(v["name"])}</h2><table class="walk"><thead><tr><th>Place</th><th>On foot</th></tr></thead><tbody>{fixed}{rows}</tbody></table><p class="small">Walking times are estimates from map positions.</p>')
+            f'<h2>Walking times from {E(v["name"])}</h2><table class="walk"><thead><tr><th>Place</th><th>On foot</th></tr></thead><tbody>{fixed}{rows}</tbody></table><p class="small">Walking times are estimates from map positions.</p>' + promo(s, v['name']))
     title = c.get('title') or f'{v["name"]} Blackpool | {NAME}'
     desc = c.get('description') or f'{v["name"]}, {v["kind"].lower()} at {v["address"]}: location, who it suits, walking times to Queen Street bars and booking tips.'
     ld = [{'@type': 'Hotel' if 'hotel' in v['kind'].lower() else 'LodgingBusiness', '@id': SITE + f'/stays/{s}/#place', 'name': v['name'], 'url': SITE + f'/stays/{s}/', 'description': desc,
@@ -154,7 +163,7 @@ for s in BAR_SLUGS:
     near = sorted([(walk(s, h), h) for h in STAY_SLUGS if h != s and walk(s, h) and f'/stays/{h}/' in PAGES], key=lambda x: x[0])[:5]
     body = (f'<div class="staybox"><ul class="facts"><li><strong>Address:</strong> {E(v["address"])}{", " + E(v["postcode"]) if v.get("postcode") else ""}</li><li><strong>Type:</strong> {E(v["kind"])}</li>' + (f'<li><strong>Prices:</strong> {E(v["price"])}</li>' if v.get('price') else '') + '</ul>' + maplinks(v) + '</div>' + c['body_html'] +
             '<h2>Opening hours</h2>' + hours_table(v) + ('<h2>Closest places to stay</h2><ul>' + ''.join(f'<li><a href="/stays/{h}/">{E(VBY[h]["name"])}</a>, {m} min walk</li>' for m, h in near) + '</ul>' if near else '') +
-            mapblock([p for p in ALLPINS if p['u'] == f'/nightlife/{s}/'] + [p for p in ALLPINS if p['k'] == 'stay' and p['u'].split('/')[2] in [h for _, h in near]], center=v['geo'], zoom=17, h=300))
+            mapblock([p for p in ALLPINS if p['u'] == f'/nightlife/{s}/'] + [p for p in ALLPINS if p['k'] == 'stay' and p['u'].split('/')[2] in [h for _, h in near]], center=v['geo'], zoom=17, h=300) + promo(s, v['name']))
     typ = v.get('schemaType') or ('NightClub' if 'club' in v['kind'].lower() else 'BarOrPub')
     ld = [{'@type': typ, 'name': v['name'], 'url': SITE + f'/nightlife/{s}/', 'address': {'@type': 'PostalAddress', 'streetAddress': v['address'].replace(', Blackpool', ''), 'addressLocality': 'Blackpool', 'postalCode': v.get('postcode'), 'addressCountry': 'GB'}, 'geo': {'@type': 'GeoCoordinates', 'latitude': v['geo'][0], 'longitude': v['geo'][1]}, **({'telephone': v['phone']} if v.get('phone') else {})}]
     add(f'/nightlife/{s}/', shell(f'/nightlife/{s}/', c['title'], c['description'], c['h1'], c.get('intro', ''), body, [('Nightlife', '/nightlife/'), (v['name'], None)], ld, maps=True))
@@ -163,23 +172,18 @@ bars = [s for s in BAR_SLUGS if f'/nightlife/{s}/' in PAGES]
 add('/nightlife/', shell('/nightlife/', nh.get('title', f'Gay Bars Near Your Hotel in Blackpool | {NAME}'), nh.get('description', 'Gay bars, cabaret and clubs near the Rainbow Quarter hotels, with maps, listed hours and walking times.'), nh.get('h1', 'Nightlife near your hotel'), nh.get('intro', ''),
     mapblock(ALLPINS, zoom=16, h=420) + nh.get('body_html', '') + '<h2>Every bar, club and sauna</h2><div class="cards">' + ''.join(f'<a class="card" href="/nightlife/{s}/"><strong>{E(VBY[s]["name"])}</strong><span class="k">{E(VBY[s]["kind"])}</span><span>{E(CARDS[s].get("intro", ""))}</span></a>' for s in bars) + '</div>', [('Nightlife', None)], maps=True))
 add('/map/', shell('/map/', f'Rainbow Quarter Map: Gay Hotels and Bars | {NAME}', 'Interactive map of every gay and gay-friendly hotel, bar, club and sauna in Blackpool, with Google Maps, Apple Maps and Waze links for each.', 'Map of gay Blackpool',
-    'Every stay and bar on one map. Tap a pin for directions.', '<p><a class="btn" href="/explore/">Try the 3D drive-around version</a></p>' + mapblock(ALLPINS, zoom=16, h=620) + '<h2>Stays</h2><ul>' + ''.join(f'<li><a href="/stays/{s}/">{E(VBY[s]["name"])}</a>, {E(VBY[s]["address"])}</li>' for s in allstays) + '</ul><h2>Bars and clubs</h2><ul>' + ''.join(f'<li><a href="/nightlife/{s}/">{E(VBY[s]["name"])}</a>, {E(VBY[s]["address"])}</li>' for s in bars) + '</ul>', [('Map', None)], maps=True, wide=True))
+    'Every stay and bar on one map. Tap a pin for directions.', mapblock(ALLPINS, zoom=16, h=620) + promo() + '<h2>Stays</h2><ul>' + ''.join(f'<li><a href="/stays/{s}/">{E(VBY[s]["name"])}</a>, {E(VBY[s]["address"])}</li>' for s in allstays) + '</ul><h2>Bars and clubs</h2><ul>' + ''.join(f'<li><a href="/nightlife/{s}/">{E(VBY[s]["name"])}</a>, {E(VBY[s]["address"])}</li>' for s in bars) + '</ul>', [('Map', None)], maps=True, wide=True))
 
-XPCSS = ('<style>.xp{position:relative;height:min(78vh,720px);border-radius:18px;overflow:hidden;background:#1b1033;touch-action:none;outline:none}.xp canvas{display:block;width:100%;height:100%}'
-  '.xpcard{position:absolute;left:12px;right:12px;bottom:12px;max-width:420px;background:#fff;color:#1d1230;border-radius:14px;padding:12px 14px;box-shadow:0 8px 30px rgba(0,0,0,.35);display:flex;flex-direction:column;gap:2px}.xpcard[hidden]{display:none}.xpcard .k{font-size:.85em;color:#750787}.xpcard .a{font-size:.9em}'
-  '.xphint{position:absolute;top:12px;left:12px;right:12px;color:#fff;background:rgba(20,10,40,.7);padding:8px 12px;border-radius:10px;font-size:.9em;max-width:460px}.xphint[hidden]{display:none}'
-  '.xppad{position:absolute;right:12px;bottom:12px;display:grid;grid-template-columns:repeat(3,48px);gap:6px}.xppad button{width:48px;height:48px;border-radius:12px;border:0;background:rgba(255,255,255,.85);font-size:20px;color:#1d1230}'
-  '.xppad .u{grid-column:2}.xppad .l{grid-column:1;grid-row:2}.xppad .d{grid-column:2;grid-row:2}.xppad .r{grid-column:3;grid-row:2}@media(min-width:900px){.xpcard{right:auto}}@media(max-width:899px){.xpcard{bottom:126px}}</style>')
-xpdata = json.dumps({'pins': ALLPINS, 'c': [53.8228, -3.0525]}, separators=(',', ':')).replace('</', '<\\/')
-add('/explore/', shell('/explore/', f'Drive Around Gay Blackpool in 3D | {NAME}', 'Drive a little car around the Rainbow Quarter in 3D and find every gay hotel, guest house, bar and club in Blackpool, with directions for each.', 'Explore gay Blackpool in 3D',
-    'Drive around the Rainbow Quarter. Pink towers are places to stay and blue towers are bars and clubs. Pull up next to one to see what it is.',
-    XPCSS + '<div class="xp" id="xp" tabindex="0" role="application" aria-label="3D map of gay Blackpool. Use the arrow keys or tap a tower."><div class="xphint" id="xphint">Arrow keys or WASD to drive. On a phone, use the pad or tap anywhere to drive there. Tap a tower to see it.</div>'
-    '<div class="xpcard" id="xpcard" hidden></div><div class="xppad" aria-hidden="true"><button class="u" data-pad="f:1">▲</button><button class="l" data-pad="t:1">◀</button><button class="d" data-pad="f:-1">▼</button><button class="r" data-pad="t:-1">▶</button></div></div>'
-    f'<script type="application/json" id="xpdata">{xpdata}</script><noscript><p>The 3D view needs JavaScript. Use the <a href="/map/">flat map</a> instead.</p></noscript>'
-    '<p class="small">Tower positions come from each venue\'s real address. Streets and other buildings are drawn for fun and are not to scale. For walking directions, use the <a href="/map/">map</a>.</p>'
-    '<h2>Places to stay</h2><ul>' + ''.join(f'<li><a href="/stays/{s}/">{E(VBY[s]["name"])}</a></li>' for s in allstays) + '</ul><h2>Bars and clubs</h2><ul>' + ''.join(f'<li><a href="/nightlife/{s}/">{E(VBY[s]["name"])}</a></li>' for s in bars) + '</ul>',
-    [('Map', '/map/'), ('Explore in 3D', None)], wide=True,
-    script='<script src="https://unpkg.com/three@0.149.0/build/three.min.js" crossorigin=""></script><script src="/assets/explore.js" defer></script>'))
+XPCSS = '<style>' + open(os.path.join(B, 'explore.css')).read() + '</style>'
+xpdata = json.dumps({'pins': ALLPINS, 'c': [53.8228, -3.0525], 'world': '/assets/world.json'}, separators=(',', ':')).replace('</', '<\\/')
+add('/explore/', shell('/explore/', f'Drive Around Gay Blackpool in 3D | {NAME}', 'Drive a pink soft-top through the real streets of Blackpool in 3D: the Tower, North Pier, the Illuminations and every gay hotel, guest house, bar and club, with directions.', 'Drive gay Blackpool in 3D',
+    'The real streets of the Rainbow Quarter, built in 3D. Pink lights are places to stay, blue lights are bars and clubs. Pick one and the car drives you there.',
+    XPCSS + '<div class="xp" id="xp" role="region" aria-label="3D map of gay Blackpool"><noscript><p style="padding:20px">The 3D view needs JavaScript. Use the <a href="/map/" style="color:#fff">flat map</a> instead.</p></noscript></div>'
+    f'<script type="application/json" id="xpdata">{xpdata}</script>'
+    '<p class="small">Streets, buildings, the coast and North Pier: © <a href="https://www.openstreetmap.org/copyright" rel="noopener">OpenStreetMap contributors</a>. Venue positions match our <a href="/map/">map</a>. Building heights are estimates where none are recorded.</p>'
+    '<h2>Places to stay</h2><ul class="cols">' + ''.join(f'<li><a href="/stays/{s}/">{E(VBY[s]["name"])}</a> · <a href="/explore/?to={s}" class="small">drive there</a></li>' for s in allstays) + '</ul><h2>Bars and clubs</h2><ul class="cols">' + ''.join(f'<li><a href="/nightlife/{s}/">{E(VBY[s]["name"])}</a> · <a href="/explore/?to={s}" class="small">drive there</a></li>' for s in bars) + '</ul>',
+    [('Map', '/map/'), ('Drive in 3D', None)], wide=True,
+    script='<script src="/assets/three-r160.min.js" defer></script><script src="/assets/explore.js" defer></script>'))
 
 # open tonight (client-side, Europe/London time) from listed hours
 ot = {s: {'n': VBY[s]['name'], 'u': f'/nightlife/{s}/', 'h': HOURS[s], 'k': VBY[s]['kind']} for s in bars if s in HOURS}
@@ -219,10 +223,14 @@ topics = fc.get('forum_topics', [])
 forum_body = fc.get('body_html', '') + '<div class="topics">' + ''.join(f'<section class="topic" id="{E(t["slug"])}"><h2>{E(t["title"])}</h2><p>{E(t["desc"])}</p><div class="posts" data-topic="{E(t["slug"])}"></div><form class="postform" data-topic="{E(t["slug"])}"><label>Your name or nickname<input name="name" maxlength="40" required></label><label>Your post<textarea name="body" maxlength="1500" rows="4" required></textarea></label><button type="submit">Send for approval</button><p class="status" role="status"></p></form></section>' for t in topics) + '</div>'
 add('/forum/', shell('/forum/', fc.get('title', f'Blackpool Gay Forum: Ask Before You Go | {NAME}'), fc.get('description', 'A friendly, moderated forum for visitors to gay Blackpool: where to stay, quiet nights, eating out and getting home late.'), fc.get('h1', 'Community forum'), fc.get('intro', ''), forum_body, [('Forum', None)], script='<script src="/assets/forum.js" defer></script>'))
 hc = CORE.get('home', {})
-home_body = (mapblock(ALLPINS, zoom=16, h=400) + '<div class="chips big">' + ''.join(f'<a href="/stays/{t}/">{E(TYPES[t]["h1"])}</a>' for t in TYPE_ORDER if t in TYPES) + '</div>' + hc.get('body_html', '') +
-             '<h2>Stays nearest the Rainbow Quarter</h2><div class="cards">' + ''.join(card(s) for s in allstays[:8]) + '</div><p><a class="btn" href="/stays/">See every stay</a> <a class="btn alt" href="/open-tonight/">What\'s open tonight</a></p>')
-add('/', shell('/', hc.get('title', f'Gay Hotels in Blackpool & Weekend Breaks | {NAME}'), hc.get('description', 'Gay, men-only and adults-only hotels in Blackpool, with maps and walking times to Queen Street bars, what\'s on and what\'s open tonight.'), hc.get('h1', 'Gay hotels and weekend breaks in Blackpool'), hc.get('intro', ''), home_body, None, maps=True))
-NOTFOUND = shell('/404/', f'Page not found | {NAME}', 'This page does not exist.', 'That page has checked out', 'Try one of these instead.', '<ul><li><a href="/stays/">Where to stay</a></li><li><a href="/nightlife/">Nightlife</a></li><li><a href="/open-tonight/">Open tonight</a></li><li><a href="/map/">Map</a></li></ul>', noindex=True)
+home_body = ('<h2>Stays nearest the Rainbow Quarter</h2><div class="cards">' + ''.join(card(s) for s in allstays[:6]) + '</div><p><a class="btn" href="/stays/">See all ' + str(len(allstays)) + ' stays</a> <a class="btn alt" href="/open-tonight/">What\'s open tonight</a></p>'
+             + '<h2>Find the right kind of stay</h2><div class="chips big">' + ''.join(f'<a href="/stays/{t}/">{E(TYPES[t]["h1"])}</a>' for t in TYPE_ORDER if t in TYPES) + '</div>'
+             + promo() + mapblock(ALLPINS, zoom=16, h=420) + hc.get('body_html', ''))
+HERO = (f'<section class="hero" aria-labelledby="h1">{art.hero_svg()}<div class="hin"><p class="kick rise">Gay hotels &amp; weekend breaks in Blackpool</p>'
+        f'<h1 id="h1" class="rise">Blackpool<span>.Gay</span></h1><p class="lede rise">{E(hc.get("intro", ""))}</p>'
+        '<div class="ctas rise"><a class="btn" href="/stays/">Find your stay</a><a class="btn glass" href="/explore/">Drive it in 3D</a><a class="btn glass" href="/open-tonight/">Open tonight</a></div></div></section>')
+add('/', shell('/', hc.get('title', f'Gay Hotels in Blackpool & Weekend Breaks | {NAME}'), hc.get('description', 'Gay, men-only and adults-only hotels in Blackpool, with maps and walking times to Queen Street bars, what\'s on and what\'s open tonight.'), hc.get('h1', 'Blackpool.Gay'), hc.get('intro', ''), home_body, None, maps=True, hero=HERO))
+NOTFOUND = shell('/404/', f'Page not found | {NAME}', 'This page does not exist.', 'That page has checked out', 'Jay and Theo took a wrong turn too. Try one of these instead.', f'<div class="lost">{art.lost_svg()}</div><ul><li><a href="/stays/">Where to stay</a></li><li><a href="/nightlife/">Nightlife</a></li><li><a href="/open-tonight/">Open tonight</a></li><li><a href="/map/">Map</a></li><li><a href="/explore/">Drive in 3D</a></li></ul>', noindex=True)
 
 # ---------------------------------------------------------------- fix internal links that point to pages we did not build
 FIXED = {}
@@ -258,7 +266,7 @@ out = ['// blackpool.gay Worker. Generated by source/build/build.py: edit the so
 for p in URLS: out.append(f'{js(p)}:{chunk(PAGES[p])},')
 out += ['};', f'const NOTFOUND={chunk(NOTFOUND)};', f'const CSP={js(CSPS)};', f'const URLS={js(URLS)};',
         f'const SITEMAP={chunk(SITEMAP)};const ROBOTS={js(ROBOTS)};const LLMS={chunk(LLMS)};',
-        f'const ASSETS={js({"/assets/map.js": A("map.js"), "/assets/tonight.js": A("tonight.js"), "/assets/forum.js": A("forum.js"), "/assets/explore.js": A("explore.js"), "/favicon.svg": A("favicon.svg")})};',
+        f'const ASSETS={js({"/assets/map.js": A("map.js"), "/assets/tonight.js": A("tonight.js"), "/assets/forum.js": A("forum.js"), "/assets/explore.js": A("explore.js"), "/assets/site.js": A("site.js"), "/assets/three-r160.min.js": A("three.min.js"), "/assets/world.json": open(os.path.join(B, "..", "data", "world.json")).read().strip(), "/favicon.svg": A("favicon.svg")})};',
         f'const BIN={js({k: base64.b64encode(open(os.path.join(B, f), "rb").read()).decode() for k, f in (("/og.png", "og.png"), ("/apple-touch-icon.png", "icon.png"))})};',
         A('router.js')]
 open(os.path.join(ROOT, 'src', 'index.js'), 'w').write('\n'.join(out))

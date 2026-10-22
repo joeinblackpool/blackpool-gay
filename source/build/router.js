@@ -62,7 +62,7 @@ async function route(request, env) {
     case '/favicon.ico': case '/apple-touch-icon.png': case '/apple-touch-icon-precomposed.png': return new Response(B64(BIN['/apple-touch-icon.png']), { headers: { 'Content-Type': 'image/png', 'Cache-Control': 'public, max-age=604800', ...HDR } });
     case '/og.png': return new Response(B64(BIN['/og.png']), { headers: { 'Content-Type': 'image/png', 'Cache-Control': 'public, max-age=604800', ...HDR } });
   }
-  if (ASSETS[p]) return text(ASSETS[p], p.endsWith('.svg') ? 'image/svg+xml' : 'application/javascript; charset=utf-8', 'public, max-age=86400');
+  if (ASSETS[p]) return text(ASSETS[p], p.endsWith('.svg') ? 'image/svg+xml' : p.endsWith('.json') ? 'application/json; charset=utf-8' : 'application/javascript; charset=utf-8', 'public, max-age=86400');
   if (PAGE_SET.has(p)) return page(p);
   if (!p.endsWith('/') && !/\.[a-z0-9]{1,5}$/.test(p) && PAGE_SET.has(p + '/')) return redirect(p + '/' + url.search);
   return notFound();
