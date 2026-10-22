@@ -329,7 +329,7 @@ def hero_scene():
     # each group is its own small layer inside the moving strip, so a leg swing repaints a few hundred pixels, not the whole strip
     allg = walkers(); groups = allg[:3] + allg[4:]; spots = [90, 420, 760, 1330, 1680]   # the Posse dances up front instead
     def pbox(x, w):
-        bx, by, bw, bh = x - 46, 755 - 186, w + 100, 196
+        bx, by, bw, bh = x - 46, 755 - 204, w + 100, 214
         return (f'<div class="pg" style="left:{bx / 3840 * 100:.4f}%;top:{by / 9:.4f}%;width:{bw / 3840 * 100:.4f}%;height:{bh / 9:.4f}%">'
                 f'<svg viewBox="{bx} {by} {bw} {bh}" preserveAspectRatio="none" aria-hidden="true" focusable="false">')
     ppl = ''.join(pbox(x + ox, w) + f'<g transform="translate({x + ox} 755) scale(1.02)">{g}</g></svg></div>' for ox in (0, 1920) for x, (w, g) in zip(spots, groups))
@@ -506,7 +506,9 @@ def walkers():
              f'<animateTransform attributeName="transform" type="rotate" values="-8 4 -46;10 4 -46;-8 4 -46" dur="1.2s" repeatCount="indefinite"/></g>'
              f'<path d="M-12 -86 q12 -7 24 0 l1 30 q9 38 7 56 h-17 l-4 -40 l-3 40 h-12 q-3 -18 3 -56z" fill="url(#qgown)"/>{sequins}'
              f'<rect x="-3.4" y="-97" width="7" height="9" rx="2.5" fill="#c98f6d"/><path d="M-10 -107 q0 -14 11 -14 q12 0 12 13 q0 6 -3.4 9.4 q-3.6 4 -8.6 4 q-8 0 -11 -7z" fill="#c98f6d"/>'
-             f'<path d="M-15 -112 q-4 -34 14 -40 q18 -4 22 18 q2 14 -8 22 q4 -14 -6 -18 q-12 -2 -16 12z" fill="url(#qwig)"/><path d="M-6 -146 q8 -8 16 2" stroke="#ffd1f0" stroke-width="2" fill="none" opacity=".7"/>'
+             f'<path d="M-11 -96 C-20 -104 -19 -124 -12 -134 C-15 -152 -3 -165 6 -163 C19 -161 23 -146 16 -132 C20 -126 17 -118 12.6 -115.4 C8 -120.6 1 -122.4 -4.6 -119 C-8.6 -115.6 -9.4 -107 -8 -99 Z" fill="url(#qwig)"/>'
+             f'<circle cx="-12.6" cy="-96" r="3.4" fill="#d98ae8"/><path d="M-12 -133.6 Q2 -128 16.4 -132" stroke="#ffc93c" stroke-width="2.4" fill="none" stroke-linecap="round"/>'
+             f'<path d="M-6 -152 q7 -8 15 -2 M-9 -142 q8 -7 18 -1" stroke="#ffe0f5" stroke-width="1.6" fill="none" opacity=".75" stroke-linecap="round"/><path d="M-2 -121 q6 -2 12.6 5.6" stroke="#c77dff" stroke-width="1.2" fill="none"/>'
              f'<path d="M3 -111 q4 -4 9 -1 M4 -107.5 l-1 -2.4 M6.5 -108.4 l-.6 -2.6 M9 -108.4 l.2 -2.6" stroke="#1b1420" stroke-width="1.3" fill="none" stroke-linecap="round"/><path d="M4.6 -101 q3 2.6 6.2 -.4 q-3 -1.2 -6.2 .4z" fill="#e0004d"/><circle cx="-6" cy="-102" r="2.4" fill="#ffc93c"/>'
              + ''.join(f'<circle cx="{x}" cy="{y}" r="{r}" fill="#ff6fd0"/>' for x, y, r in [(-14, -86, 5.4), (-8, -90, 5.8), (0, -91, 5.6), (8, -90, 5.8), (14, -86, 5.4), (17, -78, 4.8), (18, -70, 4.4), (-17, -78, 4.8), (-18, -70, 4.4)])
              + f'<g><path d="M8 -86 l12 18 l4 -2" stroke="#c98f6d" stroke-width="5.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 -66 h12 l-2 12 h-8z" fill="#ffc93c"/><path d="M22 -66 q4 -7 8 0" stroke="#ffc93c" stroke-width="1.6" fill="none"/>'

@@ -75,6 +75,57 @@
   if (btn) { if (reduce) btn.hidden = true; btn.addEventListener('click', function () { userOff = !userOff; try { localStorage.setItem('bg-motion', userOff ? 'off' : 'on'); } catch (e) {} apply(); }); }
   if (window.IntersectionObserver) new IntersectionObserver(function (es) { onScreen = es[0].isIntersecting; apply(); }).observe(hero);
   apply();
+
+  // music: an original disco groove made live in the browser (no audio file, nothing to download).
+  // It only ever starts on a click or tap, and it fades out when the scene scrolls away or the tab is hidden.
+  var AC = window.AudioContext || window.webkitAudioContext, sbtn = hero.querySelector('.sound-btn');
+  if (AC && sbtn) (function () {
+    sbtn.hidden = false;
+    var ctx, master, nbuf, want = false, on = false, timer = 0, next = 0, step = 0;
+    var BPM = 141.18, S16 = 60 / BPM / 4;            // two bars = 3.4 s, one full Y-M-C-A routine
+    var PROG = [[50, 53, 57, 60], [55, 59, 62, 65], [48, 52, 55, 59], [57, 61, 64, 67]];   // Dm7, G7, Cmaj7, A7
+    var hz = function (m) { return 440 * Math.pow(2, (m - 69) / 12); };
+    function init() {
+      ctx = new AC();
+      var comp = ctx.createDynamicsCompressor(); comp.threshold.value = -16; comp.ratio.value = 3;
+      master = ctx.createGain(); master.gain.value = 0.0001; master.connect(comp); comp.connect(ctx.destination);
+      nbuf = ctx.createBuffer(1, ctx.sampleRate / 2, ctx.sampleRate);
+      var d = nbuf.getChannelData(0); for (var i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    }
+    function env(g, t, a, peak, dec) { g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(peak, t + a); g.gain.exponentialRampToValueAtTime(0.0001, t + a + dec); }
+    function kick(t) { var o = ctx.createOscillator(), g = ctx.createGain(); o.frequency.setValueAtTime(140, t); o.frequency.exponentialRampToValueAtTime(42, t + .14); env(g, t, .003, .9, .28); o.connect(g); g.connect(master); o.start(t); o.stop(t + .34); }
+    function hiss(t, type, freq, q, peak, dec) { var n = ctx.createBufferSource(), fl = ctx.createBiquadFilter(), g = ctx.createGain(); n.buffer = nbuf; fl.type = type; fl.frequency.value = freq; fl.Q.value = q; env(g, t, .002, peak, dec); n.connect(fl); fl.connect(g); g.connect(master); n.start(t); n.stop(t + dec + .05); }
+    function tone(t, m, type, peak, dec, cut) { var o = ctx.createOscillator(), fl = ctx.createBiquadFilter(), g = ctx.createGain(); o.type = type; o.frequency.value = hz(m); fl.type = 'lowpass'; fl.frequency.value = cut; env(g, t, .006, peak, dec); o.connect(fl); fl.connect(g); g.connect(master); o.start(t); o.stop(t + dec + .05); }
+    function play16(t, s) {
+      var bar = Math.floor(s / 16) % 4, i = s % 16, ch = PROG[bar];
+      if (i % 4 === 0) kick(t);                                                       // four on the floor
+      if (i % 4 === 2) hiss(t, 'highpass', 8000, .7, .2, .09);                         // open hat on the off-beat
+      if (i % 2 === 1) hiss(t, 'highpass', 9500, .7, .05, .03);
+      if (i === 4 || i === 12) { hiss(t, 'bandpass', 1500, 1.2, .45, .12); hiss(t + .012, 'bandpass', 1150, 1.2, .3, .14); }   // clap
+      if (i % 2 === 0) tone(t, ch[0] - 24 + (i % 4 === 2 ? 12 : 0), 'sawtooth', .3, .16, 900);      // octave-jumping bass
+      if (i === 6 || i === 14) ch.forEach(function (m) { tone(t, m + 12, 'sawtooth', .06, .24, 3200); });   // string stabs
+      if (bar > 1 && i % 2 === 0) tone(t, ch[(i / 2) % 4] + 24, 'triangle', .05, .12, 6000);       // sparkle
+    }
+    function pump() { while (next < ctx.currentTime + .12) { play16(next, step); next += S16; step++; } timer = setTimeout(pump, 25); }
+    function start() {
+      if (on) return; if (!ctx) init(); if (ctx.resume) ctx.resume();
+      on = true; step = 0; next = ctx.currentTime + .06; pump();
+      master.gain.cancelScheduledValues(ctx.currentTime); master.gain.setTargetAtTime(.7, ctx.currentTime, .25);
+      var ps = hero.querySelector('.ly-posse svg'); if (ps) try { ps.setCurrentTime(0); } catch (e) {}   // the Posse hit Y on the downbeat
+    }
+    function stop() { if (!on) return; on = false; clearTimeout(timer); master.gain.cancelScheduledValues(ctx.currentTime); master.gain.setTargetAtTime(0.0001, ctx.currentTime, .12); }
+    var visible = true;
+    function sync() {
+      (want && visible && !document.hidden) ? start() : stop();
+      hero.classList.toggle('playing', want);
+      sbtn.setAttribute('aria-pressed', want ? 'true' : 'false'); sbtn.textContent = want ? 'Stop the music' : 'Play the Prom';
+    }
+    function toggle() { want = !want; sync(); }
+    sbtn.addEventListener('click', toggle);
+    hero.addEventListener('click', function (e) { if (e.target.closest('a,button,input,textarea,select,label')) return; if (getSelection && String(getSelection())) return; toggle(); });
+    if (window.IntersectionObserver) new IntersectionObserver(function (es) { visible = es[0].isIntersecting; sync(); }, { threshold: .15 }).observe(hero);
+    document.addEventListener('visibilitychange', sync);
+  })();
   if (reduce) return;
 
   // pointer parallax: background layers drift against the pointer, eased with a lerp (no CSS transitions)

@@ -265,7 +265,7 @@ add('/pride/lord-street/', shell('/pride/lord-street/', 'Lord Street Pride Stree
 # ---------------------------------------------------------------- Meet the cast (the illustrated characters from the home page scene)
 _W = art.walkers()
 def castpic(i, label):
-    w, g = _W[i]; top = (-152, -152, -186, -146, -52, -122)[i]; pad = (40, 40, 40, 30, 20, 30)[i]; x0, x1 = -pad, w + pad + (14 if i == 2 else 0)
+    w, g = _W[i]; top = (-152, -152, -200, -146, -52, -122)[i]; pad = (40, 40, 40, 30, 20, 30)[i]; x0, x1 = -pad, w + pad + (14 if i == 2 else 0)
     return f'<svg viewBox="{x0} {top} {x1 - x0} {-top + 8}" role="img" aria-label="{E(label)}"><path d="M{x0} 2 H{x1}" stroke="#3a2a5c" stroke-width="4"/><g transform="scale(1.02)">{g}</g></svg>'
 CAST = [
     (f'<svg viewBox="-14 -30 590 170" role="img" aria-label="Jay and Theo in their pink soft-top"><path d="M-14 128 H576" stroke="#3a2a5c" stroke-width="4"/>{art.car("cast", beam=False)}</svg>', 'Jay and Theo', 'Behind the wheel',
@@ -341,7 +341,7 @@ hc = CORE.get('home', {})
 home_body = ('<h2>Stays nearest the Rainbow Quarter</h2><div class="cards">' + ''.join(card(s) for s in allstays[:6]) + '</div><p><a class="btn" href="/stays/">See all ' + str(len(allstays)) + ' stays</a> <a class="btn alt" href="/open-tonight/">What\'s open tonight</a></p>'
              + '<h2>Find the right kind of stay</h2><div class="chips big">' + ''.join(f'<a href="/stays/{t}/">{E(TYPES[t]["h1"])}</a>' for t in TYPE_ORDER if t in TYPES) + '</div>'
              + promo() + mapblock(ALLPINS, zoom=16, h=420) + hc.get('body_html', ''))
-HERO = (f'<section class="hero" aria-labelledby="h1">{art.hero_scene()}<button type="button" class="motion-btn" aria-pressed="false">Pause motion</button><div class="hin"><p class="kick rise">Gay hotels &amp; weekend breaks in Blackpool</p>'
+HERO = (f'<section class="hero" aria-labelledby="h1">{art.hero_scene()}<div class="hero-ctl"><button type="button" class="sound-btn" aria-pressed="false" hidden>Play the Prom</button><button type="button" class="motion-btn" aria-pressed="false">Pause motion</button></div><div class="hin"><p class="kick rise">Gay hotels &amp; weekend breaks in Blackpool</p>'
         f'<h1 id="h1" class="rise">Blackpool<span>.Gay</span></h1><p class="lede rise">{E(hc.get("intro", ""))}</p>'
         '<div class="ctas rise"><a class="btn" href="/stays/">Find your stay</a><a class="btn glass" href="/explore/">Drive it in 3D</a></div></div></section>')
 add('/', shell('/', hc.get('title', f'Gay Hotels in Blackpool & Weekend Breaks | {NAME}'), hc.get('description', 'Gay, men-only and adults-only hotels in Blackpool, with maps and walking times to Queen Street bars, what\'s on and what\'s open tonight.'), hc.get('h1', 'Blackpool.Gay'), hc.get('intro', ''), home_body, None, maps=True, hero=HERO))

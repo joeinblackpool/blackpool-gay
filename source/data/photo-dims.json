@@ -1,38 +1,38 @@
 {
 "lord-street-flags": [
-480,
-640
+768,
+1024
 ],
 "lord-street-samba": [
-760,
-403
+1216,
+645
 ],
 "lord-street-mardi-gras": [
-700,
-453
+1120,
+725
 ],
 "lord-street-poster-2024": [
-481,
-636
+770,
+1018
 ],
 "lord-street-crowd": [
-576,
-408
+922,
+653
 ],
 "prom-crowd": [
-447,
-447
+715,
+715
 ],
 "tower-flags": [
-452,
-678
+723,
+1085
 ],
 "parade": [
-547,
-365
+875,
+584
 ],
 "festival-poster-2026": [
-494,
-619
+790,
+990
 ]
 }
