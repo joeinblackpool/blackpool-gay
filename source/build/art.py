@@ -1,6 +1,6 @@
 """Hand-built SVG illustrations for Blackpool.gay: the pink soft-top with Jay and Theo, the sunset Promenade hero,
 the 3D promo strip and the 404 scene. Pure SVG + CSS animation (classes are animated in site.css)."""
-import math, random
+import math, random, re
 
 BULBS = ['#ff2e63', '#ff9f1c', '#ffe45e', '#2ec4b6', '#3a86ff', '#c77dff']
 RAINBOW = ['#e40303', '#ff8c00', '#ffd23f', '#008026', '#004dff', '#750787']
@@ -17,8 +17,8 @@ def car(p='c', beam=True):
             f'<linearGradient id="{p}bm" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff2c8" stop-opacity=".75"/><stop offset="1" stop-color="#fff2c8" stop-opacity="0"/></linearGradient>'
             f'<clipPath id="{p}tc"><path d="M64 52 Q64 28 82 26 Q100 28 100 52Z"/></clipPath></defs>'
             f'<ellipse cx="132" cy="124" rx="150" ry="9" fill="#12081f" opacity=".45"/>'
-            '<g class="carbob">'
-            + (f'<path class="beam" d="M258 56 L560 6 L560 128 Z" fill="url(#{p}bm)"/>' if beam else '') +
+            + (f'<path class="headbeam" d="M258 56 L560 6 L560 128 Z" fill="url(#{p}bm)" opacity=".85"/>' if beam else '') +
+            '<g class="carbob">' +
             '<rect x="-9" y="36" width="17" height="52" rx="8" fill="#1d1b22"/><rect x="-6" y="52" width="11" height="20" rx="4" fill="#ff3d9a"/>'
             '<rect x="10" y="31" width="46" height="22" rx="11" fill="#2b2036"/><path d="M14 36 Q32 30 52 36" stroke="#3d3050" stroke-width="2" fill="none"/>'
             '<path d="M46 53 L51 5 L58 5 L56 53Z" fill="#1d1b22"/><rect x="50" y="3" width="70" height="5" rx="2.5" fill="#1d1b22" opacity=".0"/>'
@@ -43,10 +43,10 @@ def car(p='c', beam=True):
             '<rect x="252" y="80" width="15" height="13" rx="4" fill="#1d1b22"/><rect x="-1" y="80" width="13" height="13" rx="4" fill="#1d1b22"/>'
             '<circle cx="256" cy="63" r="8" fill="#e9e9f2"/><circle cx="256" cy="63" r="5.5" fill="#fff6d2"/><rect x="8.5" y="60" width="5" height="13" rx="2" fill="#ff2a2a"/>'
             '<rect x="148" y="39" width="11" height="8" rx="2" fill="#1d1b22"/>'
-            + wheel(60) + wheel(200) + '</g>')
+            + '</g>' + wheel(60) + wheel(200))
 
 
-def skyline(p='s', ground=742, fill='#24113f', glow='#ffa36b', lights=True, seed=11):
+def skyline(p='s', ground=742, fill='#24113f', glow='#ffa36b', lights=True, seed=11, split=False):
     """Blackpool skyline as one coherent silhouette (left to right, after the classic seafront view):
     pier with pavilions and a tall mast, the big wheel, seafront pinnacles and blocks, Tower Buildings with
     onion-domed turrets under the Tower, a tall block and a round-topped drum, the church tower with pinnacles,
@@ -172,6 +172,9 @@ def skyline(p='s', ground=742, fill='#24113f', glow='#ffa36b', lights=True, seed
             f'<filter id="{p}soft" x="-50%" y="-10%" width="200%" height="120%"><feGaussianBlur stdDeviation="3.5"/></filter>'
             f'<linearGradient id="{p}led" gradientUnits="userSpaceOnUse" x1="0" y1="{tt}" x2="0" y2="{tt + 220}" spreadMethod="repeat">' + ''.join(f'<stop offset="{i / 6:.3f}" stop-color="{c}"/>' for i, c in enumerate(['#ff2d55', '#ff9f1c', '#ffe45e', '#2ee59d', '#2fb8ff', '#b56bff', '#ff2d55']))
             + (f'<animateTransform attributeName="gradientTransform" type="translate" from="0 0" to="0 -220" dur="5s" repeatCount="indefinite"/>' if lights else '') + '</linearGradient>')
+    if split:
+        return {'defs': defs, 'static': sil + ''.join(W), 'plain': f'<g fill="{fill}">' + ''.join(S) + '</g>' + ''.join(W), 'shape': ''.join(S), 'wheel': (cx, cy, r, ''.join(wheel)), 'tower': (tc, tt, tb_, led + flag),
+                'train': train, 'coaster': (1430, G - 260, 1710, G)}
     body = (sil + f'<g filter="url(#{p}g)"><g class="spinslow" style="transform-origin:{cx}px {cy}px">' + ''.join(wheel) + '</g></g>'
             + ''.join(W) + led + flag + train)
     return defs, body
@@ -228,14 +231,93 @@ def hero_svg():
             '</svg>')
 
 
+import base64 as _b64, os as _os
+_gp = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'skyglow.webp')
+GLOW = 'data:image/webp;base64,' + _b64.b64encode(open(_gp, 'rb').read()).decode() if _os.path.exists(_gp) else ''
+
+
+def hero_scene():
+    """Layered, GPU-friendly hero. Every moving layer is its own <svg> inside an HTML wrapper that is slid by a
+    CSS transform (composited, no SVG repaint). Speeds come from one car speed V = 123 units/s:
+    dashes k=1, lamps k=.75, skyline k=.325, far roofline k=.14; wheels turn once per 2*pi*r/V."""
+    rnd = random.Random(7)
+    U = 1600  # stage width in units (stage is 1600 x 900)
+    pct = lambda v, of=U: f'{v / of * 100:.4f}%'
+    def layer(cls, w, inner, extra='', vb_x=0, h=900, y=0, x=0):
+        return (f'<div class="ly {cls}" style="left:{pct(x)};top:{pct(y, 900)};width:{pct(w)};height:{pct(h, 900)}"{extra}>'
+                f'<svg viewBox="{vb_x} {y} {w} {h}" preserveAspectRatio="none" aria-hidden="true" focusable="false">{inner}</svg></div>')
+    # sky (static)
+    stars = ''.join(f'<circle class="star" style="animation-duration:{rnd.choice([2.3, 3.1, 4.7, 5.9])}s;animation-delay:-{rnd.random() * 6:.2f}s" cx="{rnd.randint(0, 1600)}" cy="{rnd.randint(0, 300)}" r="{rnd.choice([1, 1.2, 1.5, 2])}" fill="#fff" opacity="{rnd.choice([.5, .7, .9])}"/>' for _ in range(46))
+    sky = ('<defs><linearGradient id="hsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#120a36"/><stop offset=".34" stop-color="#3d1d78"/><stop offset=".6" stop-color="#b03a8e"/><stop offset=".76" stop-color="#ff7a74"/><stop offset=".84" stop-color="#ffb784"/></linearGradient>'
+           '<radialGradient id="hglow" cx=".5" cy="1" r=".7"><stop offset="0" stop-color="#ffd7a0" stop-opacity=".85"/><stop offset=".5" stop-color="#ff8f7a" stop-opacity=".35"/><stop offset="1" stop-color="#ff8f7a" stop-opacity="0"/></radialGradient></defs>'
+           '<rect width="1600" height="900" fill="url(#hsky)"/>' + stars + '<ellipse cx="900" cy="760" rx="1000" ry="330" fill="url(#hglow)"/>')
+    clouds = ('<defs><radialGradient id="hc1"><stop offset="0" stop-color="#ff9ec4" stop-opacity=".34"/><stop offset="1" stop-color="#ff9ec4" stop-opacity="0"/></radialGradient>'
+              '<radialGradient id="hc2"><stop offset="0" stop-color="#c78bff" stop-opacity=".3"/><stop offset="1" stop-color="#c78bff" stop-opacity="0"/></radialGradient>'
+              '<radialGradient id="hc3"><stop offset="0" stop-color="#ffc0a0" stop-opacity=".42"/><stop offset="1" stop-color="#ffc0a0" stop-opacity="0"/></radialGradient></defs>'
+              '<ellipse cx="520" cy="230" rx="300" ry="46" fill="url(#hc1)"/><ellipse cx="1340" cy="170" rx="340" ry="52" fill="url(#hc2)"/><ellipse cx="260" cy="430" rx="260" ry="36" fill="url(#hc3)"/>')
+    # far roofline strip: 2 x 1920
+    far, x = [], -20
+    while x < 1920:
+        w = rnd.randint(30, 80); h = rnd.randint(30, 120); far.append(f'<rect x="{x}" y="{742 - h}" width="{w}" height="{h + 10}"/>')
+        if rnd.random() < .25: far.append(f'<rect x="{x + w // 2 - 3}" y="{742 - h - rnd.randint(14, 40)}" width="6" height="40"/>')
+        x += w
+    farg = ''.join(far)
+    far_svg = f'<g fill="#7a3a8e" opacity=".5">{farg}<g transform="translate(1920 0)">{farg}</g></g>'
+    # skyline strip: two tiles 1920 apart, static art; wheel, Tower lights and coaster train are small overlays
+    tiles, over = [], []
+    for t in (0, 1):
+        P = skyline(f'hs{t}', ground=742, split=True)
+        ox = t * 1920
+        sdefs = re.sub(r'<linearGradient id="hs\d+led".*?</linearGradient>', '', P['defs'])
+        tiles.append(f'<g transform="translate({ox} 0)">{P["plain"]}</g>'
+                     f'<ellipse cx="{P["tower"][0] + ox}" cy="430" rx="130" ry="340" fill="url(#bloom)"/>')
+        cx, cy, r, wh = P['wheel']; R = r + 14
+        over.append(f'<div class="ov ov-wheel" style="left:{pct(cx + ox - R, 3840)};top:{pct(cy - R, 900)};width:{pct(2 * R, 3840)};height:{pct(2 * R, 900)}">'
+                    f'<svg viewBox="{cx - R} {cy - R} {2 * R} {2 * R}" aria-hidden="true" focusable="false"><g fill="#24113f">{wh}</g></svg></div>')
+        tc, tt, tb, fx = P['tower']; x0, y0, w0, h0 = tc - 80, tt - 175, 160, tb - tt + 190
+        over.append(f'<div class="ov ov-tower" style="left:{pct(x0 + ox, 3840)};top:{pct(y0, 900)};width:{pct(w0, 3840)};height:{pct(h0, 900)}">'
+                    f'<svg viewBox="{x0} {y0} {w0} {h0}" aria-hidden="true" focusable="false"><defs>{P["defs"].replace(f"hs{t}", f"ht{t}")}</defs>{fx.replace(f"hs{t}", f"ht{t}")}</svg></div>')
+        c0x, c0y, c1x, c1y = P['coaster']
+        over.append(f'<div class="ov ov-train" style="left:{pct(c0x + ox, 3840)};top:{pct(c0y, 900)};width:{pct(c1x - c0x, 3840)};height:{pct(c1y - c0y, 900)}">'
+                    f'<svg viewBox="{c0x} {c0y} {c1x - c0x} {c1y - c0y}" aria-hidden="true" focusable="false">{P["train"]}</svg></div>')
+    bloom = '<defs><radialGradient id="bloom"><stop offset="0" stop-color="#ff6fd0" stop-opacity=".22"/><stop offset="1" stop-color="#ff6fd0" stop-opacity="0"/></radialGradient></defs>'
+    sky_strip = (f'<div class="ly ly-sky2" style="left:0;top:0;width:240%;height:100%"><div class="rl rl-sky">'
+                 f'<svg viewBox="0 0 3840 900" preserveAspectRatio="none" aria-hidden="true" focusable="false">{bloom}<image href="{GLOW}" x="0" y="0" width="3840" height="900" preserveAspectRatio="none"/>{"".join(tiles)}</svg>{"".join(over)}</div></div>')
+    # road (static) and its moving dashes
+    road = ('<defs><linearGradient id="hroad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b1749"/><stop offset="1" stop-color="#140a26"/></linearGradient>'
+            '<linearGradient id="hhaze" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff8f7a" stop-opacity="0"/><stop offset="1" stop-color="#ff8f7a" stop-opacity=".32"/></linearGradient>'
+            '</defs>'
+            '<rect y="660" width="1600" height="84" fill="url(#hhaze)"/><rect y="740" width="1600" height="16" fill="#341d5c"/><rect y="752" width="1600" height="4" fill="#ff9fc9" opacity=".35"/>'
+            '<rect y="756" width="1600" height="150" fill="url(#hroad)"/><path d="M0 846 H1600 M0 858 H1600" stroke="#5b4380" stroke-width="2.4" opacity=".75"/>'
+            )
+    dashes = ''.join(f'<rect x="{x}" y="806" width="42" height="5" rx="2.5" fill="#f6e9ff" opacity=".7"/>' for x in range(0, 3200, 80))
+    # lamps strip: 2560 units, loops every 960 (4 posts = one full colour cycle), steady warm bulbs
+    warm = ['#ffd88a', '#ff9fc9', '#fff1c9', '#ffb36b']
+    lamps = lamps_row(624, 240, 11, 30, 4.4, 6, 752, pal=warm)
+    # car (own small layer): viewBox around the car incl. beam
+    cvx, cvy, cvw, cvh, cs, cxp, cyp = -14, -18, 590, 150, 1.32, 560, 655
+    car_div = (f'<div class="ly ly-car" style="left:{pct(cxp + cvx * cs)};top:{pct(cyp + cvy * cs, 900)};width:{pct(cvw * cs)};height:{pct(cvh * cs, 900)}"><div class="carsettle">'
+               f'<svg viewBox="{cvx} {cvy} {cvw} {cvh}" aria-hidden="true" focusable="false"><defs><radialGradient id="hpool"><stop offset="0" stop-color="#fff2c8" stop-opacity=".32"/><stop offset="1" stop-color="#fff2c8" stop-opacity="0"/></radialGradient></defs><ellipse cx="417" cy="110" rx="174" ry="15" fill="url(#hpool)"/>{car("h")}</svg></div></div>')
+    kerb = '<svg class="kerb" viewBox="0 0 1600 20" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M0 2 Q800 30 1600 2 V20 H0Z" fill="#fff8f3"/></svg>'
+    return ('<div class="stage scene" aria-hidden="true">'
+            + layer('ly-sky', 1600, sky)
+            + f'<div class="ly ly-clouds par" data-d="14"><svg viewBox="0 0 1600 900" preserveAspectRatio="none" aria-hidden="true" focusable="false">{clouds}</svg></div>'
+            + f'<div class="ly ly-far par" data-d="9" style="left:0;top:0;width:240%;height:100%"><div class="rl rl-far"><svg viewBox="0 0 3840 900" preserveAspectRatio="none" aria-hidden="true" focusable="false">{far_svg}</svg></div></div>'
+            + sky_strip.replace('class="ly ly-sky2"', 'class="ly ly-sky2 par" data-d="5"', 1)
+            + layer('ly-road', 1600, road)
+            + f'<div class="ly ly-dash" style="left:0;top:0;width:200%;height:100%"><div class="rl rl-dash"><svg viewBox="0 0 3200 900" preserveAspectRatio="none" aria-hidden="true" focusable="false">{dashes}</svg></div></div>'
+            + f'<div class="ly ly-lamps" style="left:0;top:0;width:160%;height:100%"><div class="rl rl-lamps"><svg viewBox="0 0 2560 900" preserveAspectRatio="none" aria-hidden="true" focusable="false">{lamps}</svg></div></div>'
+            + car_div + kerb + '</div>')
+
+
 SCENE_CSS = ('.twinkle{animation:tw 3s ease-in-out infinite}.twinkle:nth-child(3n){animation-delay:-1s}@keyframes tw{50%{opacity:.25}}'
              '.lamps{animation:lm 2.2s linear infinite}@keyframes lm{to{transform:translateX(-160px)}}.dash{animation:dm .65s linear infinite}@keyframes dm{to{transform:translateX(-80px)}}'
-             '.bulb{animation:bb 1.2s steps(1) infinite}.bulb:nth-child(4n+1){animation-delay:-.3s}.bulb:nth-child(4n+2){animation-delay:-.6s}.bulb:nth-child(4n+3){animation-delay:-.9s}@keyframes bb{50%{opacity:.35}}'
-             '.carbob{animation:cb .42s ease-in-out infinite alternate}@keyframes cb{to{transform:translateY(-2.5px)}}'
-             '.wheel{animation:sp .5s linear infinite;transform-box:fill-box;transform-origin:center}.spinslow{animation:sp 48s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}'
-             '.wave{animation:wv .7s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:10% 95%}@keyframes wv{from{transform:rotate(-18deg)}to{transform:rotate(14deg)}}'
+             ''
+             '.carbob{transform-box:fill-box;transform-origin:50% 100%;animation:cb 1.9s cubic-bezier(.45,0,.55,1) infinite}@keyframes cb{18%{transform:translateY(-1.6px) rotate(-.25deg)}35%{transform:translateY(.4px) rotate(.1deg)}52%{transform:translateY(-.8px) rotate(.2deg)}70%{transform:translateY(-2px) rotate(-.15deg)}}'
+             '.wheel{animation:sp 1.07s linear infinite;transform-box:fill-box;transform-origin:center}.spinslow{animation:sp 48s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}'
+             '.wave{animation:wv 4s ease-in-out infinite;transform-box:fill-box;transform-origin:10% 95%}@keyframes wv{0%{transform:rotate(-5deg)}7%{transform:rotate(-20deg)}15%{transform:rotate(14deg)}23%{transform:rotate(-20deg)}31%{transform:rotate(14deg)}39%{transform:rotate(-18deg)}45%,100%{transform:rotate(-5deg)}}'
              '.flagw{animation:fl 1.4s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:0 50%}@keyframes fl{to{transform:skewY(-8deg) scaleX(.92)}}'
-             '.beam{animation:bm 4s ease-in-out infinite alternate}@keyframes bm{to{opacity:.55}}'
+             ''
              '.heartbeat{animation:hb 1.6s ease-in-out infinite}@keyframes hb{0%,100%{transform:scale(1)}15%{transform:scale(1.14)}30%{transform:scale(.98)}45%{transform:scale(1.08)}}'
              '.roll{animation:rl 34s linear infinite}@keyframes rl{to{transform:translateX(-1920px)}}'
              '@media(prefers-reduced-motion:reduce){*{animation:none!important}}')

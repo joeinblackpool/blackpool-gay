@@ -16,3 +16,6 @@ Push to `main`; Workers Builds deploys (`npx wrangler deploy`).
 
 ## Forum moderation
 New posts are saved in the `blackpool-gay-forum` KV namespace as `pending:<topic>:<id>`. To publish, append the post object to the JSON array stored at `approved:<topic>` (Cloudflare → Storage → KV) and delete the pending key.
+
+## Hero art
+The home hero is layered SVG (source/build/art.py, hero_scene). After changing the skyline shapes, re-bake the rim glow: `python3 tools/bake_skyglow.py`.

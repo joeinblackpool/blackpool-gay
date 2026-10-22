@@ -95,7 +95,6 @@ a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible,te
 .skip{position:absolute;left:-9999px;top:8px;z-index:2000;background:var(--ink);color:#fff;padding:10px 16px;border-radius:999px}.skip:focus{left:12px;color:#fff}
 /* home hero */
 .hero{position:relative;color:#fff;overflow:hidden;isolation:isolate;min-height:clamp(600px,calc(100svh - 68px),900px);display:flex;align-items:flex-start;background:#1b1150}
-.hero svg.scene{position:absolute;inset:0;width:100%;height:100%;z-index:-1}
 .hero .hin{position:relative;max-width:1120px;width:100%;margin:0 auto;padding:clamp(40px,7vh,96px) 22px 40px}
 .hero .kick{display:inline-flex;align-items:center;gap:10px;font-size:13px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);margin:0}
 .hero .kick::before{content:"";width:9px;height:9px;border-radius:50%;background:#ffd23f;box-shadow:0 0 12px #ffd23f}
@@ -104,24 +103,7 @@ a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible,te
 .hero .lede{color:rgba(255,255,255,.84);font-size:clamp(17px,1.5vw,20px);max-width:40ch;text-shadow:0 2px 20px rgba(40,0,60,.4)}
 .hero .ctas{display:flex;flex-wrap:wrap;gap:4px;margin-top:22px}
 .hero .ctas .btn{padding:15px 24px;font-size:16.5px}
-.hero .rise{animation:rise 1s var(--ease) both}.hero .rise:nth-child(2){animation-delay:.08s}.hero .rise:nth-child(3){animation-delay:.16s}.hero .rise:nth-child(4){animation-delay:.24s}
-@keyframes rise{from{opacity:0;transform:translateY(26px)}}
 .hero+main{padding-top:10px}
-/* scene animation */
-.scene .twinkle{animation:tw 3s ease-in-out infinite}.scene .twinkle:nth-child(3n){animation-delay:-1s}.scene .twinkle:nth-child(3n+1){animation-delay:-2s}
-@keyframes tw{50%{opacity:.25}}
-.scene .lamps{animation:lampsMove 2.6s linear infinite}
-@keyframes lampsMove{to{transform:translateX(-240px)}}
-.scene .dash{animation:dashMove .65s linear infinite}@keyframes dashMove{to{transform:translateX(-80px)}}
-.scene .bulb{animation:bulb 1.2s steps(1) infinite}.scene .bulb:nth-child(4n+1){animation-delay:-.3s}.scene .bulb:nth-child(4n+2){animation-delay:-.6s}.scene .bulb:nth-child(4n+3){animation-delay:-.9s}
-@keyframes bulb{50%{opacity:.35}}
-.scene .shimmer{animation:shim 6s linear infinite}@keyframes shim{to{transform:translateX(-200px)}}
-.scene .carbob{animation:bob .42s ease-in-out infinite alternate}@keyframes bob{to{transform:translateY(-2.5px)}}
-.scene .wheel{animation:spin .5s linear infinite;transform-box:fill-box;transform-origin:center}@keyframes spin{to{transform:rotate(360deg)}}
-.scene .wave{animation:wave .7s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:10% 95%}@keyframes wave{from{transform:rotate(-18deg)}to{transform:rotate(14deg)}}
-.scene .flagw{animation:flag 1.4s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:0 50%}@keyframes flag{to{transform:skewY(-8deg) scaleX(.92)}}
-.scene .par{transition:transform .9s var(--ease)}
-.scene .beam{animation:beam 4s ease-in-out infinite alternate}@keyframes beam{to{opacity:.55}}
 /* 404 */
 .lost{text-align:center;padding:30px 0}.lost svg{max-width:560px;margin:0 auto 10px;display:block}
 /* reveal on scroll (no JavaScript) */
@@ -130,9 +112,37 @@ a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible,te
 @media(max-width:860px){.fgrid{grid-template-columns:1fr 1fr}.promo3d{grid-template-columns:1fr}.promo3d .pt{padding:26px 24px 0}}
 @media(max-width:760px){body{font-size:16.5px}.topin{min-height:58px;gap:10px}.nav{overflow-x:auto;scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,#000 85%,transparent);mask-image:linear-gradient(90deg,#000 85%,transparent);padding-right:24px}.nav::-webkit-scrollbar{display:none}.nav a{padding:7px 10px;font-size:13.5px}.logo{font-size:20px}.logo::before{width:18px;height:18px}main{padding:16px 18px 44px}table{display:block;overflow-x:auto}.hero{min-height:auto}.hero .hin{padding-top:34px}.hero .hin{padding:40px 20px 300px}.hero .ctas .btn{padding:13px 18px;font-size:15px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
-.hero.paused .scene *{animation-play-state:paused!important}
 .foot .logo{font-size:26px;opacity:1}
-.scene .spinslow{animation:spin 48s linear infinite}
+@media(max-width:760px){.hero .stage{transform:translateX(-53%)}.hero .hin{padding-bottom:230px}}
+
+/* ---- hero scene: layered, composited motion. One car speed V=123 units/s drives every layer ---- */
+.hero .stage{position:absolute;left:50%;bottom:0;width:max(100%,var(--sw,calc(clamp(600px,100svh - 68px,900px)*1.7778)));aspect-ratio:16/9;transform:translateX(-50%);z-index:-1;overflow:hidden;pointer-events:none;contain:layout paint}
+.stage .ly{position:absolute;inset:0}.stage svg{display:block;width:100%;height:100%;overflow:visible}
+.stage .rl{position:relative;width:100%;height:100%;will-change:transform}
+.stage .rl-sky{animation:rlHalf 48s linear infinite}.stage .rl-far{animation:rlHalf 110s linear infinite}
+.stage .rl-dash{animation:rlDash .65s linear infinite}.stage .rl-lamps{animation:rlLamps 10.4s linear infinite}
+@keyframes rlHalf{to{transform:translateX(-50%)}}@keyframes rlDash{to{transform:translateX(-2.5%)}}@keyframes rlLamps{to{transform:translateX(-37.5%)}}
+.stage .ov{position:absolute}.stage .ov-wheel{animation:turn 48s linear infinite;will-change:transform}@keyframes turn{to{transform:rotate(360deg)}}
+.stage .kerb{position:absolute;left:0;bottom:-1px;width:100%;height:2.4%}
+.scene .wheel{animation:turn 1.82s linear infinite;transform-box:fill-box;transform-origin:center}
+.scene .carbob{transform-box:fill-box;transform-origin:50% 100%;animation:ride 1.9s cubic-bezier(.45,0,.55,1) infinite}
+@keyframes ride{0%,100%{transform:none}18%{transform:translateY(-1.6px) rotate(-.25deg)}35%{transform:translateY(.4px) rotate(.1deg)}52%{transform:translateY(-.8px) rotate(.2deg)}70%{transform:translateY(-2px) rotate(-.15deg)}}
+.scene .wave{transform-box:fill-box;transform-origin:10% 95%;animation:wave4 4s ease-in-out infinite}
+@keyframes wave4{0%{transform:rotate(-5deg)}7%{transform:rotate(-20deg)}15%{transform:rotate(14deg)}23%{transform:rotate(-20deg)}31%{transform:rotate(14deg)}39%{transform:rotate(-18deg)}45%,100%{transform:rotate(-5deg)}}
+.scene .flagw{animation:flag 1.4s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:0 50%}@keyframes flag{to{transform:skewY(-8deg) scaleX(.92)}}
 .scene .heartbeat{animation:heart 1.6s ease-in-out infinite}@keyframes heart{0%,100%{transform:scale(1)}15%{transform:scale(1.14)}30%{transform:scale(.98)}45%{transform:scale(1.08)}}
-@media(max-width:760px){.hero svg.scene{inset:auto;bottom:0;top:0;left:50%;height:100%;width:1100px;max-width:none;transform:translateX(-51%)}.hero .hin{padding-bottom:230px}}
-.scene .roll{animation:roll 48s linear infinite}.scene .rollfar{animation:roll 110s linear infinite}@keyframes roll{to{transform:translateX(-1920px)}}
+.scene .star{animation:twinkle 3s ease-in-out infinite}@keyframes twinkle{50%{opacity:.2}}
+.hero:has(.ctas .btn:first-child:hover) .headbeam{animation:flash .14s 2 steps(1)}@keyframes flash{50%{opacity:1}}
+/* intro: Blackpool's switch-on */
+.hero .ly-sky{animation:fadeUp .7s ease both}
+.hero .ly-far{animation:riseIn 1.1s cubic-bezier(.22,1,.36,1) .1s both}.hero .ly-sky2{animation:riseIn 1.1s cubic-bezier(.22,1,.36,1) .22s both}
+@keyframes fadeUp{from{opacity:0}}@keyframes riseIn{from{opacity:0;transform:translateY(3%)}}
+.hero .ly-car{animation:driveIn 1.5s cubic-bezier(.16,1,.3,1) .5s both}@keyframes driveIn{from{transform:translateX(-140%)}}
+.hero .carsettle{transform-origin:70% 100%;animation:settle .5s ease-out 1.95s both}@keyframes settle{35%{transform:rotate(1.2deg)}70%{transform:rotate(-.4deg)}100%{transform:none}}
+.hero .ly-lamps{animation:switchOn .4s linear 1.2s both}.hero .ov-tower{animation:switchOn .35s linear 1.4s both}
+@keyframes switchOn{0%{opacity:0}35%{opacity:1}55%{opacity:.3}100%{opacity:1}}
+.hero .rise{animation:rise .6s var(--ease) both}.hero .rise:nth-child(1){animation-delay:.35s}.hero .rise:nth-child(2){animation-delay:.42s}.hero .rise:nth-child(3){animation-delay:.49s}.hero .rise:nth-child(4){animation-delay:.56s}
+@keyframes rise{from{opacity:0;transform:translateY(18px)}}
+.hero.paused .stage,.hero.paused .stage *{animation-play-state:paused!important}
+.motion-btn{position:absolute;right:16px;bottom:calc(2.6% + 14px);z-index:2;display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.28);background:rgba(20,10,40,.45);color:#fff;border-radius:999px;padding:7px 13px;font:700 12.5px/1 var(--font);cursor:pointer;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.motion-btn:hover{background:rgba(20,10,40,.7)}.motion-btn::before{content:"❚❚";font-size:10px;letter-spacing:-1px}.motion-btn[aria-pressed=true]::before{content:"▶"}
