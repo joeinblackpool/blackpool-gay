@@ -335,14 +335,22 @@ def hero_scene():
                f'<svg viewBox="{cvx} {cvy} {cvw} {cvh}" aria-hidden="true" focusable="false"><defs><radialGradient id="hpool"><stop offset="0" stop-color="#fff2c8" stop-opacity=".32"/><stop offset="1" stop-color="#fff2c8" stop-opacity="0"/></radialGradient></defs><ellipse cx="417" cy="110" rx="174" ry="15" fill="url(#hpool)"/>{car("h")}</svg></div></div>')
     # Prom walkers: they stroll the same way the car is going, so they drift slowly back as it overtakes them
     # each group is its own small layer inside the moving strip, so a leg swing repaints a few hundred pixels, not the whole strip
-    allg = walkers(); groups = allg[:3] + [(70, bear()), (60, glam())]; spots = [120, 640, 1240, 930, 1560]   # the Posse dances up front instead
-    def pbox(x, w):
-        bx, by, bw, bh = x - 46, 755 - 204, w + 100, 214
-        return (f'<div class="pg" style="left:{bx / 3840 * 100:.4f}%;top:{by / 9:.4f}%;width:{bw / 3840 * 100:.4f}%;height:{bh / 9:.4f}%">'
-                f'<svg viewBox="{bx} {by} {bw} {bh}" preserveAspectRatio="none" aria-hidden="true" focusable="false">')
-    ppl = ''.join(pbox(x + ox, w) + f'<g transform="translate({x + ox} 755) scale(1.02)">{g}</g></svg></div>' for ox in (0, 1920) for x, (w, g) in zip(spots, groups))
-    people_div = (f'<div class="ly ly-people" style="left:0;top:0;width:240%;height:100%"><div class="rl rl-people">'
-                  f'<svg class="pdefs" width="0" height="0" aria-hidden="true" focusable="false"><defs>{WALKER_DEFS}</defs></svg>{ppl}</div></div>')
+    # Prom walkers: each has their own pace and direction, so they cross paths. The pavement slides left at P units/s;
+    # someone walking right at w drifts on screen at w - P, someone walking left at -(w + P). Stride rate follows walking speed.
+    allg = walkers(); P = 92
+    def paced(g, w):
+        return re.sub(r'dur="([\d.]+)s"', lambda m: f'dur="{float(m.group(1)) * 65 / w:.3f}s"', g)
+    cast = [  # (width, group, walking speed, +1 right / -1 left, start fraction, extra depth)
+        (90, allg[0][1], 80, 1, .15, 0), (90, allg[1][1], 55, 1, .55, 0), (110, allg[2][1], 45, 1, .85, 0),
+        (70, bear(), 58, -1, .3, 8), (60, glam(), 82, -1, .7, 8), (44, allg[5][1], 38, -1, .05, 10)]
+    ppl = []
+    for w, g, sp, d, f0, dy in cast:
+        v = d * sp - P; bw, bh = w + 100, 214; dur = (1600 + bw) / abs(v)
+        body = paced(g, sp)
+        if d < 0: body = f'<g transform="translate({w} 0) scale(-1 1)">{body}</g>'
+        ppl.append(f'<div class="pw" style="top:{(551 + dy) / 9:.4f}%;height:{bh / 9:.4f}%;--b:{bw / 16:.4f}%;animation-duration:{dur:.2f}s;animation-delay:-{f0 * dur:.2f}s{";animation-direction:reverse" if v < 0 else ""}">'
+                   f'<div><svg viewBox="-46 -204 {bw} {bh}" preserveAspectRatio="none" aria-hidden="true" focusable="false"><g transform="scale(1.02)">{body}</g></svg></div></div>')
+    people_div = (f'<div class="ly ly-people"><svg class="pdefs" width="0" height="0" aria-hidden="true" focusable="false"><defs>{WALKER_DEFS}</defs></svg>{"".join(ppl)}</div>')
     kerb = '<svg class="kerb" viewBox="0 0 1600 20" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M0 2 Q800 30 1600 2 V20 H0Z" fill="#fff8f3"/></svg>'
     return ('<div class="stage scene" aria-hidden="true">'
             + layer('ly-sky', 1600, sky)
