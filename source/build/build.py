@@ -247,6 +247,15 @@ if FIXED: print('link fixes:', {k: v for k, v in sorted(FIXED.items())})
 def csp(t):
     hs = sorted({"'sha256-" + base64.b64encode(hashlib.sha256(m.encode()).digest()).decode() + "'" for m in re.findall(r'<script>([\s\S]*?)</script>', t)})
     return ("default-src 'self'; script-src 'self' " + ' '.join(hs) + " https://unpkg.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://unpkg.com; img-src 'self' data: https://*.tile.openstreetmap.org https://unpkg.com; connect-src 'self' https://cloudflareinsights.com; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests")
+# cache-bust every asset URL with a content hash so a deploy is picked up at once
+_A = lambda f: open(os.path.join(B, f)).read()
+_V = {k: hashlib.sha256((v if isinstance(v, str) else str(v)).encode()).hexdigest()[:10] for k, v in {
+    '/assets/map.js': _A('map.js'), '/assets/tonight.js': _A('tonight.js'), '/assets/forum.js': _A('forum.js'), '/assets/explore.js': _A('explore.js'),
+    '/assets/site.js': _A('site.js'), '/assets/three-r160.min.js': 'r160', '/assets/world.json': open(os.path.join(D, 'world.json')).read()}.items()}
+def _bust(t):
+    for k, h in _V.items(): t = t.replace(f'"{k}"', f'"{k}?v={h}"').replace(f"'{k}'", f"'{k}?v={h}'")
+    return t
+PAGES = {p: _bust(t) for p, t in PAGES.items()}; NOTFOUND = _bust(NOTFOUND)
 CSPS = {p: csp(t) for p, t in PAGES.items()}; CSPS['/404/'] = csp(NOTFOUND)
 
 URLS = sorted(PAGES, key=lambda u: (u != '/', u.count('/'), u))
